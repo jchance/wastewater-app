@@ -28,10 +28,6 @@
 .hero-bg {
   @apply absolute top-0 left-0 w-full -z-10 object-cover;
 }
-.doc-bg {
-  @apply  h-screen bg-no-repeat absolute top-0 left-0 w-full -z-10 object-cover;
-}
-
 .light-text {
   @apply text-lightmode-text/50 dark:text-text/50 block;
 }
