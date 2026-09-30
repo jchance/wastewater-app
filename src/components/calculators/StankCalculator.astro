@@ -1,0 +1,454 @@
+---
+import { formatNumber } from "@/lib/dosage";
+import { renderSteps } from "@/lib/processControl";
+import {
+  calculateStank,
+  exposureFactors,
+  greaseFactors,
+  modeFields,
+  stankLevels,
+  stankModes,
+  stankSteps,
+  windFactors,
+  type StankInput,
+  type StankMode,
+} from "@/lib/stank";
+import "@/styles/calculator.css";
+
+const initialMode: StankMode = "stank";
+const initial: StankInput = {
+  sniffs: 3,
+  temp: 70,
+  wind: "across",
+  days: 3,
+  trucks: 0,
+  grease: "no",
+  visitors: 0,
+  years: 2,
+  coffee: 1,
+  hours: 8,
+  exposure: "rounds",
+};
+
+const outcome = calculateStank(initialMode, initial);
+const r = outcome.ok ? outcome.result : null;
+const stepsHtml = r ? renderSteps(stankSteps(initialMode, initial, r)) : "";
+const shows = (key: keyof StankInput) =>
+  (Object.keys(modeFields) as StankMode[]).filter((m) => modeFields[m].includes(key)).join(" ");
+const hidden = (key: keyof StankInput) => !modeFields[initialMode].includes(key);
+
+type Field =
+  | { name: keyof StankInput; label: string; unit?: string; hint?: string; options?: undefined; max?: number }
+  | { name: keyof StankInput; label: string; options: Record<string, { label: string }>; hint?: string };
+const fields: Field[] = [
+  { name: "sniffs", label: "Sniff intensity", unit: "sniffs", max: 10, hint: "1 = faint funk. 10 = eyes watering." },
+  { name: "temp", label: "Air temperature", unit: "°F" },
+  { name: "wind", label: "Wind is blowing", options: windFactors },
+  { name: "days", label: "Days since the wet well got cleaned", unit: "days" },
+  { name: "trucks", label: "Septage trucks today", unit: "trucks" },
+  { name: "grease", label: "Grease trap day?", options: greaseFactors },
+  { name: "visitors", label: "Visitors on a tour", unit: "people", hint: "Council members count double. Don't tell them." },
+  { name: "years", label: "Years on the job", unit: "years" },
+  { name: "coffee", label: "Coffee so far today", unit: "cups" },
+  { name: "hours", label: "Hours on shift so far", unit: "hours" },
+  { name: "exposure", label: "Where you spent the day", options: exposureFactors },
+];
+const out = (n: number | undefined, digits?: number) => (n === undefined ? "—" : formatNumber(n, digits));
+const levelRows = stankLevels.map((l, index) => ({
+  ...l,
+  from: index === 0 ? 0 : stankLevels[index - 1].max,
+}));
+---
+
+<section class="calc-page" aria-label="Stank index calculator">
+  <form class="calc" data-stank-calc novalidate>
+    <fieldset class="calc-modes">
+      <legend>What are you smelling for?</legend>
+      {
+        stankModes.map((m) => (
+          <label class="mode-tab">
+            <input type="radio" name="mode" value={m.id} checked={m.id === initialMode} />
+            <span class="mode-short">{m.label}</span>
+            <span class="mode-long">{m.long}</span>
+          </label>
+        ))
+      }
+    </fieldset>
+
+    <fieldset class="calc-inputs">
+      <legend>Your numbers</legend>
+      {
+        fields.map((field) => {
+          const id = `st-${field.name}`;
+          return (
+            <div class="field" data-modes={shows(field.name)} hidden={hidden(field.name)}>
+              <label class="field-label" for={id}>
+                {field.label}
+              </label>
+              <span class="field-input">
+                {field.options ? (
+                  <select id={id} name={field.name}>
+                    {Object.entries(field.options).map(([value, o]) => (
+                      <option value={value} selected={value === initial[field.name]}>
+                        {o.label}
+                      </option>
+                    ))}
+                  </select>
+                ) : (
+                  <>
+                    <input
+                      id={id}
+                      name={field.name}
+                      type="number"
+                      inputmode="decimal"
+                      min={field.name === "temp" ? undefined : field.name === "sniffs" ? 1 : 0}
+                      max={field.max}
+                      step="any"
+                      value={initial[field.name] as number}
+                    />
+                    {field.unit && <span class="unit">{field.unit}</span>}
+                  </>
+                )}
+              </span>
+              {field.hint && <span class="field-hint">{field.hint}</span>}
+            </div>
+          );
+        })
+      }
+      <p class="field-hint field-wide stank-serious" data-modes="noseblind" hidden>
+        <strong>Not a joke:</strong> going nose-blind to rotten eggs is how H₂S kills people. If the smell suddenly
+        disappears, trust your gas monitor, not your nose, and get out.
+      </p>
+    </fieldset>
+
+    <div class="calc-results" aria-live="polite">
+      <p class="calc-error" data-error hidden></p>
+
+      <dl class="result-grid" data-results>
+        <div class="result result-primary" data-modes="stank">
+          <dt>Stank load</dt>
+          <dd><output data-out="stankLb">{out(r?.stankLb)}</output> <span>lb of stank/day</span></dd>
+        </div>
+        <div class="result result-primary stank-level" data-modes="stank" data-level={r?.level}>
+          <dt>Stank level <output data-out="level" data-digits="0">{out(r?.level, 0)}</output> of 6</dt>
+          <dd class="result-text">
+            <output data-text="levelName">{r?.levelName ?? "—"}</output>
+            <small data-text="levelNote">{r?.levelNote}</small>
+          </dd>
+        </div>
+        <div class="result" data-modes="stank">
+          <dt>Stank flow</dt>
+          <dd><output data-out="stankFlow" data-digits="2">{out(r?.stankFlow, 2)}</output> <span>MGD</span></dd>
+        </div>
+        <div class="result" data-modes="stank">
+          <dt>Tour Effect</dt>
+          <dd><output data-out="tour" data-digits="2">{out(r?.tour, 2)}</output> <span>× worse</span></dd>
+        </div>
+
+        <div class="result result-primary" data-modes="noseblind" hidden>
+          <dt>You go nose-blind in</dt>
+          <dd><output data-out="noseBlindMin" data-digits="1">—</output> <span>minutes</span></dd>
+        </div>
+        <div class="result" data-modes="noseblind" hidden>
+          <dt>Your spouse still smells it for</dt>
+          <dd><output data-out="spouseHours" data-digits="1">—</output> <span>hours</span></dd>
+        </div>
+        <div class="result" data-modes="noseblind" hidden>
+          <dt>Veteran factor</dt>
+          <dd><output data-out="veteran" data-digits="2">—</output> <span>× numb</span></dd>
+        </div>
+
+        <div class="result result-primary" data-modes="breakroom" hidden>
+          <dt>Break room clearance</dt>
+          <dd><output data-out="clearanceFt">—</output> <span>ft</span></dd>
+        </div>
+        <div class="result" data-modes="breakroom" hidden>
+          <dt>Where you're eating</dt>
+          <dd class="result-text"><output data-text="lunchSpot">—</output></dd>
+        </div>
+        <div class="result" data-modes="breakroom" hidden>
+          <dt>Showers before hugs</dt>
+          <dd><output data-out="showers" data-digits="0">—</output></dd>
+        </div>
+      </dl>
+    </div>
+  </form>
+
+  <section class="steps" aria-labelledby="steps-heading">
+    <h2 id="steps-heading">Your numbers, step by step</h2>
+    <ol class="step-list" data-steps set:html={stepsHtml} />
+  </section>
+
+  <section class="prose" aria-labelledby="how-heading">
+    <h2 id="how-heading">Why it works</h2>
+    <p>
+      It doesn't. But it looks exactly like the real math, which is the point. The Stank Index runs on the
+      same pounds formula as the <a href="/operator-math/davidson-pie-chart/">Davidson pie chart</a>: something ×
+      8.34 × flow. Here the something is sniffs and the flow is <strong>Million Gallons of Dookie</strong>,
+      which is every bad decision of the day multiplied together.
+    </p>
+    <ul class="checks">
+      <li>
+        <strong>Heat</strong> makes everything worse. Every 40°F over 60 doubles it, which is why August smells
+        like a sumo wrestler's jockstrap.
+      </li>
+      <li>
+        <strong>Wind</strong> only ever blows toward the office when the director is in. Dead calm is worse than
+        a crosswind because the stank just parks on top of you and gets comfortable.
+      </li>
+      <li>
+        <strong>Crud</strong> grows a little every day nobody cleans the wet well. After a week it's twice as bad
+        and has opinions.
+      </li>
+      <li>
+        <strong>Septage trucks</strong> add half again each. The driver will tell you it's "mostly water." The
+        driver is a liar.
+      </li>
+      <li>
+        <strong>The Tour Effect</strong> is the best-documented phenomenon in wastewater. Nothing smells until
+        ten people in nice shoes show up, and then everything does.
+      </li>
+    </ul>
+    <p>
+      Nose-blind time works backwards: the longer you've been in, the faster your nose clocks out. A new hire
+      gets twenty minutes of pure suffering. A twenty-year guy is fine before he's out of the truck, and has no
+      idea why his wife makes him change in the garage.
+    </p>
+  </section>
+
+  <section class="prose" aria-labelledby="example-heading">
+    <h2 id="example-heading">Example: August, two honey wagons and a city council tour</h2>
+    <p>
+      It's <strong>94°F</strong> and the wind is blowing <strong>straight at the office</strong>.
+      Nobody has touched the wet well in <strong>10 days</strong> because the vac truck is "coming Tuesday." <strong>Two septage trucks</strong> dumped before lunch, it's <strong>grease trap day</strong>, and the
+      boss just walked <strong>eight council members</strong> through the headworks. The guy on screenings
+      rates it a <strong>7</strong> and is breathing through his mouth.
+    </p>
+    <ul class="example-math">
+      <li>Heat: 1 + (94 − 60) ÷ 40 = <b>1.85</b></li>
+      <li>Wind at the office = <b>2</b>, crud: 1 + 10 ÷ 7 = <b>2.43</b></li>
+      <li>Trucks: 1 + 2 × 0.5 = <b>2</b>, grease = <b>1.5</b>, Tour Effect: 1 + 8 ÷ 10 = <b>1.8</b></li>
+      <li>Stank flow: 1.85 × 2 × 2.43 × 2 × 1.5 × 1.8 = <b>48.52 MGD</b></li>
+      <li>7 sniffs × 8.34 × 48.52 = <b>2,833 lb of stank/day</b></li>
+      <li>Level 6: <b>Holy Shit, Burn Your Clothes</b></li>
+    </ul>
+    <p>
+      For the record, a normal day at 70°F with a crosswind comes out around 45 lb/day, right in Smells Like Money territory.
+      The tour alone took this from bad to catastrophic. Schedule tours for January.
+    </p>
+    <button type="button" class="load-example" data-load-example>
+      Put this example in the calculator
+    </button>
+  </section>
+
+  <section class="prose" aria-labelledby="sanity-heading">
+    <h2 id="sanity-heading">Does the stank look reasonable?</h2>
+    <p>
+      Every plant has its own normal funk. Use these levels to back up your complaint to the supervisor, not to
+      win it. You won't win it.
+    </p>
+    <div class="sanity-wrap">
+      <table class="sanity">
+        <thead>
+          <tr>
+            <th scope="col">Level</th>
+            <th scope="col">Name</th>
+            <th scope="col">lb of stank/day</th>
+            <th scope="col">What it means</th>
+          </tr>
+        </thead>
+        <tbody>
+          {
+            levelRows.map((l, index) => (
+              <tr>
+                <th scope="row" data-label="Level">{index + 1}</th>
+                <td data-label="Name">{l.name}</td>
+                <td data-label="lb of stank/day">
+                  {Number.isFinite(l.max)
+                    ? `${formatNumber(l.from)}–${formatNumber(l.max)}`
+                    : `${formatNumber(l.from)}+`}
+                </td>
+                <td data-label="What it means">{l.note}</td>
+              </tr>
+            ))
+          }
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section class="prose" aria-labelledby="checks-heading">
+    <h2 id="checks-heading">Before you walk into the break room</h2>
+    <ul class="checks">
+      <li>
+        <strong>Boots off at the door.</strong> Whatever you stepped in at the bar screen is now on the carpet,
+        and the office manager knows it was you.
+      </li>
+      <li>
+        <strong>Check your sleeves.</strong> That's not mud. You know it's not mud.
+      </li>
+      <li>
+        <strong>Wash your damn hands.</strong> Twice. Before the sandwich, not after.
+      </li>
+      <li>
+        <strong>Don't microwave fish.</strong> You work at a sewer plant and that's still the worst smell in the
+        building.
+      </li>
+      <li>
+        <strong>Sniff test a buddy.</strong> You're nose-blind. He's nose-blind. Find the new guy and ask him.
+      </li>
+    </ul>
+    <p class="disclaimer stank-disclaimer">
+      <strong>Straight talk:</strong> everything above is made up and exists for morale only. Sewer gas is not.
+      Hydrogen sulfide kills operators every year, and it shuts off your sense of smell at dangerous levels, so a
+      smell that suddenly goes away is a reason to leave, not relax. Wear your gas monitor, follow your
+      confined space permit, and never go into a wet well, manhole or tank without testing the air and having
+      an attendant up top. Follow OSHA rules and your department's SOPs every time, no shortcuts.
+    </p>
+  </section>
+</section>
+
+<style>
+  .field-input:has(> select:only-child) {
+    min-height: calc(2.75rem + 2px);
+    box-sizing: border-box;
+  }
+  .field-input > select:only-child {
+    flex: 1;
+    width: 100%;
+    padding: 0 0.6rem;
+    cursor: pointer;
+    outline: none;
+  }
+  .result-text output {
+    display: block;
+    font-size: 1.35rem;
+    line-height: 1.2;
+  }
+  .result-primary .result-text output {
+    font-size: 1.75rem;
+  }
+  .result-text small {
+    display: block;
+    margin-top: 0.4rem;
+    color: var(--muted);
+    font-size: 0.85rem;
+    font-weight: 600;
+    letter-spacing: 0;
+    line-height: 1.4;
+  }
+  .stank-level[data-level="5"],
+  .stank-level[data-level="6"] {
+    border-color: var(--fg-coral);
+    background: color-mix(in srgb, var(--fg-coral) 10%, var(--fg-paper));
+  }
+  .stank-level[data-level="5"] :is(dt, small),
+  .stank-level[data-level="6"] :is(dt, small) {
+    color: var(--ink);
+  }
+  .calc-page .stank-serious,
+  .calc-page .stank-disclaimer {
+    padding: 0.75rem 0.9rem;
+    border: 1px solid var(--fg-coral);
+    border-radius: 0.6rem;
+    background: color-mix(in srgb, var(--fg-coral) 8%, transparent);
+    color: var(--ink);
+  }
+</style>
+
+<script>
+  import { formatNumber } from "@/lib/dosage";
+  import { renderSteps } from "@/lib/processControl";
+  import { calculateStank, stankSteps, type StankInput, type StankMode } from "@/lib/stank";
+
+  const example: Record<string, string> = {
+    mode: "stank",
+    sniffs: "7",
+    temp: "94",
+    wind: "office",
+    days: "10",
+    trucks: "2",
+    grease: "yes",
+    visitors: "8",
+  };
+
+  function bind() {
+    const form = document.querySelector<HTMLFormElement>("[data-stank-calc]");
+    if (!form || form.dataset.bound) return;
+    form.dataset.bound = "true";
+
+    const el = <T extends Element>(name: string) => form.elements.namedItem(name) as unknown as T;
+    const num = (name: string) => {
+      const raw = el<HTMLInputElement>(name).value.trim();
+      return raw === "" ? NaN : Number(raw);
+    };
+    const str = (name: string) => el<HTMLSelectElement>(name).value;
+    const error = form.querySelector<HTMLElement>("[data-error]")!;
+    const results = form.querySelector<HTMLElement>("[data-results]")!;
+    const levelCard = results.querySelector<HTMLElement>(".stank-level")!;
+    const steps = document.querySelector<HTMLElement>("[data-steps]")!;
+
+    function update() {
+      const mode = (form!.querySelector<HTMLInputElement>('input[name="mode"]:checked')?.value ??
+        "stank") as StankMode;
+      for (const node of form!.querySelectorAll<HTMLElement>("[data-modes]")) {
+        node.hidden = !node.dataset.modes!.split(" ").includes(mode);
+      }
+
+      const input: StankInput = {
+        sniffs: num("sniffs"),
+        temp: num("temp"),
+        wind: str("wind") as StankInput["wind"],
+        days: num("days"),
+        trucks: num("trucks"),
+        grease: str("grease") as StankInput["grease"],
+        visitors: num("visitors"),
+        years: num("years"),
+        coffee: num("coffee"),
+        hours: num("hours"),
+        exposure: str("exposure") as StankInput["exposure"],
+      };
+      const outcome = calculateStank(mode, input);
+
+      error.hidden = outcome.ok;
+      results.classList.toggle("is-stale", !outcome.ok);
+      steps.classList.toggle("is-stale", !outcome.ok);
+      if (!outcome.ok) {
+        error.textContent = outcome.message;
+        return;
+      }
+
+      const r = outcome.result;
+      for (const out of results.querySelectorAll<HTMLOutputElement>("[data-out]")) {
+        const digits = out.dataset.digits ? Number(out.dataset.digits) : undefined;
+        out.value = formatNumber(r[out.dataset.out as keyof typeof r] as number, digits);
+      }
+      for (const node of results.querySelectorAll<HTMLElement>("[data-text]")) {
+        node.textContent = String(r[node.dataset.text as keyof typeof r]);
+      }
+      levelCard.dataset.level = String(r.level);
+      steps.innerHTML = renderSteps(stankSteps(mode, input, r));
+    }
+
+    form.addEventListener("input", update);
+    form.addEventListener("change", update);
+    form.addEventListener("submit", (e) => e.preventDefault());
+
+    document.querySelector("[data-load-example]")?.addEventListener("click", () => {
+      for (const [name, value] of Object.entries(example)) {
+        if (name === "mode") {
+          form.querySelector<HTMLInputElement>(`input[name="mode"][value="${value}"]`)!.checked = true;
+        } else {
+          el<HTMLInputElement>(name).value = value;
+        }
+      }
+      update();
+      form.scrollIntoView({ behavior: "smooth", block: "start" });
+    });
+
+    update();
+  }
+
+  bind();
+  document.addEventListener("astro:page-load", bind);
+</script>

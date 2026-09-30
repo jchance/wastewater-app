@@ -1,0 +1,189 @@
+---
+
+---
+
+<section class="om-reference adjust" aria-label="Adjusting the pie chart result">
+  <fieldset class="om-tabs">
+    <legend>Choose an adjustment</legend>
+
+    <input class="om-radio" type="radio" name="adjust-tab" id="adjust-demand" checked />
+    <label class="om-tab" for="adjust-demand">
+      <span class="om-tab-number">1</span><span>Demand</span>
+    </label>
+
+    <input class="om-radio" type="radio" name="adjust-tab" id="adjust-strength" />
+    <label class="om-tab" for="adjust-strength">
+      <span class="om-tab-number">2</span><span>Strength</span>
+    </label>
+
+    <input class="om-radio" type="radio" name="adjust-tab" id="adjust-stacked" />
+    <label class="om-tab" for="adjust-stacked">
+      <span class="om-tab-number">3</span><span>Two multipliers</span>
+    </label>
+
+    <div class="om-panel" data-tab="demand">
+      <div class="om-block">
+        <h2>Demand = dose &minus; residual</h2>
+        <p>
+          The chlorine that got <strong>used up</strong> &mdash; eaten by iron,
+          ammonia and organics &mdash; before anything was left over to measure.
+          Adjust this <strong>before</strong> the chart, on the way in.
+        </p>
+
+        <div class="om-scenario">
+          <span class="om-scenario-label">END OF SHIFT</span>
+          <p>
+            Your feed is set for <strong>3.0 mg/L</strong> into <strong>1.0 MGD</strong>. Post-contact residual reads <strong>0.5 mg/L</strong>. The water ate the difference.
+          </p>
+        </div>
+
+        <div class="om-equation" aria-label="3.0 minus 0.5 equals 2.5 milligrams per liter of demand">
+          <div class="om-card"><strong>3.0</strong><span>DOSE<br />FED</span></div>
+          <span class="om-op" aria-hidden="true">&minus;</span>
+          <div class="om-card is-subtracted"><strong>0.5</strong><span>RESIDUAL<br />LEFT</span></div>
+          <span class="om-op is-equals" aria-hidden="true">=</span>
+          <div class="om-card is-result"><strong>2.5</strong><span>MG/L<br />DEMAND</span></div>
+        </div>
+
+        <p>Now run that through the chart:</p>
+
+        <div class="om-equation" aria-label="2.5 times 8.34 times 1.0 equals 21 pounds per day">
+          <div class="om-card"><strong>2.5</strong><span>DEMAND<br />MG/L</span></div>
+          <span class="om-op" aria-hidden="true">&times;</span>
+          <div class="om-card is-conversion"><strong>8.34</strong><span>LB PER<br />GALLON</span></div>
+          <span class="om-op" aria-hidden="true">&times;</span>
+          <div class="om-card"><strong>1.0</strong><span>FLOW<br />MGD</span></div>
+          <span class="om-op is-equals" aria-hidden="true">=</span>
+          <div class="om-card is-result"><strong>21</strong><span>LB/DAY CONSUMED</span></div>
+        </div>
+
+        <div class="om-note is-watch">
+          <span class="om-note-label">WATCH THIS NUMBER</span>
+          <p>
+            Demand is a <strong>water quality signal</strong>, not just
+            bookkeeping. Track it shift to shift. If demand climbs while your
+            flow holds steady, something upstream changed &mdash; a slug of
+            ammonia, iron breaking through, a line that got stirred up.
+          </p>
+          <p>
+            Feeding <strong>3.0</strong> and consuming <strong>2.5</strong> is
+            different from feeding 3.0 and consuming 1.0. Same feed rate on the
+            invoice; very different plant.
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <div class="om-panel" data-tab="strength">
+      <div class="om-block">
+        <h2>Your chemical is not pure</h2>
+        <p>
+          The chart tells you the pounds of <strong>chlorine</strong> you need.
+          It does not tell you how much <strong>product</strong> to pump. Adjust
+          this <strong>after</strong> the chart, on the way out.
+        </p>
+
+        <div class="om-scenario">
+          <span class="om-scenario-label">SIZING THE DAY TANK</span>
+          <p>
+            You need <strong>25 lb/day</strong> of chlorine. What is in the tote
+            is <strong>12.5% sodium hypochlorite</strong>. How much liquid
+            actually has to move?
+          </p>
+        </div>
+
+        <p>
+          Hypochlorite is only 12.5&#37; chlorine &mdash; the rest is water and
+          caustic. Divide by the decimal to get pounds of product:
+        </p>
+
+        <p class="om-inline-math">25 &divide; 0.125 = <b>200 lb/day of solution</b></p>
+
+        <div class="om-note is-check">
+          <span class="om-note-label">DOES IT MAKE SENSE?</span>
+          <p>
+            Weaker product means you feed <strong>more</strong> of it. Eight
+            times the weight here. If your answer came out <strong>smaller</strong> than the pounds of chlorine, you multiplied
+            when you should have divided.
+          </p>
+        </div>
+
+        <div class="om-note is-watch">
+          <span class="om-note-label">ON THE FLOOR</span>
+          <p>
+            Size pumps, day tanks and delivery schedules against the <strong>200</strong>, never the 25. This is also why hypo plants run
+            out faster than the chlorine numbers suggest &mdash; and why
+            hypo that has been sitting all summer no longer feeds at label
+            strength.
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <div class="om-panel" data-tab="stacked">
+      <div class="om-block">
+        <h2>Two multipliers stacked</h2>
+        <p>
+          Same rule as strength &mdash; it just runs twice. Some products are
+          rated on <strong>purity</strong> and again on how much of the useful
+          ion they carry.
+        </p>
+
+        <div class="om-scenario">
+          <span class="om-scenario-label">FLUORIDE FEED</span>
+          <p>
+            You are holding <strong>0.8 mg/L</strong> fluoride in <strong>3.0 MGD</strong> using sodium fluorosilicate &mdash; <strong>98.5% pure</strong>, <strong>60.6% available fluoride</strong>.
+          </p>
+        </div>
+
+        <p class="om-steps">STEP 1 &mdash; POUNDS OF FLUORIDE YOU ACTUALLY NEED</p>
+
+        <div class="om-equation" aria-label="0.8 times 8.34 times 3.0 equals 20 pounds per day of fluoride">
+          <div class="om-card"><strong>0.8</strong><span>DOSE<br />MG/L</span></div>
+          <span class="om-op" aria-hidden="true">&times;</span>
+          <div class="om-card is-conversion"><strong>8.34</strong><span>LB PER<br />GALLON</span></div>
+          <span class="om-op" aria-hidden="true">&times;</span>
+          <div class="om-card"><strong>3.0</strong><span>FLOW<br />MGD</span></div>
+          <span class="om-op is-equals" aria-hidden="true">=</span>
+          <div class="om-card is-result"><strong>20.0</strong><span>LB/DAY FLUORIDE</span></div>
+        </div>
+
+        <p class="om-steps">STEP 2 &mdash; DIVIDE BY WHAT FRACTION IS REALLY FLUORIDE</p>
+
+        <div class="om-equation" aria-label="20 divided by the quantity 0.985 times 0.606 equals 33.5 pounds per day of product">
+          <div class="om-card"><strong>20.0</strong><span>LB/DAY<br />NEEDED</span></div>
+          <span class="om-op is-divide" aria-hidden="true">&divide;</span>
+          <div class="om-group">
+            <div class="om-card"><strong>0.985</strong><span>PURITY</span></div>
+            <span class="om-op" aria-hidden="true">&times;</span>
+            <div class="om-card"><strong>0.606</strong><span>AVAILABLE<br />FLUORIDE</span></div>
+          </div>
+          <span class="om-op is-equals" aria-hidden="true">=</span>
+          <div class="om-card is-result"><strong>33.5</strong><span>LB/DAY PRODUCT</span></div>
+        </div>
+
+        <div class="om-note is-check">
+          <span class="om-note-label">THE RULE NEVER CHANGES</span>
+          <p>
+            One divisor or two, you always feed <strong>more product</strong> than pure chemical. The answer must come out larger than the pounds
+            you needed. Here: 20.0 needed, 33.5 fed.
+          </p>
+        </div>
+      </div>
+    </div>
+  </fieldset>
+</section>
+
+<style>
+  /* Tab switching stays CSS-only so the page works before hydration. */
+  .adjust #adjust-demand:checked ~ .om-panel[data-tab="demand"],
+  .adjust #adjust-strength:checked ~ .om-panel[data-tab="strength"],
+  .adjust #adjust-stacked:checked ~ .om-panel[data-tab="stacked"] {
+    display: block;
+    animation: om-panel-enter 260ms cubic-bezier(0.16, 1, 0.3, 1) both;
+  }
+
+  .adjust .om-panel {
+    width: 100%;
+  }
+</style>

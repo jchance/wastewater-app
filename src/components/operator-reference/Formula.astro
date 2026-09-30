@@ -1,0 +1,261 @@
+---
+import type { Formula } from "../../data/formulas";
+
+interface Props {
+  formula: Formula;
+  wheelBase?: string;
+}
+
+const { formula, wheelBase = "/operator-reference/pie-wheels/" } = Astro.props;
+
+const searchText = [
+  formula.name,
+  ...(formula.keywords ?? []),
+  ...formula.variants.flatMap((v) => [
+    v.result,
+    v.label ?? "",
+    v.expr.raw ?? "",
+    ...(v.expr.num ?? []),
+    ...(v.expr.den ?? []),
+  ]),
+]
+  .join(" ")
+  .toLowerCase();
+---
+
+<article class="or-formula" id={formula.id} data-search={searchText}>
+  <header class="or-formula-head">
+    <h3>{formula.name}</h3>
+    {
+      formula.pieWheel && (
+        <a class="wheel-link" href={`${wheelBase}#${formula.pieWheel}`}>
+          <span aria-hidden="true">◑</span> Pie wheel
+        </a>
+      )
+    }
+  </header>
+
+  {
+    formula.variants.map((v) => (
+      <div class="variant">
+        {v.label && <span class="variant-label">{v.label}</span>}
+
+        <div class="eq">
+          <span class="lhs">{v.result}</span>
+          <span class="eq-sign" aria-hidden="true">
+            =
+          </span>
+
+          {v.expr.raw ? (
+            <span class="raw">{v.expr.raw}</span>
+          ) : v.expr.den ? (
+            <span class="frac">
+              <span class="terms">
+                {(v.expr.num ?? []).map((t, i) => (
+                  <>
+                    {i > 0 && (
+                      <span class="times" aria-hidden="true">
+                        ×
+                      </span>
+                    )}
+                    <span class="term">{t}</span>
+                  </>
+                ))}
+              </span>
+              <span class="bar" />
+              <span class="terms">
+                {(v.expr.den ?? []).map((t, i) => (
+                  <>
+                    {i > 0 && (
+                      <span class="times" aria-hidden="true">
+                        ×
+                      </span>
+                    )}
+                    <span class="term">{t}</span>
+                  </>
+                ))}
+              </span>
+            </span>
+          ) : (
+            <span class="terms">
+              {(v.expr.num ?? []).map((t, i) => (
+                <>
+                  {i > 0 && (
+                    <span class="times" aria-hidden="true">
+                      ×
+                    </span>
+                  )}
+                  <span class="term">{t}</span>
+                </>
+              ))}
+            </span>
+          )}
+
+          {v.expr.suffix && <span class="suffix">{v.expr.suffix}</span>}
+        </div>
+
+        {v.note && <p class="variant-note">{v.note}</p>}
+      </div>
+    ))
+  }
+
+  {formula.note && <p class="formula-note">{formula.note}</p>}
+</article>
+
+<style>
+  .or-formula {
+    --line: var(--fg-line);
+    --ink: var(--fg-ink);
+    --muted: var(--fg-muted);
+
+    padding: clamp(0.9rem, 2.5vw, 1.25rem);
+    border: 1px solid var(--line);
+    border-radius: 0.85rem;
+    background: var(--fg-paper);
+    color: var(--ink);
+    font-family: var(--fg-font);
+    scroll-margin-top: 5rem;
+  }
+
+  .or-formula[hidden] {
+    display: none;
+  }
+
+  .or-formula-head {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 0.5rem 1rem;
+    margin-bottom: 0.85rem;
+  }
+
+  .or-formula h3 {
+    margin: 0;
+    color: var(--ink);
+    font-size: 1.02rem;
+    font-weight: 750;
+    letter-spacing: -0.015em;
+    line-height: 1.3;
+  }
+
+  .wheel-link {
+    flex: none;
+    padding: 0.2rem 0.55rem;
+    border: 1px solid color-mix(in srgb, var(--fg-teal) 40%, transparent);
+    border-radius: 999px;
+    color: var(--fg-teal);
+    font-size: 0.74rem;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+    text-decoration: none;
+    white-space: nowrap;
+  }
+
+  .wheel-link:hover {
+    background: color-mix(in srgb, var(--fg-teal) 10%, transparent);
+  }
+
+  .wheel-link:focus-visible {
+    outline: 2px solid var(--fg-teal);
+    outline-offset: 2px;
+  }
+
+  .variant + .variant {
+    margin-top: 1rem;
+    padding-top: 1rem;
+    border-top: 1px dashed var(--line);
+  }
+
+  .variant-label {
+    display: inline-block;
+    margin-bottom: 0.5rem;
+    color: var(--muted);
+    font-size: 0.68rem;
+    font-weight: 800;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+  }
+
+  .eq {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.4rem 0.55rem;
+    min-width: 0;
+  }
+
+  .lhs {
+    font-size: 0.92rem;
+    font-weight: 700;
+  }
+
+  .eq-sign {
+    color: var(--muted);
+    font-size: 1.05rem;
+    font-weight: 700;
+  }
+
+  .terms {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+    gap: 0.3rem 0.35rem;
+    min-width: 0;
+  }
+
+  .term {
+    padding: 0.18rem 0.45rem;
+    border: 1px solid var(--line);
+    border-radius: 0.4rem;
+    background: color-mix(in srgb, var(--fg-teal) 6%, transparent);
+    font-size: 0.85rem;
+    font-weight: 600;
+    line-height: 1.35;
+    text-wrap: balance;
+  }
+
+  .times {
+    color: var(--muted);
+    font-size: 0.8rem;
+    font-weight: 700;
+  }
+
+  /* The fraction stacks, so long numerators wrap instead of overflowing. */
+  .frac {
+    display: inline-flex;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.3rem;
+    min-width: 0;
+    max-width: 100%;
+  }
+
+  .bar {
+    height: 2px;
+    border-radius: 2px;
+    background: currentColor;
+    opacity: 0.55;
+  }
+
+  .raw {
+    font-size: 0.85rem;
+    font-weight: 600;
+    line-height: 1.6;
+    overflow-wrap: anywhere;
+  }
+
+  .suffix {
+    font-size: 0.88rem;
+    font-weight: 700;
+  }
+
+  .variant-note,
+  .formula-note {
+    margin: 0.7rem 0 0;
+    color: var(--muted);
+    font-size: 0.8rem;
+    line-height: 1.5;
+  }
+</style>

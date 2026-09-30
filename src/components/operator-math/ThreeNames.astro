@@ -1,0 +1,150 @@
+---
+import PieFigure from "./PieFigure.astro";
+---
+
+<section class="om-reference" aria-label="Feed rate, loading rate and mass">
+  <div class="om-block">
+    <h2>The middle slot decides</h2>
+    <div class="om-table-wrap">
+      <table class="om-table">
+        <thead>
+          <tr>
+            <th scope="col">On your sheet</th>
+            <th scope="col">What you have</th>
+            <th scope="col">What you get</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>
+              <span class="om-row-name">Feed Rate</span>
+              <span class="om-row-sub">You are adding a chemical</span>
+            </td>
+            <td>a <strong>dose</strong> and a <strong>flow</strong> in MGD</td>
+            <td class="om-row-out">pounds per day</td>
+          </tr>
+          <tr>
+            <td>
+              <span class="om-row-name">Loading Rate</span>
+              <span class="om-row-sub">Something is coming at you</span>
+            </td>
+            <td>a <strong>concentration</strong> and a <strong>flow</strong> in MGD</td>
+            <td class="om-row-out">pounds per day</td>
+          </tr>
+          <tr>
+            <td>
+              <span class="om-row-name">Mass</span>
+              <span class="om-row-sub">Something is sitting in a tank</span>
+            </td>
+            <td>a <strong>concentration</strong> and a <strong>volume</strong> in MG</td>
+            <td class="om-row-out is-total">pounds, total</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="om-note is-check">
+      <span class="om-note-label">THE TELL</span>
+      <p>
+        Look at the middle number. A <strong>flow</strong> moving past you gives
+        a rate &mdash; pounds <strong>per day</strong>. A <strong>tank volume</strong> sitting still gives a total &mdash; just <strong>pounds</strong>.
+      </p>
+    </div>
+  </div>
+
+  <div class="om-block">
+    <h2>On shift</h2>
+
+    <div class="om-split">
+      <div class="om-panel-card">
+        <span class="om-badge" aria-hidden="true">1</span>
+        <h3>Feed rate &mdash; you are adding it</h3>
+        <div class="om-scenario">
+          <span class="om-scenario-label">AT THE PANEL</span>
+          <p>
+            You are carrying <strong>2.0 mg/L</strong> of chlorine into <strong>0.5 MGD</strong>. How much chlorine leaves the day tank?
+          </p>
+        </div>
+        <div class="om-equation" aria-label="2.0 times 8.34 times 0.5 equals 8.3 pounds per day">
+          <div class="om-card"><strong>2.0</strong><span>DOSE<br />MG/L</span></div>
+          <span class="om-op" aria-hidden="true">&times;</span>
+          <div class="om-card is-conversion"><strong>8.34</strong><span>LB PER<br />GALLON</span></div>
+          <span class="om-op" aria-hidden="true">&times;</span>
+          <div class="om-card"><strong>0.5</strong><span>FLOW<br />MGD</span></div>
+          <span class="om-op is-equals" aria-hidden="true">=</span>
+          <div class="om-card is-result"><strong>8.3</strong><span>LB/DAY</span></div>
+        </div>
+        <p>
+          That is the number you order against and the number your day tank has
+          to keep up with.
+        </p>
+      </div>
+
+      <div class="om-panel-card">
+        <span class="om-badge is-blue" aria-hidden="true">2</span>
+        <h3>Loading rate &mdash; it is coming at you</h3>
+        <div class="om-scenario">
+          <span class="om-scenario-label">FROM THE LAB SHEET</span>
+          <p>
+            Influent BOD came back at <strong>180 mg/L</strong> and the plant is
+            taking <strong>2.0 MGD</strong>. How much BOD is the plant actually
+            being asked to treat?
+          </p>
+        </div>
+        <div class="om-equation" aria-label="180 times 8.34 times 2.0 equals 3002 pounds per day">
+          <div class="om-card"><strong>180</strong><span>BOD<br />MG/L</span></div>
+          <span class="om-op" aria-hidden="true">&times;</span>
+          <div class="om-card is-conversion"><strong>8.34</strong><span>LB PER<br />GALLON</span></div>
+          <span class="om-op" aria-hidden="true">&times;</span>
+          <div class="om-card"><strong>2.0</strong><span>FLOW<br />MGD</span></div>
+          <span class="om-op is-equals" aria-hidden="true">=</span>
+          <div class="om-card is-result"><strong>3,000</strong><span>LB/DAY BOD</span></div>
+        </div>
+        <p>
+          Same arithmetic as the feed rate. Nobody dosed anything &mdash; this is
+          what showed up at the headworks.
+        </p>
+      </div>
+    </div>
+
+    <div class="om-panel-card">
+      <span class="om-badge" aria-hidden="true">3</span>
+      <h3>Mass &mdash; it is sitting in the tank</h3>
+      <div class="om-split" style="margin-bottom: 0;">
+        <div>
+          <div class="om-scenario">
+            <span class="om-scenario-label">WALKING THE AERATION BASIN</span>
+            <p>
+              Your basin holds <strong>0.75 MG</strong> and the mixed liquor is
+              running <strong>2,400 mg/L</strong>. How many pounds of solids are
+              under you right now?
+            </p>
+          </div>
+          <div class="om-equation" aria-label="2400 times 8.34 times 0.75 equals 15000 pounds">
+            <div class="om-card"><strong>2,400</strong><span>MLSS<br />MG/L</span></div>
+            <span class="om-op" aria-hidden="true">&times;</span>
+            <div class="om-card is-conversion"><strong>8.34</strong><span>LB PER<br />GALLON</span></div>
+            <span class="om-op" aria-hidden="true">&times;</span>
+            <div class="om-card"><strong>0.75</strong><span>VOLUME<br />MG</span></div>
+            <span class="om-op is-equals" aria-hidden="true">=</span>
+            <div class="om-card is-result"><strong>15,000</strong><span>LB SOLIDS</span></div>
+          </div>
+          <p>
+            No <em>per day</em> on the end. This is inventory &mdash; the pounds
+            you are holding. It is the starting point for wasting decisions and
+            for sludge age.
+          </p>
+        </div>
+        <PieFigure highlight="feed" />
+      </div>
+    </div>
+  </div>
+
+  <div class="om-note">
+    <p>
+      <strong>Why 8.34?</strong> It is the weight of one gallon of water in
+      pounds. It is what lets you turn a concentration in mg/L into pounds,
+      which is the only unit a pump, a scale or a purchase order understands.
+    </p>
+  </div>
+</section>

@@ -1,0 +1,134 @@
+---
+import { pieWheelRules, pieWheels } from "../../data/pie-wheels";
+import { formulas } from "../../data/formulas";
+import PieWheel from "./PieWheel.astro";
+
+const formulaName = (id: string) => formulas.find((f) => f.id === id)?.name ?? id;
+---
+
+<section class="or-page" aria-label="Pie wheels">
+  <div class="rules">
+    <p class="rules-label">How to read a wheel</p>
+    <ul>
+      {pieWheelRules.map((rule) => <li>{rule}</li>)}
+    </ul>
+  </div>
+
+  <div class="wheel-grid">
+    {
+      pieWheels.map((wheel) => (
+        <article class="wheel-card">
+          <h2 id={`${wheel.id}-title`}>{wheel.name}</h2>
+          <PieWheel wheel={wheel} />
+          <p class="wheel-links">
+            {wheel.formulaIds.map((id) => (
+              <a href={`/operator-reference/formulas/#${id}`}>
+                {formulaName(id)} formula <span aria-hidden="true">↗</span>
+              </a>
+            ))}
+          </p>
+        </article>
+      ))
+    }
+  </div>
+</section>
+
+<style>
+  .or-page {
+    --ink: var(--fg-ink);
+    --muted: var(--fg-muted);
+    --line: var(--fg-line);
+
+    max-width: 68rem;
+    margin: 0 auto;
+    padding: clamp(1rem, 3vw, 2rem) clamp(1rem, 3vw, 2rem) 3rem;
+    color: var(--ink);
+    font-family: var(--fg-font);
+  }
+
+
+
+
+  .rules {
+    margin-bottom: 2rem;
+    padding: clamp(0.9rem, 2.5vw, 1.25rem);
+    border: 1px solid var(--line);
+    border-radius: 0.85rem;
+    background: color-mix(in srgb, var(--fg-teal) 6%, var(--fg-paper));
+  }
+
+  .rules-label {
+    margin: 0 0 0.6rem;
+    color: var(--fg-teal-dark);
+    font-size: 0.7rem;
+    font-weight: 800;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+  }
+
+  .rules ul {
+    margin: 0;
+    padding-left: 1.1rem;
+    color: var(--ink);
+    font-size: 0.9rem;
+    line-height: 1.6;
+  }
+
+  .rules li + li {
+    margin-top: 0.4rem;
+  }
+
+  .wheel-grid > :global(*) {
+    /* Starlight's markdown flow adds margin-top to every sibling, which staggers grid rows. */
+    margin-top: 0;
+  }
+
+  .wheel-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 19rem), 1fr));
+    gap: 1rem;
+  }
+
+  .wheel-card {
+    display: grid;
+    gap: 0.75rem;
+    align-content: start;
+    padding: clamp(0.9rem, 2.5vw, 1.25rem);
+    border: 1px solid var(--line);
+    border-radius: 0.85rem;
+    background: var(--fg-paper);
+  }
+
+  .wheel-card h2 {
+    margin: 0;
+    color: var(--ink);
+    font-size: 1rem;
+    font-weight: 750;
+    letter-spacing: -0.015em;
+    line-height: 1.3;
+    text-align: center;
+  }
+
+  .wheel-links {
+    display: grid;
+    gap: 0.3rem;
+    margin: 0;
+    text-align: center;
+  }
+
+  .wheel-links a {
+    color: var(--fg-teal);
+    font-size: 0.8rem;
+    font-weight: 650;
+    text-decoration: none;
+  }
+
+  .wheel-links a:hover {
+    text-decoration: underline;
+  }
+
+  .wheel-links a:focus-visible {
+    outline: 2px solid var(--fg-teal);
+    outline-offset: 2px;
+  }
+</style>

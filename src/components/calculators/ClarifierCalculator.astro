@@ -1,0 +1,567 @@
+---
+import { flowUnits, formatNumber } from "@/lib/dosage";
+import {
+  activeFields,
+  calculateClarifier,
+  clarifierModes,
+  clarifierSteps,
+  rangeNote,
+  showsSlr,
+  tankTypes,
+  type ClarifierInput,
+  type ClarifierMode,
+  type Metric,
+} from "@/lib/clarifier";
+import { renderSteps } from "@/lib/processControl";
+import "@/styles/calculator.css";
+
+const initialMode: ClarifierMode = "all";
+const initial: ClarifierInput = {
+  shape: "circular",
+  diameter: 60,
+  length: 100,
+  width: 20,
+  depth: 12,
+  units: 2,
+  clarifierType: "secondary",
+  dtTank: "secondary",
+  basis: "average",
+  flow: 3.2,
+  flowUnit: "mgd",
+  weirLength: NaN,
+  ras: 1.6,
+  rasUnit: "mgd",
+  mlss: 3000,
+};
+
+const outcome = calculateClarifier(initialMode, initial);
+const r = outcome.ok ? outcome.result : null;
+const stepsHtml = r ? renderSteps(clarifierSteps(initialMode, initial, r)) : "";
+const active = activeFields(initialMode, initial);
+const val = (n: number) => (Number.isFinite(n) ? n : "");
+const out = (n: number | undefined, digits?: number) => (n === undefined ? "—" : formatNumber(n, digits));
+
+type Option = { value: string; label: string };
+type Field = {
+  name: keyof ClarifierInput;
+  label: string;
+  options?: Option[];
+  unit?: string;
+  flowUnit?: "flowUnit" | "rasUnit";
+  hint?: string;
+  optionalWhenCircular?: boolean;
+};
+const fields: Field[] = [
+  {
+    name: "clarifierType",
+    label: "Clarifier",
+    options: [
+      { value: "primary", label: "Primary" },
+      { value: "secondary", label: "Secondary" },
+    ],
+  },
+  {
+    name: "dtTank",
+    label: "Tank",
+    options: Object.entries(tankTypes).map(([value, label]) => ({ value, label })),
+  },
+  {
+    name: "basis",
+    label: "Flow basis",
+    options: [
+      { value: "average", label: "Average day" },
+      { value: "peak", label: "Peak" },
+    ],
+  },
+  {
+    name: "shape",
+    label: "Shape",
+    options: [
+      { value: "circular", label: "Circular" },
+      { value: "rectangular", label: "Rectangular" },
+    ],
+  },
+  { name: "units", label: "Units in service", unit: "tanks" },
+  { name: "diameter", label: "Diameter", unit: "ft" },
+  { name: "length", label: "Length", unit: "ft" },
+  { name: "width", label: "Width", unit: "ft" },
+  { name: "depth", label: "Water depth", unit: "ft", hint: "Side water depth for a clarifier." },
+  { name: "flow", label: "Flow", flowUnit: "flowUnit", hint: "Total to all units in service." },
+  {
+    name: "weirLength",
+    label: "Weir length, each",
+    unit: "ft",
+    optionalWhenCircular: true,
+    hint: "Blank on a circular tank means one weir around the rim. Count both sides of a double launder.",
+  },
+  { name: "ras", label: "RAS flow", flowUnit: "rasUnit", hint: "Total to all units in service." },
+  { name: "mlss", label: "MLSS", unit: "mg/L" },
+];
+
+const metrics: { metric: Metric; title: string; key: "dtHours" | "sor" | "wor" | "slr"; unit: string; digits: number }[] = [
+  { metric: "dt", title: "Detention time", key: "dtHours", unit: "hours", digits: 2 },
+  { metric: "sor", title: "Surface overflow", key: "sor", unit: "gpd/ft²", digits: 0 },
+  { metric: "wor", title: "Weir overflow", key: "wor", unit: "gpd/ft", digits: 0 },
+  { metric: "slr", title: "Solids loading", key: "slr", unit: "lb/day/ft²", digits: 1 },
+];
+const metricShown = (m: Metric) =>
+  initialMode === "all" ? m !== "slr" || showsSlr(initialMode, initial) : initialMode === m;
+const initialNote = (m: Metric) => {
+  if (!r) return null;
+  const value = m === "dt" ? r.dtHours : r[m];
+  return rangeNote(m, r.tank, initial.basis, value);
+};
+---
+
+<section class="calc-page" aria-label="Clarifier and tank loading calculator">
+  <form class="calc" data-clarifier-calc novalidate>
+    <fieldset class="calc-modes">
+      <legend>What are you checking?</legend>
+      {
+        clarifierModes.map((m) => (
+          <label class="mode-tab">
+            <input type="radio" name="mode" value={m.id} checked={m.id === initialMode} />
+            <span class="mode-short">{m.label}</span>
+            <span class="mode-long">{m.long}</span>
+          </label>
+        ))
+      }
+    </fieldset>
+
+    <fieldset class="calc-inputs">
+      <legend>Your numbers</legend>
+      {
+        fields.map((field) => {
+          const id = `cl-${field.name}`;
+          const value = initial[field.name];
+          return (
+            <div class="field" data-field={field.name} hidden={!active.includes(field.name)}>
+              <label class="field-label" for={id}>
+                {field.label}
+                {field.optionalWhenCircular && (
+                  <span class="field-optional" data-optional-circular hidden={initial.shape !== "circular"}>
+                    {" "}
+                    optional
+                  </span>
+                )}
+              </label>
+              <span class="field-input">
+                {field.options ? (
+                  <select id={id} name={field.name}>
+                    {field.options.map((o) => (
+                      <option value={o.value} selected={o.value === value}>
+                        {o.label}
+                      </option>
+                    ))}
+                  </select>
+                ) : (
+                  <input
+                    id={id}
+                    name={field.name}
+                    type="number"
+                    inputmode="decimal"
+                    min="0"
+                    step={field.name === "units" ? "1" : "any"}
+                    value={val(value as number)}
+                    placeholder={field.optionalWhenCircular ? "3.14 × diameter" : undefined}
+                  />
+                )}
+                {field.unit && <span class="unit">{field.unit}</span>}
+                {field.flowUnit && (
+                  <select name={field.flowUnit} aria-label={`${field.label} unit`} class="unit-select">
+                    {Object.entries(flowUnits).map(([uid, u]) => (
+                      <option value={uid} selected={uid === initial[field.flowUnit!]}>
+                        {u.label}
+                      </option>
+                    ))}
+                  </select>
+                )}
+              </span>
+              {field.hint && <span class="field-hint">{field.hint}</span>}
+            </div>
+          );
+        })
+      }
+    </fieldset>
+
+    <div class="calc-results" aria-live="polite">
+      <p class="calc-error" data-error hidden></p>
+
+      <dl class="result-grid" data-results>
+        {
+          metrics.map((m) => {
+            const note = initialNote(m.metric);
+            return (
+              <div
+                class:list={["result", { "result-primary": (initialMode as string) === m.metric }]}
+                data-metric={m.metric}
+                hidden={!metricShown(m.metric)}
+              >
+                <dt>{m.title}</dt>
+                <dd>
+                  <output data-out={m.key} data-digits={m.digits}>
+                    {out(r?.[m.key], m.digits)}
+                  </output>{" "}
+                  <span>{m.unit}</span>
+                  <small class:list={["range-note", { "is-concern": note?.concern }]} data-note hidden={!note}>
+                    {note?.text}
+                  </small>
+                </dd>
+              </div>
+            );
+          })
+        }
+        <div class="result" data-metric="dt-min" hidden>
+          <dt>In minutes</dt>
+          <dd><output data-out="dtMinutes" data-digits="0">—</output> <span>min</span></dd>
+        </div>
+        <div class="result" data-metric="dt-days" hidden>
+          <dt>In days</dt>
+          <dd><output data-out="dtDays" data-digits="1">—</output> <span>days</span></dd>
+        </div>
+      </dl>
+    </div>
+  </form>
+
+  <section class="steps" aria-labelledby="steps-heading">
+    <h2 id="steps-heading">Your numbers, step by step</h2>
+    <ol class="step-list" data-steps set:html={stepsHtml} />
+  </section>
+
+  <section class="prose" aria-labelledby="how-heading">
+    <h2 id="how-heading">Why it works</h2>
+    <p>
+      A clarifier works when solids sink faster than the water carries them
+      up and out. Each of these numbers measures one way the water can win
+      that race. They all start with the flow reaching one tank, so total flow
+      is split evenly across the units in service.
+    </p>
+    <ul class="checks">
+      <li>
+        <strong>Surface overflow rate</strong> is the gallons per day rising
+        through each square foot of surface. It is really an upward speed: if
+        the water climbs faster than a floc settles, the floc goes over the
+        weir. That's why it's the number to watch in a storm.
+      </li>
+      <li>
+        <strong>Weir overflow rate</strong> is the flow per foot of weir. Too
+        much flow over too little weir speeds the water up near the launder
+        and pulls light solids along with it.
+      </li>
+      <li>
+        <strong>Solids loading rate</strong> is the pounds of solids each
+        square foot has to settle and thicken each day. It uses plant flow plus
+        RAS, because return sludge passes through the clarifier too. That's
+        also why turning the RAS up raises it.
+      </li>
+      <li>
+        <strong>Detention time</strong> is how long the average gallon stays
+        in the tank: volume divided by flow. Too short and solids don't have
+        time to settle. Too long in a primary and the sludge can go septic and
+        float. The same math works for any tank, so the Detention tab covers
+        aeration, chlorine contact and digesters too.
+      </li>
+    </ul>
+    <p>
+      All four formulas are on the <a href="/operator-reference/formulas/">formula sheet</a>.
+    </p>
+  </section>
+
+  <section class="prose" aria-labelledby="example-heading">
+    <h2 id="example-heading">Example: a storm with two clarifiers online</h2>
+    <p>
+      Two <strong>60 ft</strong> secondary clarifiers, <strong>12 ft</strong> deep,
+      handle an average <strong>3.2 MGD</strong> with <strong>1.6 MGD</strong> of
+      RAS at <strong>3,000 mg/L</strong> MLSS. A storm pushes flow to <strong>7.5 MGD</strong> and
+      RAS stays where it is.
+    </p>
+    <ul class="example-math">
+      <li>0.785 × 60 × 60 = <b>2,826 ft²</b> of surface per clarifier</li>
+      <li>7.5 ÷ 2 = <b>3.75 MGD</b> to each clarifier</li>
+      <li>3,750,000 ÷ 2,826 = <b>1,327 gpd/ft²</b> surface overflow, above the usual ~1,200 peak limit</li>
+      <li>3,750,000 ÷ (3.14 × 60) = <b>19,904 gpd/ft</b> over the weir</li>
+      <li>(3.75 + 0.8) × 3,000 × 8.34 ÷ 2,826 = <b>40.3 lb/day/ft²</b> of solids</li>
+      <li>253,662 gal ÷ 156,250 gal/hr = <b>1.62 hours</b> detention</li>
+    </ul>
+    <p>
+      On an average day the same clarifiers run at 566 gpd/ft². At peak the
+      surface overflow rate is the number out of line, so a third clarifier
+      would help the most: 7.5 ÷ 3 = 2.5 MGD each, or 885 gpd/ft².
+    </p>
+    <button type="button" class="load-example" data-load-example>
+      Put this example in the calculator
+    </button>
+  </section>
+
+  <section class="prose" aria-labelledby="sanity-heading">
+    <h2 id="sanity-heading">Do the numbers look reasonable?</h2>
+    <p>
+      These are broad textbook ranges for catching a typo or a units slip.
+      Your plant's design basis and state standards are what count. The
+      results above are checked against the same values.
+    </p>
+    <div class="sanity-wrap">
+      <table class="sanity">
+        <thead>
+          <tr>
+            <th scope="col">Number</th>
+            <th scope="col">Average flow</th>
+            <th scope="col">Peak flow</th>
+            <th scope="col">If it is far off</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <th scope="row" data-label="Number">Surface overflow, primary</th>
+            <td data-label="Average flow">About 800–1,200 gpd/ft²</td>
+            <td data-label="Peak flow">Up to about 3,000</td>
+            <td data-label="If it is far off">A radius entered as the diameter makes the area four times too small.</td>
+          </tr>
+          <tr>
+            <th scope="row" data-label="Number">Surface overflow, secondary</th>
+            <td data-label="Average flow">About 400–800 gpd/ft²</td>
+            <td data-label="Peak flow">Up to about 1,200</td>
+            <td data-label="If it is far off">Check the number of units. Total flow over one tank's area reads double with two online.</td>
+          </tr>
+          <tr>
+            <th scope="row" data-label="Number">Weir overflow</th>
+            <td data-label="Average flow">Up to about 10,000 gpd/ft</td>
+            <td data-label="Peak flow">Up to about 30,000</td>
+            <td data-label="If it is far off">A double-sided launder has twice the weir length.</td>
+          </tr>
+          <tr>
+            <th scope="row" data-label="Number">Solids loading, secondary</th>
+            <td data-label="Average flow">About 20–30 lb/day/ft²</td>
+            <td data-label="Peak flow">Up to about 50</td>
+            <td data-label="If it is far off">Leaving out the RAS flow makes it read low.</td>
+          </tr>
+          <tr>
+            <th scope="row" data-label="Number">Detention, clarifiers</th>
+            <td data-label="Average flow">Primary about 1.5–2.5 hours, secondary about 2–4</td>
+            <td data-label="Peak flow">Shorter. Watch the rates instead</td>
+            <td data-label="If it is far off">Gallons need the 7.48 conversion from cubic feet.</td>
+          </tr>
+          <tr>
+            <th scope="row" data-label="Number">Detention, aeration</th>
+            <td data-label="Average flow">About 4–8 hours conventional, 18–36 extended</td>
+            <td data-label="Peak flow">—</td>
+            <td data-label="If it is far off">Use influent flow, not influent plus RAS, unless your SOP says otherwise.</td>
+          </tr>
+          <tr>
+            <th scope="row" data-label="Number">Detention, chlorine contact</th>
+            <td data-label="Average flow">At least about 30 minutes</td>
+            <td data-label="Peak flow">At least about 15 minutes</td>
+            <td data-label="If it is far off">Your permit's contact time rules. Short-circuiting means the real time is shorter than the math.</td>
+          </tr>
+          <tr>
+            <th scope="row" data-label="Number">Detention, anaerobic digester</th>
+            <td data-label="Average flow">About 15–30 days</td>
+            <td data-label="Peak flow">—</td>
+            <td data-label="If it is far off">Use the sludge feed rate in gal/day, and the active volume, not the full tank.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section class="prose" aria-labelledby="checks-heading">
+    <h2 id="checks-heading">Before you change anything</h2>
+    <ul class="checks">
+      <li>
+        <strong>Count only what's online.</strong> A clarifier drained for
+        maintenance doesn't share the load. Neither does one with a broken
+        drive.
+      </li>
+      <li>
+        <strong>Check the split.</strong> The math assumes flow divides evenly.
+        If one unit gets more, its rates are higher than these.
+      </li>
+      <li>
+        <strong>Match the flow to the question.</strong> Use the day's average
+        for routine checks and the peak hour when you're asking whether solids
+        will wash out.
+      </li>
+      <li>
+        <strong>Look at the blanket.</strong> A rising sludge blanket tells you
+        more than any single rate. Measure it before and after a change.
+      </li>
+      <li>
+        <strong>Level weirs.</strong> An uneven weir sends most of the flow over
+        the low side, so the real weir rate there is higher than the average.
+      </li>
+    </ul>
+    <p class="disclaimer">
+      This is a study and planning aid. Your plant's SOPs, permit and process
+      engineer take priority over any number on this page.
+    </p>
+  </section>
+</section>
+
+<style>
+  .field-input:has(> select:only-child) {
+    min-height: calc(2.75rem + 2px);
+    box-sizing: border-box;
+  }
+  .field-input > select:only-child,
+  .field-input > select:first-child:not(.unit-select) {
+    flex: 1;
+    width: 100%;
+    padding: 0 0.6rem;
+    cursor: pointer;
+    outline: none;
+  }
+  .range-note {
+    display: block;
+    margin-top: 0.4rem;
+    color: var(--muted);
+    font-size: 0.78rem;
+    font-weight: 600;
+    letter-spacing: 0;
+    line-height: 1.4;
+  }
+  .range-note.is-concern {
+    padding: 0.3rem 0.5rem;
+    border: 1px solid var(--fg-coral);
+    border-radius: 0.4rem;
+    background: color-mix(in srgb, var(--fg-coral) 12%, transparent);
+    color: var(--ink);
+  }
+</style>
+
+<script>
+  import { formatNumber } from "@/lib/dosage";
+  import {
+    activeFields,
+    calculateClarifier,
+    clarifierSteps,
+    rangeNote,
+    showsSlr,
+    type ClarifierInput,
+    type ClarifierMode,
+    type Metric,
+  } from "@/lib/clarifier";
+  import { renderSteps } from "@/lib/processControl";
+
+  const example: Record<string, string> = {
+    mode: "all",
+    clarifierType: "secondary",
+    basis: "peak",
+    shape: "circular",
+    units: "2",
+    diameter: "60",
+    depth: "12",
+    flow: "7.5",
+    flowUnit: "mgd",
+    weirLength: "",
+    ras: "1.6",
+    rasUnit: "mgd",
+    mlss: "3000",
+  };
+
+  function bind() {
+    const form = document.querySelector<HTMLFormElement>("[data-clarifier-calc]");
+    if (!form || form.dataset.bound) return;
+    form.dataset.bound = "true";
+
+    const el = <T extends Element>(name: string) => form.elements.namedItem(name) as unknown as T;
+    const num = (name: string) => {
+      const raw = el<HTMLInputElement>(name).value.trim();
+      return raw === "" ? NaN : Number(raw);
+    };
+    const str = (name: string) => el<HTMLSelectElement>(name).value;
+    const error = form.querySelector<HTMLElement>("[data-error]")!;
+    const results = form.querySelector<HTMLElement>("[data-results]")!;
+    const steps = document.querySelector<HTMLElement>("[data-steps]")!;
+
+    function update() {
+      const mode = (form!.querySelector<HTMLInputElement>('input[name="mode"]:checked')?.value ?? "all") as ClarifierMode;
+      const input: ClarifierInput = {
+        shape: str("shape") as ClarifierInput["shape"],
+        diameter: num("diameter"),
+        length: num("length"),
+        width: num("width"),
+        depth: num("depth"),
+        units: num("units"),
+        clarifierType: str("clarifierType") as ClarifierInput["clarifierType"],
+        dtTank: str("dtTank") as ClarifierInput["dtTank"],
+        basis: str("basis") as ClarifierInput["basis"],
+        flow: num("flow"),
+        flowUnit: str("flowUnit") as ClarifierInput["flowUnit"],
+        weirLength: num("weirLength"),
+        ras: num("ras"),
+        rasUnit: str("rasUnit") as ClarifierInput["rasUnit"],
+        mlss: num("mlss"),
+      };
+
+      const active = activeFields(mode, input);
+      for (const node of form!.querySelectorAll<HTMLElement>("[data-field]")) {
+        node.hidden = !active.includes(node.dataset.field as keyof ClarifierInput);
+      }
+      form!.querySelector<HTMLElement>("[data-optional-circular]")!.hidden = input.shape !== "circular";
+
+      for (const card of results.querySelectorAll<HTMLElement>("[data-metric]")) {
+        const m = card.dataset.metric!;
+        const shown =
+          m === "dt-min" || m === "dt-days"
+            ? mode === "dt"
+            : mode === "all"
+              ? m !== "slr" || showsSlr(mode, input)
+              : mode === m;
+        card.hidden = !shown;
+        card.classList.toggle("result-primary", mode === m);
+      }
+
+      const outcome = calculateClarifier(mode, input);
+      error.hidden = outcome.ok;
+      results.classList.toggle("is-stale", !outcome.ok);
+      steps.classList.toggle("is-stale", !outcome.ok);
+      if (!outcome.ok) {
+        error.textContent = outcome.message;
+        return;
+      }
+
+      const r = outcome.result;
+      if (mode === "dt") {
+        results.querySelector<HTMLElement>('[data-metric="dt-min"]')!.hidden = r.dtHours >= 2;
+        results.querySelector<HTMLElement>('[data-metric="dt-days"]')!.hidden = r.dtHours < 48;
+      }
+      for (const out of results.querySelectorAll<HTMLOutputElement>("[data-out]")) {
+        const key = out.dataset.out as keyof typeof r;
+        let digits = out.dataset.digits ? Number(out.dataset.digits) : undefined;
+        if (key === "dtHours" && r.dtHours >= 10) digits = 1;
+        out.value = formatNumber(r[key] as number, digits);
+      }
+      for (const card of results.querySelectorAll<HTMLElement>("[data-metric]")) {
+        const noteEl = card.querySelector<HTMLElement>("[data-note]");
+        if (!noteEl) continue;
+        const m = card.dataset.metric as Metric;
+        const note = rangeNote(m, r.tank, input.basis, m === "dt" ? r.dtHours : r[m]);
+        noteEl.hidden = !note;
+        noteEl.textContent = note?.text ?? "";
+        noteEl.classList.toggle("is-concern", !!note?.concern);
+      }
+      steps.innerHTML = renderSteps(clarifierSteps(mode, input, r));
+    }
+
+    form.addEventListener("input", update);
+    form.addEventListener("change", update);
+    form.addEventListener("submit", (e) => e.preventDefault());
+
+    document.querySelector("[data-load-example]")?.addEventListener("click", () => {
+      for (const [name, value] of Object.entries(example)) {
+        if (name === "mode") {
+          form.querySelector<HTMLInputElement>(`input[name="mode"][value="${value}"]`)!.checked = true;
+        } else {
+          el<HTMLInputElement>(name).value = value;
+        }
+      }
+      update();
+      form.scrollIntoView({ behavior: "smooth", block: "start" });
+    });
+
+    update();
+  }
+
+  bind();
+  document.addEventListener("astro:page-load", bind);
+</script>

@@ -1,0 +1,213 @@
+---
+import SiteTitle from "./SiteTitle.astro";
+import { getTranslations } from "@/lib/utils/languagePerser";
+
+import config from "@/config/config.json" with { type: "json" };
+import ThemeSwitch from "./ThemeSwitch.astro";
+import Search from "./Search.astro";
+import LanguageSelect from "@astrojs/starlight/components/LanguageSelect.astro";
+
+// get current locale from URL
+const locale = Astro.currentLocale || "en";
+
+const menu = await getTranslations(locale || "en");
+
+const { settings, navigation_button } = config;
+const { main }: { main: any[] } = menu;
+const pathname = Astro.request.url;
+
+const hasSidebar = Astro.locals.starlightRoute.hasSidebar;
+---
+
+<nav class="navbar container">
+  <!-- logo -->
+  <div class="order-0">
+    <SiteTitle />
+  </div>
+  <!-- navbar toggler -->
+  <input id="nav-toggle" type="checkbox" class="hidden" />
+  <label
+    for="nav-toggle"
+    class="order-3 cursor-pointer flex items-center lg:hidden dark:text-white lg:order-1 hamburger-menu"
+  >
+    <svg id="show-button" class="h-6 fill-current block" viewBox="0 0 20 20">
+      <title>Menu Open</title>
+      <path d="M0 3h20v2H0V3z m0 6h20v2H0V9z m0 6h20v2H0V0z"></path>
+    </svg>
+    <svg id="hide-button" class="h-6 fill-current hidden" viewBox="0 0 20 20">
+      <title>Menu Close</title>
+      <polygon
+        points="11 9 22 9 22 11 11 11 11 22 9 22 9 11 -2 11 -2 9 9 9 9 -2 11 -2"
+        transform="rotate(45 10 10)"></polygon>
+    </svg>
+  </label>
+  <!-- /navbar toggler -->
+  <ul
+    id="nav-menu"
+    class="navbar-nav order-3 hidden w-full pb-6 lg:order-1 lg:flex lg:w-auto lg:space-x-2 lg:pb-0 xl:space-x-8"
+  >
+    {
+      main.map((menu) => (
+        <>
+          {menu.hasChildren ? (
+            <li class="nav-item nav-dropdown group relative">
+              <button
+                type="button"
+                aria-expanded="false"
+                class={`nav-link flex! gap-1! items-center justify-center w-full lg:w-auto ${
+                  menu.children
+                    ?.map(({ url }: { url: string }) => url)
+                    .includes(pathname) ||
+                  menu.children
+                    ?.map(({ url }: { url: string }) => `${url}/`)
+                    .includes(pathname)
+                    ? "active"
+                    : ""
+                }`}
+              >
+                {menu.name}
+                <svg class="h-4 w-4 fill-current" viewBox="0 0 20 20">
+                  <path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z" />
+                </svg>
+              </button>
+              <ul class="nav-dropdown-list hidden group-hover:block lg:invisible lg:absolute lg:block lg:opacity-0 lg:group-hover:visible lg:group-hover:opacity-100">
+                {menu.children?.map((child: { url: string; name: string }) => (
+                  <li class="nav-dropdown-item">
+                    <a
+                      href={child.url}
+                      aria-label={child.name}
+                      class={`nav-dropdown-link block ${
+                        (pathname === `${child.url}/` ||
+                          pathname === child.url) &&
+                        "active"
+                      }`}
+                    >
+                      {child.name}
+                    </a>
+                  </li>
+                ))}
+              </ul>
+            </li>
+          ) : (
+            <li class="nav-item">
+              <a
+                href={menu.url}
+                class={`nav-link block ${
+                  (pathname === `${menu.url}/` || pathname === menu.url) &&
+                  "active"
+                }`}
+              >
+                {menu.name}
+              </a>
+            </li>
+          )}
+        </>
+      ))
+    }
+    {
+      navigation_button.enable && (
+        <li class="mt-4 inline-block lg:hidden">
+          <a
+            class="btn btn-outline-primary btn-sm"
+            href={navigation_button.link}
+          >
+            {navigation_button.label}
+          </a>
+        </li>
+      )
+    }
+  </ul>
+
+  <div
+    class="order-1 ml-auto flex items-center md:order-2 lg:ml-0 navbar-actions"
+  >
+    {
+      hasSidebar && settings.search && (
+        <div class="search-bar">
+          <Search />
+        </div>
+      )
+    }
+
+    {!hasSidebar && <div class="mr-4"><LanguageSelect /></div> }
+    {settings.theme_switcher && <ThemeSwitch className="lg:mx-6 mr-10" />}
+
+    {
+      navigation_button.enable && (
+        <a
+          class="btn btn-outline-primary hidden! lg:inline-block!"
+          href={navigation_button.link}
+        >
+          {navigation_button.label}
+        </a>
+      )
+    }
+  </div>
+</nav>
+
+<script>
+  // add header bg after scroll
+  const nav = document.querySelector(".navbar");
+  const sidebar = document.querySelector(".sidebar-nav");
+
+  window.onscroll = function () {
+    if (
+      document.body.scrollTop > 10 ||
+      document.documentElement.scrollTop > 10
+    ) {
+      nav?.parentElement?.classList.add("navbar-scrolled");
+      sidebar?.classList.add("navbar-scrolled");
+    } else {
+      nav?.parentElement?.classList.remove("navbar-scrolled");
+      sidebar?.classList.remove("navbar-scrolled");
+    }
+  };
+
+  // Dropdown menu toggling.
+  // ----------------------------------------
+  // Delegated so it survives view-transition navigations, and guarded so the
+  // listeners are only ever bound once.
+  const w = window as any;
+  if (!w.__navDropdownBound) {
+    w.__navDropdownBound = true;
+
+    const setExpanded = (item: Element, open: boolean) => {
+      item.classList.toggle("active", open);
+      item
+        .querySelector(".nav-link")
+        ?.setAttribute("aria-expanded", String(open));
+    };
+
+    const closeAll = (except?: Element | null) => {
+      document.querySelectorAll(".nav-dropdown.active").forEach((item) => {
+        if (item !== except) setExpanded(item, false);
+      });
+    };
+
+    document.addEventListener("click", (e: MouseEvent) => {
+      const target = e.target as HTMLElement | null;
+      const toggler = target?.closest(".nav-dropdown > .nav-link");
+
+      if (toggler) {
+        const item = toggler.closest(".nav-item");
+        if (item) {
+          const open = !item.classList.contains("active");
+          closeAll(item);
+          setExpanded(item, open);
+        }
+        return;
+      }
+
+      // A click anywhere else — including on a dropdown link — closes the menu.
+      closeAll();
+    });
+
+    document.addEventListener("keydown", (e: KeyboardEvent) => {
+      if (e.key !== "Escape") return;
+      const open = document.querySelector(".nav-dropdown.active");
+      if (!open) return;
+      setExpanded(open, false);
+      (open.querySelector(".nav-link") as HTMLElement | null)?.focus();
+    });
+  }
+</script>

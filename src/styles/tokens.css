@@ -1,0 +1,39 @@
+/*
+ * Field Guide design tokens.
+ *
+ * Single source of truth for the typeface and palette shared by page content
+ * (calculators, figures, the home sections) and the site chrome (header,
+ * footer, hero). Page-level components alias these rather than redeclaring
+ * their own copies, so light/dark switching happens in exactly one place.
+ */
+
+:root,
+:root[data-theme="dark"] {
+  --fg-font: ui-sans-serif, system-ui, sans-serif;
+
+  --fg-ink: #e8f2f5;
+  --fg-body: #c1d0d7;
+  --fg-muted: #a7bbc4;
+  --fg-blue: #68c3eb;
+  --fg-teal: #1bb29f;
+  --fg-teal-dark: #087d72;
+  --fg-coral: #f08b73;
+  --fg-line: #405660;
+  --fg-pale-blue: #243841;
+  --fg-paper: #1b2a32;
+  --fg-canvas: #121e24;
+}
+
+:root[data-theme="light"] {
+  --fg-ink: #102f43;
+  --fg-body: #344a58;
+  --fg-muted: #78909d;
+  --fg-blue: #1975a3;
+  --fg-teal: #15a795;
+  --fg-teal-dark: #087d72;
+  --fg-coral: #d65b49;
+  --fg-line: #dce8ec;
+  --fg-pale-blue: #eaf4f8;
+  --fg-paper: #fff;
+  --fg-canvas: #f6f9fa;
+}

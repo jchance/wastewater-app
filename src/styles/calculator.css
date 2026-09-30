@@ -1,0 +1,584 @@
+/* Shared layout for calculator pages. Scoped under .calc-page. */
+
+.calc-page {
+  --calc-legend-h: 1.2rem;
+  --ink: var(--fg-ink);
+  --body: var(--fg-body);
+  --muted: var(--fg-muted);
+  --line: var(--fg-line);
+  --accent-text: var(--fg-teal);
+
+  max-width: 68rem;
+  margin: 0 auto;
+  padding: clamp(1rem, 3vw, 2rem) clamp(1rem, 3vw, 2rem) 3rem;
+  color: var(--body);
+  font-family: var(--fg-font);
+}
+
+html[data-theme="light"] .calc-page {
+  --accent-text: var(--fg-teal-dark);
+}
+
+.calc-page > * + * {
+  margin-top: 2.5rem;
+}
+
+.calc-page .calc {
+  display: grid;
+  /* At most two columns (inputs | results); stacks when a column would drop below 20rem. */
+  grid-template-columns: repeat(
+    auto-fit,
+    minmax(max(min(100%, 20rem), calc((100% - 1rem) / 2)), 1fr)
+  );
+  gap: 1rem;
+  align-items: start;
+  scroll-margin-top: 5rem;
+}
+
+.calc-page .calc > * {
+  margin-top: 0;
+}
+
+/* The inputs legend sits in the fieldset's top border, so that border is
+   drawn half a legend below the box top. Start the results on that line. */
+.calc-page .calc > .calc-results {
+  margin-top: calc(var(--calc-legend-h) / 2 - 0.5px);
+}
+
+.calc-page .calc-inputs {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.9rem;
+  margin: 0;
+  padding: clamp(1rem, 2.5vw, 1.35rem);
+  border: 1px solid var(--line);
+  border-radius: 0.9rem;
+  background: var(--fg-paper);
+}
+
+.calc-page .calc-inputs > * {
+  margin-top: 0;
+}
+
+.calc-page legend {
+  float: left;
+  line-height: var(--calc-legend-h);
+  grid-column: 1 / -1;
+  margin: 0 0 0.2rem;
+  padding: 0;
+  color: var(--fg-teal-dark);
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+}
+
+/* Label, input and hint each share a row with the neighbouring field, so
+   inputs line up and never stretch when one label or hint wraps. */
+.calc-page .field {
+  display: grid;
+  grid-row: span 3;
+  grid-template-rows: subgrid;
+  row-gap: 0.35rem;
+  align-items: start;
+  min-width: 0;
+}
+
+.calc-page .field > .field-label {
+  align-self: end;
+}
+
+.calc-page .field-wide {
+  grid-column: 1 / -1;
+}
+
+.calc-page .field-label {
+  color: var(--ink);
+  font-size: 0.85rem;
+  font-weight: 700;
+}
+
+.calc-page .field-input {
+  display: flex;
+  align-items: stretch;
+  min-width: 0;
+  border: 1px solid var(--line);
+  border-radius: 0.6rem;
+  background: var(--fg-canvas);
+  overflow: hidden;
+}
+
+.calc-page .field-input:focus-within,
+.calc-page select:focus-visible {
+  outline: 2px solid var(--fg-teal);
+  outline-offset: 1px;
+}
+
+.calc-page input,
+.calc-page select {
+  min-width: 0;
+  min-height: 2.75rem;
+  margin: 0;
+  border: 0;
+  background: transparent;
+  color: var(--ink);
+  font: inherit;
+  font-size: 1rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.calc-page input {
+  flex: 1;
+  width: 100%;
+  padding: 0 0.75rem;
+  outline: none;
+}
+
+.calc-page .field-wide select {
+  width: 100%;
+  /* Same outer height as .field-input: control plus its 1px borders. */
+  height: calc(2.75rem + 2px);
+  padding: 0 0.6rem;
+  border: 1px solid var(--line);
+  border-radius: 0.6rem;
+  background: var(--fg-canvas);
+}
+
+.calc-page .unit,
+.calc-page .unit-select {
+  display: grid;
+  flex: none;
+  place-items: center;
+  padding: 0 0.7rem;
+  border-left: 1px solid var(--line);
+  background: var(--fg-pale-blue);
+  color: var(--muted);
+  font-size: 0.85rem;
+  font-weight: 700;
+}
+
+.calc-page .unit-select {
+  cursor: pointer;
+  outline: none;
+}
+
+.calc-page .field-hint {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.8rem;
+  line-height: 1.5;
+}
+
+.calc-page .calc-results {
+  display: grid;
+  gap: 0.75rem;
+}
+
+.calc-page .calc-results > * {
+  margin-top: 0;
+}
+
+.calc-page .calc-error {
+  margin: 0;
+  padding: 0.75rem 0.9rem;
+  border: 1px solid var(--fg-coral);
+  border-radius: 0.7rem;
+  color: var(--ink);
+  font-size: 0.9rem;
+}
+
+.calc-page .result-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.75rem;
+  margin: 0;
+  transition: opacity 150ms ease;
+}
+
+.calc-page .result-grid > * {
+  margin-top: 0;
+}
+
+.calc-page .is-stale {
+  opacity: 0.4;
+}
+
+.calc-page .result {
+  display: grid;
+  gap: 0.2rem;
+  padding: 0.85rem 1rem;
+  border: 1px solid var(--line);
+  border-radius: 0.8rem;
+  background: var(--fg-paper);
+}
+
+.calc-page .result-primary {
+  grid-column: 1 / -1;
+  border-color: var(--fg-teal);
+  background: color-mix(in srgb, var(--fg-teal) 12%, var(--fg-paper));
+}
+
+.calc-page dt {
+  color: var(--muted);
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.calc-page dd {
+  margin: 0;
+  color: var(--ink);
+  font-size: 1.4rem;
+  font-weight: 750;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.02em;
+}
+
+.calc-page .result-primary dd {
+  font-size: clamp(1.9rem, 5vw, 2.4rem);
+}
+
+.calc-page dd span {
+  color: var(--muted);
+  font-size: 0.85rem;
+  font-weight: 650;
+  letter-spacing: 0;
+}
+
+.calc-page h2 {
+  margin: 0 0 0.75rem;
+  color: var(--ink);
+  font-size: 1.25rem;
+  font-weight: 750;
+  letter-spacing: -0.02em;
+}
+
+.calc-page .step-list {
+  display: grid;
+  gap: 0;
+  margin: 0;
+  padding: 0;
+  border: 1px solid var(--line);
+  border-radius: 0.85rem;
+  background: var(--fg-paper);
+  list-style: none;
+  counter-reset: step;
+  overflow: hidden;
+  transition: opacity 150ms ease;
+}
+
+.calc-page .step-list > li {
+  display: grid;
+  grid-template-columns: 1.6rem minmax(0, 1fr);
+  gap: 0.15rem 0.6rem;
+  margin: 0;
+  padding: 0.75rem 0.95rem;
+  counter-increment: step;
+}
+
+.calc-page .step-list > li[hidden] {
+  display: none;
+}
+
+.calc-page .step-list > li + li {
+  border-top: 1px solid var(--line);
+}
+
+.calc-page .step-list > li::before {
+  content: counter(step);
+  display: grid;
+  grid-row: span 2;
+  width: 1.6rem;
+  aspect-ratio: 1;
+  place-items: center;
+  border-radius: 0.4rem;
+  background: var(--fg-pale-blue);
+  color: var(--muted);
+  font-size: 0.78rem;
+  font-weight: 800;
+}
+
+.calc-page .step-what {
+  color: var(--muted);
+  font-size: 0.82rem;
+  font-weight: 650;
+}
+
+.calc-page .step-math {
+  color: var(--ink);
+  font-variant-numeric: tabular-nums;
+  overflow-wrap: anywhere;
+}
+
+.calc-page .step-math b {
+  color: var(--accent-text);
+}
+
+.calc-page .prose {
+  max-width: 46rem;
+}
+
+.calc-page .prose p,
+.calc-page .prose li {
+  line-height: 1.65;
+}
+
+.calc-page .prose > * + * {
+  margin-top: 0.9rem;
+}
+
+.calc-page .prose a {
+  color: var(--accent-text);
+  font-weight: 650;
+}
+
+.calc-page .prose strong {
+  color: var(--ink);
+}
+
+.calc-page .example-math {
+  display: grid;
+  gap: 0.35rem;
+  margin: 0.9rem 0;
+  padding: 0.9rem 1rem;
+  border: 1px solid var(--line);
+  border-radius: 0.8rem;
+  background: var(--fg-paper);
+  color: var(--ink);
+  font-variant-numeric: tabular-nums;
+  list-style: none;
+}
+
+.calc-page .example-math > li {
+  margin: 0;
+}
+
+.calc-page .example-math b {
+  color: var(--accent-text);
+}
+
+.calc-page .load-example {
+  min-height: 2.75rem;
+  padding: 0 1rem;
+  border: 1px solid var(--fg-teal);
+  border-radius: 0.6rem;
+  background: transparent;
+  color: var(--accent-text);
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.calc-page .load-example:hover {
+  background: color-mix(in srgb, var(--fg-teal) 12%, transparent);
+}
+
+.calc-page .load-example:focus-visible {
+  outline: 2px solid var(--fg-teal);
+  outline-offset: 2px;
+}
+
+.calc-page .sanity-wrap {
+  border: 1px solid var(--line);
+  border-radius: 0.8rem;
+  overflow: hidden;
+}
+
+.calc-page .sanity {
+  display: table;
+  width: 100%;
+  margin: 0;
+  border-collapse: collapse;
+  font-size: 0.92rem;
+  line-height: 1.45;
+}
+
+.calc-page .sanity th,
+.calc-page .sanity td {
+  padding: 0.65rem 0.8rem;
+  border: 0;
+  border-bottom: 1px solid var(--line);
+  text-align: left;
+  vertical-align: top;
+}
+
+.calc-page .sanity thead th {
+  background: var(--fg-paper);
+  color: var(--muted);
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.calc-page .sanity tbody th {
+  color: var(--ink);
+  font-weight: 700;
+}
+
+.calc-page .sanity tbody tr:last-child > * {
+  border-bottom: 0;
+}
+
+@media (max-width: 40rem) {
+  .calc-page .sanity thead {
+    display: none;
+  }
+
+  .calc-page .sanity,
+  .calc-page .sanity tbody,
+  .calc-page .sanity tr,
+  .calc-page .sanity th,
+  .calc-page .sanity td {
+    display: block;
+  }
+
+  .calc-page .sanity tr {
+    margin: 0;
+    padding: 0.6rem 0;
+    border-bottom: 1px solid var(--line);
+  }
+
+  .calc-page .sanity tbody tr:last-child {
+    border-bottom: 0;
+  }
+
+  .calc-page .sanity th,
+  .calc-page .sanity td {
+    margin: 0;
+    padding: 0.2rem 0.9rem;
+    border-bottom: 0;
+  }
+
+  .calc-page .sanity td::before {
+    content: attr(data-label);
+    display: block;
+    color: var(--muted);
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+  }
+}
+
+.calc-page .checks {
+  display: grid;
+  gap: 0.7rem;
+  margin: 0;
+  padding-left: 1.2rem;
+}
+
+.calc-page .checks > li {
+  margin: 0;
+}
+
+.calc-page .disclaimer {
+  color: var(--muted);
+  font-size: 0.85rem;
+}
+
+@media (max-width: 420px) {
+  .calc-page .calc-inputs {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .calc-page .result-grid,
+  .calc-page .step-list {
+    transition: none;
+  }
+}
+
+/* Shared by multi-mode calculators */
+.calc-page [hidden] {
+  display: none !important;
+}
+
+.calc-page .calc-modes {
+  display: flex;
+  flex-wrap: wrap;
+  grid-column: 1 / -1;
+  gap: 0.6rem;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+.calc-page .calc-modes > * {
+  margin-top: 0;
+}
+
+.calc-page .calc-modes legend {
+  float: none;
+  width: 100%;
+  margin-bottom: 0.3rem;
+}
+
+.calc-page .mode-tab {
+  position: relative;
+  display: grid;
+  flex: 1 1 10rem;
+  gap: 0.1rem;
+  min-height: 2.75rem;
+  padding: 0.6rem 0.9rem;
+  border: 1px solid var(--line);
+  border-radius: 0.8rem;
+  background: var(--fg-paper);
+  cursor: pointer;
+  transition: border-color 150ms ease, background-color 150ms ease;
+}
+
+.calc-page .mode-tab input {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  min-height: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  opacity: 0;
+}
+
+.calc-page .mode-short {
+  color: var(--ink);
+  font-size: 1rem;
+  font-weight: 800;
+}
+
+.calc-page .mode-long {
+  color: var(--muted);
+  font-size: 0.78rem;
+  line-height: 1.35;
+}
+
+.calc-page .mode-tab:hover {
+  border-color: var(--fg-teal);
+}
+
+.calc-page .mode-tab:has(input:checked) {
+  border-color: var(--fg-teal);
+  background: color-mix(in srgb, var(--fg-teal) 14%, var(--fg-paper));
+  box-shadow: inset 0 0 0 1px var(--fg-teal);
+}
+
+.calc-page .mode-tab:has(input:focus-visible) {
+  outline: 2px solid var(--fg-teal);
+  outline-offset: 2px;
+}
+
+.calc-page .field-optional {
+  color: var(--muted);
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+@media (max-width: 420px) {
+  .calc-page .mode-tab {
+    flex-basis: calc(50% - 0.3rem);
+  }
+
+  .calc-page .mode-long {
+    display: none;
+  }
+}

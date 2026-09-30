@@ -1,0 +1,34 @@
+{
+  "main": [
+    {
+      "label": "Operator Math",
+      "items": [
+        {
+          "autogenerate": {
+            "directory": "operator-math"
+          }
+        }
+      ]
+    },
+    {
+      "label": "Operator Reference",
+      "items": [
+        {
+          "autogenerate": {
+            "directory": "operator-reference"
+          }
+        }
+      ]
+    },
+    {
+      "label": "Calculators",
+      "items": [
+        {
+          "autogenerate": {
+            "directory": "calculators"
+          }
+        }
+      ]
+    }
+  ]
+}

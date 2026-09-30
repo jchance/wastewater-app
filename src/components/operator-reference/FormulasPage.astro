@@ -1,0 +1,229 @@
+---
+import { domains, formulas } from "../../data/formulas";
+import Formula from "./Formula.astro";
+
+const byDomain = domains.map((domain) => ({
+  domain,
+  items: formulas.filter((f) => f.domain === domain.id),
+}));
+
+---
+
+<section class="or-page" aria-label="Formulas">
+  <div class="or-filter">
+    <label class="or-filter-label" for="formula-filter">Filter formulas</label>
+    <div class="or-filter-row">
+      <input
+        id="formula-filter"
+        type="search"
+        placeholder="Try “MCRT”, “detention”, “lb/day”…"
+        autocomplete="off"
+        spellcheck="false"
+      />
+      <button type="button" class="or-filter-clear" hidden>Clear</button>
+    </div>
+    <p class="or-filter-count" role="status" aria-live="polite"></p>
+  </div>
+
+  {
+    byDomain.map(({ domain, items }) => (
+      <section class="or-domain" data-domain={domain.id} aria-labelledby={`d-${domain.id}`}>
+        <div class="or-domain-head">
+          <h2 id={`d-${domain.id}`}>{domain.name}</h2>
+          <p>{domain.blurb}</p>
+        </div>
+        <div class="or-grid">
+          {items.map((formula) => (
+            <Formula formula={formula} />
+          ))}
+        </div>
+      </section>
+    ))
+  }
+
+  <p class="or-empty" hidden>No formula matches that search.</p>
+</section>
+
+<script>
+  function initFormulaFilter() {
+    const input = document.getElementById("formula-filter");
+    if (!(input instanceof HTMLInputElement)) return;
+    if (input.dataset.bound === "true") return;
+    input.dataset.bound = "true";
+
+    const root = input.closest(".or-page");
+    if (!root) return;
+
+    const clear = root.querySelector(".or-filter-clear");
+    const count = root.querySelector(".or-filter-count");
+    const empty = root.querySelector(".or-empty");
+    const cards = Array.from(root.querySelectorAll(".or-formula"));
+    const sections = Array.from(root.querySelectorAll(".or-domain"));
+    const total = cards.length;
+
+    const apply = () => {
+      const q = input.value.trim().toLowerCase();
+
+      for (const card of cards) {
+        const haystack = card.getAttribute("data-search") ?? "";
+        card.toggleAttribute("hidden", q !== "" && !haystack.includes(q));
+      }
+
+      let shown = 0;
+      for (const section of sections) {
+        const visible = section.querySelectorAll(".or-formula:not([hidden])").length;
+        section.toggleAttribute("hidden", visible === 0);
+        shown += visible;
+      }
+
+      if (clear) clear.toggleAttribute("hidden", q === "");
+      if (empty) empty.toggleAttribute("hidden", shown !== 0);
+      if (count) {
+        count.textContent =
+          q === "" ? `${total} formulas` : `${shown} of ${total} formulas`;
+      }
+    };
+
+    input.addEventListener("input", apply);
+    input.addEventListener("keydown", (event) => {
+      if (event.key === "Escape" && input.value !== "") {
+        event.stopPropagation();
+        input.value = "";
+        apply();
+      }
+    });
+    clear?.addEventListener("click", () => {
+      input.value = "";
+      apply();
+      input.focus();
+    });
+
+    apply();
+  }
+
+  initFormulaFilter();
+  document.addEventListener("astro:page-load", initFormulaFilter);
+</script>
+
+<style>
+  .or-page {
+    --ink: var(--fg-ink);
+    --muted: var(--fg-muted);
+    --line: var(--fg-line);
+
+    max-width: 68rem;
+    margin: 0 auto;
+    padding: clamp(1rem, 3vw, 2rem) clamp(1rem, 3vw, 2rem) 3rem;
+    color: var(--ink);
+    font-family: var(--fg-font);
+  }
+
+
+
+
+
+  .or-filter {
+    position: sticky;
+    top: 0;
+    z-index: 5;
+    margin-bottom: 2rem;
+    padding: 0.85rem 0 0.75rem;
+    background: var(--fg-canvas);
+  }
+
+  .or-filter-label {
+    display: block;
+    margin-bottom: 0.4rem;
+    color: var(--muted);
+    font-size: 0.7rem;
+    font-weight: 800;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+  }
+
+  .or-filter-row {
+    display: flex;
+    gap: 0.5rem;
+  }
+
+  .or-filter input {
+    flex: 1 1 auto;
+    min-width: 0;
+    padding: 0.6rem 0.8rem;
+    border: 1px solid var(--line);
+    border-radius: 0.6rem;
+    background: var(--fg-paper);
+    color: var(--ink);
+    font-family: inherit;
+    font-size: 1rem;
+  }
+
+  .or-filter input:focus-visible {
+    outline: 2px solid var(--fg-teal);
+    outline-offset: 1px;
+  }
+
+  .or-filter-clear {
+    flex: none;
+    padding: 0.6rem 0.9rem;
+    border: 1px solid var(--line);
+    border-radius: 0.6rem;
+    background: var(--fg-paper);
+    color: var(--ink);
+    font-family: inherit;
+    font-size: 0.85rem;
+    font-weight: 650;
+    cursor: pointer;
+  }
+
+  .or-filter-clear:hover {
+    border-color: var(--fg-teal);
+  }
+
+  .or-filter-count {
+    margin: 0.45rem 0 0;
+    color: var(--muted);
+    font-size: 0.78rem;
+  }
+
+  .or-domain + .or-domain {
+    margin-top: 2.5rem;
+  }
+
+  .or-domain-head h2 {
+    margin: 0;
+    color: var(--ink);
+    font-size: 1.25rem;
+    font-weight: 750;
+    letter-spacing: -0.02em;
+  }
+
+  .or-domain-head p {
+    margin: 0.3rem 0 1rem;
+    color: var(--muted);
+    font-size: 0.88rem;
+    line-height: 1.5;
+  }
+
+  .or-grid > :global(*) {
+    /* Starlight's markdown flow adds margin-top to every sibling, which staggers grid rows. */
+    margin-top: 0;
+  }
+
+  .or-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 22rem), 1fr));
+    gap: 0.9rem;
+    align-items: start;
+  }
+
+  .or-empty {
+    margin: 2rem 0 0;
+    color: var(--muted);
+    font-size: 0.95rem;
+  }
+
+  [hidden] {
+    display: none !important;
+  }
+</style>

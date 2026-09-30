@@ -1,0 +1,127 @@
+---
+import config from "@/config/config.json";
+
+const { theme_switcher }: { theme_switcher: boolean } = config.settings;
+const { className }: { className?: string } = Astro.props;
+---
+
+{
+  theme_switcher && (
+    <div class={`theme-switcher ${className ?? ""}`}>
+      <button
+        type="button"
+        data-theme-switcher
+        aria-label="Theme: System. Activate to change theme."
+        title="Theme: System"
+      >
+        <span class="theme-switcher__icon" aria-hidden="true">
+          <svg data-theme-icon="auto" viewBox="0 0 24 24" height="16" width="16">
+            <path
+              fill="currentColor"
+              d="M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20Zm0 2v16a8 8 0 0 1 0-16Z"
+            />
+          </svg>
+          <svg data-theme-icon="light" viewBox="0 0 56 56" height="16" width="16">
+            <path
+              fill="currentColor"
+              d="M30 4.6c0-1-.9-2-2-2a2 2 0 0 0-2 2v5c0 1 .9 2 2 2s2-1 2-2Zm9.6 9a2 2 0 0 0 0 2.8c.8.8 2 .8 2.9 0L46 13a2 2 0 0 0 0-2.9 2 2 0 0 0-3 0Zm-26 2.8c.7.8 2 .8 2.8 0 .8-.7.8-2 0-2.9L13 10c-.7-.7-2-.8-2.9 0-.7.8-.7 2.1 0 3ZM28 16a12 12 0 0 0-12 12 12 12 0 0 0 12 12 12 12 0 0 0 12-12 12 12 0 0 0-12-12Zm23.3 14c1.1 0 2-.9 2-2s-.9-2-2-2h-4.9a2 2 0 0 0-2 2c0 1.1 1 2 2 2ZM4.7 26a2 2 0 0 0-2 2c0 1.1.9 2 2 2h4.9c1 0 2-.9 2-2s-1-2-2-2Zm37.8 13.6a2 2 0 0 0-3 0 2 2 0 0 0 0 2.9l3.6 3.5a2 2 0 0 0 2.9 0c.8-.8.8-2.1 0-3ZM10 43.1a2 2 0 0 0 0 2.9c.8.7 2.1.8 3 0l3.4-3.5c.8-.8.8-2.1 0-2.9-.8-.8-2-.8-2.9 0Zm20 3.4c0-1.1-.9-2-2-2a2 2 0 0 0-2 2v4.9c0 1 .9 2 2 2s2-1 2-2Z"
+            />
+          </svg>
+          <svg data-theme-icon="dark" viewBox="0 0 24 24" height="16" width="16">
+            <path
+              fill="currentColor"
+              fill-rule="evenodd"
+              clip-rule="evenodd"
+              d="M8.2 2.2c1-.4 2 .6 1.6 1.5-1 3-.4 6.4 1.8 8.7a8.4 8.4 0 0 0 8.7 1.8c1-.3 2 .5 1.5 1.5v.1a10.3 10.3 0 0 1-9.4 6.2A10.3 10.3 0 0 1 3.2 6.7c1-2 2.9-3.5 4.9-4.4Z"
+            />
+          </svg>
+        </span>
+        <span class="sr-only" data-theme-label>
+          System theme
+        </span>
+      </button>
+    </div>
+  )
+}
+
+<script>
+  const KEY = "starlight-theme";
+  const ORDER = ["auto", "light", "dark"] as const;
+  type Preference = (typeof ORDER)[number];
+
+  const LABELS: Record<Preference, string> = {
+    auto: "System",
+    light: "Light",
+    dark: "Dark",
+  };
+
+  const systemTheme = window.matchMedia("(prefers-color-scheme: dark)");
+
+  const getPreference = (): Preference => {
+    try {
+      const stored = localStorage.getItem(KEY);
+      return stored === "light" || stored === "dark" ? stored : "auto";
+    } catch {
+      return "auto";
+    }
+  };
+
+  const resolve = (preference: Preference) =>
+    preference === "auto"
+      ? systemTheme.matches
+        ? "dark"
+        : "light"
+      : preference;
+
+  const apply = (preference: Preference) => {
+    document.documentElement.dataset.theme = resolve(preference);
+
+    const button = document.querySelector<HTMLButtonElement>(
+      "button[data-theme-switcher]"
+    );
+    if (!button) return;
+
+    button.dataset.preference = preference;
+    button.setAttribute(
+      "aria-label",
+      `Theme: ${LABELS[preference]}. Activate to change theme.`
+    );
+    button.title = `Theme: ${LABELS[preference]}`;
+
+    const label = button.querySelector("[data-theme-label]");
+    if (label) label.textContent = `${LABELS[preference]} theme`;
+  };
+
+  const store = (preference: Preference) => {
+    try {
+      if (preference === "auto") localStorage.removeItem(KEY);
+      else localStorage.setItem(KEY, preference);
+    } catch {}
+  };
+
+  const init = () => {
+    const button = document.querySelector<HTMLButtonElement>(
+      "button[data-theme-switcher]"
+    );
+    if (!button || button.dataset.bound === "true") {
+      apply(getPreference());
+      return;
+    }
+
+    button.dataset.bound = "true";
+    button.addEventListener("click", () => {
+      const next = ORDER[(ORDER.indexOf(getPreference()) + 1) % ORDER.length];
+      store(next);
+      apply(next);
+    });
+
+    apply(getPreference());
+  };
+
+  systemTheme.addEventListener("change", () => {
+    if (getPreference() === "auto") apply("auto");
+  });
+
+  init();
+  document.addEventListener("astro:page-load", init);
+</script>

@@ -1,0 +1,187 @@
+---
+import type { PieWheel } from "../../data/pie-wheels";
+
+interface Props {
+  wheel: PieWheel;
+}
+
+const { wheel } = Astro.props;
+
+const CX = 160;
+const CY = 158;
+const R = 120;
+
+const point = (deg: number) => {
+  const rad = (deg * Math.PI) / 180;
+  return [CX + R * Math.cos(rad), CY + R * Math.sin(rad)];
+};
+
+const fmt = (n: number) => Math.round(n * 100) / 100;
+
+const n = wheel.wedges.length;
+const step = 180 / n;
+
+// Wedges fill the lower half, laid out left to right.
+const wedges = wheel.wedges.map((part, i) => {
+  const startDeg = 180 - i * step;
+  const endDeg = 180 - (i + 1) * step;
+  const [sx, sy] = point(startDeg);
+  const [ex, ey] = point(endDeg);
+  const midDeg = (startDeg + endDeg) / 2;
+  const midRad = (midDeg * Math.PI) / 180;
+  const labelR = R * (n > 3 ? 0.66 : 0.6);
+
+  return {
+    part,
+    d: `M ${CX} ${CY} L ${fmt(sx)} ${fmt(sy)} A ${R} ${R} 0 0 0 ${fmt(ex)} ${fmt(ey)} Z`,
+    lx: fmt(CX + labelR * Math.cos(midRad)),
+    ly: fmt(CY + labelR * Math.sin(midRad)),
+  };
+});
+
+// Interior spokes between adjacent wedges.
+const spokes = Array.from({ length: n - 1 }, (_, i) => {
+  const [x, y] = point(180 - (i + 1) * step);
+  return `M ${CX} ${CY} L ${fmt(x)} ${fmt(y)}`;
+}).join(" ");
+
+const topLabelY = CY - R * 0.52;
+const lineHeight = 19;
+const wedgeLineHeight = 15;
+
+const describe = `${wheel.name}. Above the line: ${wheel.top.lines.join(" ")}${
+  wheel.top.sub ? `, ${wheel.top.sub}` : ""
+}. Below the line: ${wheel.wedges
+  .map((w) => `${w.lines.join(" ")}${w.sub ? ` ${w.sub}` : ""}`)
+  .join(", ")}.`;
+---
+
+<figure class="wheel-figure" id={wheel.id}>
+  <svg class="wheel" viewBox="0 0 320 300" role="img" aria-label={describe}>
+    <path class="wheel-top" d={`M ${CX - R} ${CY} A ${R} ${R} 0 0 1 ${CX + R} ${CY} Z`} />
+    {wedges.map((w) => <path class="wheel-wedge" d={w.d} />)}
+    <circle class="wheel-outline" cx={CX} cy={CY} r={R} />
+    {spokes && <path class="wheel-spoke" d={spokes} />}
+    <path class="wheel-divider" d={`M ${CX - R} ${CY} H ${CX + R}`} />
+
+    {
+      wheel.top.lines.map((line, i) => (
+        <text
+          class="wheel-label wheel-label-main"
+          x={CX}
+          y={topLabelY + i * lineHeight - ((wheel.top.lines.length - 1) * lineHeight) / 2}
+        >
+          {line}
+        </text>
+      ))
+    }
+    {
+      wheel.top.sub && (
+        <text
+          class="wheel-label wheel-label-sub"
+          x={CX}
+          y={
+            topLabelY +
+            ((wheel.top.lines.length - 1) * lineHeight) / 2 +
+            lineHeight +
+            1
+          }
+        >
+          {wheel.top.sub}
+        </text>
+      )
+    }
+
+    {
+      wedges.map((w) => {
+        const total = w.part.lines.length + (w.part.sub ? 1 : 0);
+        const top = w.ly - ((total - 1) * wedgeLineHeight) / 2;
+        return (
+          <>
+            {w.part.lines.map((line, i) => (
+              <text class="wheel-label wheel-label-wedge" x={w.lx} y={top + i * wedgeLineHeight}>
+                {line}
+              </text>
+            ))}
+            {w.part.sub && (
+              <text
+                class="wheel-label wheel-label-sub"
+                x={w.lx}
+                y={top + w.part.lines.length * wedgeLineHeight}
+              >
+                {w.part.sub}
+              </text>
+            )}
+          </>
+        );
+      })
+    }
+  </svg>
+</figure>
+
+<style>
+  .wheel-figure {
+    display: grid;
+    justify-items: center;
+    margin: 0;
+    min-width: 0;
+    scroll-margin-top: 5rem;
+  }
+
+  .wheel {
+    display: block;
+    width: min(100%, 21rem);
+    height: auto;
+    overflow: visible;
+  }
+
+  .wheel-outline,
+  .wheel-divider,
+  .wheel-spoke {
+    fill: none;
+    stroke-linecap: round;
+    vector-effect: non-scaling-stroke;
+  }
+
+  .wheel-top,
+  .wheel-wedge {
+    fill: var(--fg-paper);
+    stroke: none;
+  }
+
+  .wheel-top {
+    fill: color-mix(in srgb, var(--fg-teal) 9%, var(--fg-paper));
+  }
+
+  .wheel-outline,
+  .wheel-spoke {
+    stroke: var(--fg-line);
+    stroke-width: 1.8;
+  }
+
+  .wheel-divider {
+    stroke: var(--fg-ink);
+    stroke-width: 2.6;
+  }
+
+  .wheel-label {
+    fill: var(--fg-ink);
+    font-family: var(--fg-font);
+    font-weight: 750;
+    text-anchor: middle;
+  }
+
+  .wheel-label-main {
+    font-size: 17px;
+  }
+
+  .wheel-label-wedge {
+    font-size: 13.5px;
+  }
+
+  .wheel-label-sub {
+    fill: var(--fg-muted);
+    font-size: 11.5px;
+    font-weight: 650;
+  }
+</style>

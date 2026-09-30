@@ -1,0 +1,552 @@
+---
+import PieFigure from "./PieFigure.astro";
+---
+
+<section class="davidson-calculator" aria-label="Davidson pie chart examples">
+  <fieldset class="solve-controls">
+    <legend>Choose what you’re solving for</legend>
+
+    <input class="solve-radio" type="radio" name="davidson-solve" id="solve-feed" checked />
+    <label class="solve-tab" for="solve-feed">
+      <span class="tab-number">1</span><span>lb/day</span>
+    </label>
+
+    <input class="solve-radio" type="radio" name="davidson-solve" id="solve-dose" />
+    <label class="solve-tab" for="solve-dose">
+      <span class="tab-number">2</span><span>Dose</span>
+    </label>
+
+    <input class="solve-radio" type="radio" name="davidson-solve" id="solve-flow" />
+    <label class="solve-tab" for="solve-flow">
+      <span class="tab-number">3</span><span>Flow</span>
+    </label>
+
+    <section class="solve-panel" data-solution="feed" aria-labelledby="feed-heading">
+      <PieFigure highlight="feed" />
+      <div class="worked-example">
+        <h2 id="feed-heading">Solve for lb/day</h2>
+        <div class="equation" aria-label="2.0 times 8.34 times 0.5 equals 8.3 pounds per day">
+          <div class="value-card"><strong>2.0</strong><span>DOSE<br />MG/L</span></div>
+          <span class="operator" aria-hidden="true">×</span>
+          <div class="value-card conversion"><strong>8.34</strong><span>LB PER<br />GALLON</span></div>
+          <span class="operator" aria-hidden="true">×</span>
+          <div class="value-card"><strong>0.5</strong><span>FLOW<br />MGD</span></div>
+          <span class="operator equals" aria-hidden="true">=</span>
+          <div class="value-card result"><strong>8.3</strong><span>LB/DAY</span></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="solve-panel" data-solution="dose" aria-labelledby="dose-heading">
+      <PieFigure highlight="dose" />
+      <div class="worked-example">
+        <h2 id="dose-heading">Solve for Dose</h2>
+        <div class="equation" aria-label="20 divided by the quantity 8.34 times 1.0 equals 2.4 milligrams per liter">
+          <div class="value-card"><strong>20</strong><span>FEED RATE<br />LB/DAY</span></div>
+          <span class="operator divide" aria-hidden="true">÷</span>
+          <div class="value-group">
+            <span class="paren" aria-hidden="true">(</span>
+            <div class="value-card conversion"><strong>8.34</strong><span>LB PER<br />GALLON</span></div>
+            <span class="operator" aria-hidden="true">×</span>
+            <div class="value-card"><strong>1.0</strong><span>FLOW<br />MGD</span></div>
+            <span class="paren" aria-hidden="true">)</span>
+          </div>
+          <span class="operator equals" aria-hidden="true">=</span>
+          <div class="value-card result"><strong>2.4</strong><span>DOSE · MG/L</span></div>
+        </div>
+       </div>
+    </section>
+
+    <section class="solve-panel" data-solution="flow" aria-labelledby="flow-heading">
+      <PieFigure highlight="flow" />
+      <div class="worked-example">
+        <h2 id="flow-heading">Solve for Flow</h2>
+        <div class="equation" aria-label="50 divided by the quantity 3.0 times 8.34 equals 2.0 million gallons per day">
+          <div class="value-card"><strong>50</strong><span>FEED RATE<br />LB/DAY</span></div>
+          <span class="operator divide" aria-hidden="true">÷</span>
+          <div class="value-group">
+            <span class="paren" aria-hidden="true">(</span>
+            <div class="value-card"><strong>3.0</strong><span>DOSE<br />MG/L</span></div>
+            <span class="operator" aria-hidden="true">×</span>
+            <div class="value-card conversion"><strong>8.34</strong><span>LB PER<br />GALLON</span></div>
+            <span class="paren" aria-hidden="true">)</span>
+          </div>
+          <span class="operator equals" aria-hidden="true">=</span>
+          <div class="value-card result"><strong>2.0</strong><span>FLOW · MGD</span></div>
+        </div>
+       </div>
+    </section>
+  </fieldset>
+
+  <aside class="conversion-note">
+    <span class="note-mark" aria-hidden="true">8.34</span>
+    <p><strong>Why 8.34?</strong> It’s the approximate pounds in one gallon of water. Use flow in <strong>MGD</strong> and dose in <strong>mg/L</strong>; the result is a chemical feed rate in <strong>lb/day</strong>.</p>
+  </aside>
+</section>
+
+<style>
+  .davidson-calculator {
+    --ink: var(--fg-ink);
+    --body: var(--fg-body);
+    --muted: var(--fg-muted);
+    --blue: var(--fg-blue);
+    --teal: var(--fg-teal);
+    --teal-dark: var(--fg-teal-dark);
+    --coral: var(--fg-coral);
+    --line: var(--fg-line);
+    --pale-blue: var(--fg-pale-blue);
+    --paper: var(--fg-paper);
+
+    max-width: 76rem;
+    margin: 1rem auto 2.5rem;
+    color: var(--body);
+    font-family: var(--fg-font);
+  }
+
+  .solve-controls {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    margin: 0 0 1.8rem;
+    padding: 0;
+    border: 0;
+  }
+
+  .solve-controls legend {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+
+  .solve-radio {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+
+  .solve-tab {
+    display: inline-flex;
+    min-height: 3.1rem;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.55rem 1.15rem;
+    border: 1px solid var(--line);
+    border-radius: 0.8rem;
+    background: var(--paper);
+    color: var(--ink);
+    cursor: pointer;
+    font-size: 0.95rem;
+    font-weight: 700;
+    transition: border-color 150ms ease, background-color 150ms ease, color 150ms ease;
+  }
+
+  .tab-number {
+    display: grid;
+    width: 1.7rem;
+    aspect-ratio: 1;
+    place-items: center;
+    border-radius: 0.42rem;
+    background: var(--pale-blue);
+    color: var(--muted);
+    font-size: 0.82rem;
+    font-weight: 800;
+  }
+
+  .solve-radio:checked + .solve-tab {
+    border-color: var(--teal);
+    background: var(--teal);
+    color: #fff;
+    box-shadow: 0 9px 18px rgb(11 130 117 / 17%);
+  }
+
+  .solve-radio:checked + .solve-tab .tab-number {
+    background: #fff;
+    color: var(--teal-dark);
+  }
+
+  .solve-radio:focus-visible + .solve-tab {
+    outline: 3px solid #1b6389;
+    outline-offset: 3px;
+  }
+
+  .solve-tab:hover {
+    border-color: var(--teal);
+  }
+
+  .solve-panel {
+    display: none;
+    flex: 0 0 100%;
+    grid-template-columns: minmax(15rem, 0.78fr) minmax(0, 1.65fr);
+    align-items: center;
+    gap: clamp(1.5rem, 4vw, 3.25rem);
+  }
+
+  #solve-feed:checked ~ .solve-panel[data-solution="feed"],
+  #solve-dose:checked ~ .solve-panel[data-solution="dose"],
+  #solve-flow:checked ~ .solve-panel[data-solution="flow"] {
+    display: grid;
+    animation: panel-enter 260ms cubic-bezier(0.16, 1, 0.3, 1) both;
+  }
+
+  .pie-figure {
+    display: grid;
+    justify-items: center;
+    align-content: center;
+    gap: 0.55rem;
+    min-width: 0;
+    margin: 0;
+    padding: clamp(0.5rem, 2vw, 1.25rem);
+  }
+
+  .worked-example {
+    min-width: 0;
+  }
+
+  .worked-example h2 {
+    margin: 0 0 0.15rem;
+    color: var(--ink);
+    font-size: clamp(1.65rem, 3vw, 2.3rem);
+    font-weight: 780;
+    letter-spacing: -0.04em;
+    line-height: 1.15;
+    text-wrap: balance;
+  }
+
+  .instruction {
+    margin: 0.8rem 0 1rem;
+    color: var(--body);
+    font-size: clamp(0.98rem, 1.45vw, 1.1rem);
+    line-height: 1.55;
+    text-wrap: pretty;
+  }
+
+  .equation {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: flex-start;
+    gap: clamp(0.45rem, 1.15vw, 0.9rem);
+  }
+
+  .value-card {
+    display: grid;
+    min-width: 5.25rem;
+    min-height: 6.1rem;
+    align-content: center;
+    justify-items: center;
+    gap: 0.25rem;
+    padding: 0.6rem 0.75rem;
+    border: 1px solid var(--line);
+    border-radius: 0.9rem;
+    background: var(--paper);
+    box-shadow: 0 4px 12px rgb(24 60 78 / 4%);
+    text-align: center;
+  }
+
+  .value-card strong {
+    color: var(--blue);
+    font-size: clamp(1.45rem, 2.4vw, 2rem);
+    font-weight: 800;
+    letter-spacing: -0.04em;
+    line-height: 1;
+  }
+
+  .value-card span {
+    color: var(--muted);
+    font-size: 0.64rem;
+    font-weight: 800;
+    letter-spacing: 0.08em;
+    line-height: 1.3;
+  }
+
+  .value-card.conversion {
+    border-color: #efdfb8;
+    background: #fffaf0;
+  }
+
+  .value-card.conversion strong {
+    color: #8c5a12;
+  }
+
+  .value-card.result {
+    min-width: 6.5rem;
+    border-color: #b9e8dd;
+    background: #f0fbf8;
+  }
+
+  .value-card.result strong {
+    color: #129d89;
+  }
+
+  .value-card.result span {
+    color: #166a5c;
+  }
+
+  .operator,
+  .paren {
+    color: #879ba5;
+    font-size: 1.55rem;
+    font-weight: 650;
+    line-height: 1;
+  }
+
+  .operator.divide {
+    font-size: 1.8rem;
+  }
+
+  .operator.equals {
+    margin-inline: 0.1rem;
+    font-size: 1.75rem;
+  }
+
+  .value-group {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+    gap: 0.45rem;
+    padding: 0.4rem 0.55rem;
+    border: 1px dashed var(--line);
+    border-radius: 1rem;
+    background: var(--pale-blue);
+  }
+
+  .example-note {
+    margin: 0.9rem 0 0;
+    color: var(--body);
+    font-size: 0.98rem;
+    line-height: 1.55;
+    text-wrap: pretty;
+  }
+
+  .example-note strong {
+    color: var(--ink);
+  }
+
+  .conversion-note {
+    display: flex;
+    align-items: center;
+    gap: 0.9rem;
+    margin: 1.5rem 0 0;
+    padding: 1rem 1.1rem;
+    border: 1px solid var(--line);
+    border-radius: 0.9rem;
+    background: var(--pale-blue);
+  }
+
+  .conversion-note p {
+    margin: 0;
+    color: var(--body);
+    font-size: 0.88rem;
+    line-height: 1.55;
+    text-wrap: pretty;
+  }
+
+  .conversion-note strong {
+    color: var(--ink);
+  }
+
+  .note-mark {
+    display: grid;
+    width: 2.8rem;
+    min-width: 2.8rem;
+    aspect-ratio: 1;
+    place-items: center;
+    border-radius: 0.75rem;
+    background: var(--pale-blue);
+    color: #8c5a12;
+    font-size: 0.8rem;
+    font-weight: 850;
+  }
+
+  :global(html[data-theme="dark"]) .solve-tab:hover {
+    border-color: var(--teal);
+    background: #233b43;
+  }
+
+  :global(html[data-theme="dark"]) .solve-radio:checked + .solve-tab:hover {
+    background: var(--teal);
+  }
+
+  :global(html[data-theme="dark"]) .value-card.conversion {
+    border-color: #76623a;
+    background: #302b20;
+  }
+
+  :global(html[data-theme="dark"]) .value-card.conversion strong,
+  :global(html[data-theme="dark"]) .note-mark {
+    color: #f0c06b;
+  }
+
+  :global(html[data-theme="dark"]) .value-card.result {
+    border-color: #31675d;
+    background: #193832;
+  }
+
+  :global(html[data-theme="dark"]) .value-card.result strong {
+    color: #5bd2b4;
+  }
+
+  :global(html[data-theme="dark"]) .value-card.result span {
+    color: #a4e7d4;
+  }
+
+  @keyframes panel-enter {
+    from {
+      opacity: 0.65;
+      transform: translateY(0.35rem);
+    }
+
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  @media (max-width: 900px) {
+    .solve-panel {
+      grid-template-columns: minmax(12rem, 0.72fr) minmax(0, 1.5fr);
+      gap: 1rem;
+    }
+
+    .pie-figure {
+      padding-inline: 0;
+    }
+
+    .equation {
+      gap: 0.45rem;
+    }
+  }
+
+  @media (max-width: 700px) {
+    .davidson-calculator {
+      margin-top: 0.5rem;
+    }
+
+    .solve-controls {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 0.45rem;
+      margin-bottom: 1.25rem;
+    }
+
+    .solve-tab {
+      min-width: 0;
+      width: 100%;
+      min-height: 3.3rem;
+      flex-direction: column;
+      justify-content: center;
+      gap: 0.3rem;
+      padding: 0.5rem 0.25rem;
+      border-radius: 0.7rem;
+      font-size: 0.7rem;
+      line-height: 1.15;
+      text-align: center;
+    }
+
+    .tab-number {
+      width: 1.4rem;
+      border-radius: 0.35rem;
+      font-size: 0.72rem;
+    }
+
+    .solve-panel {
+      grid-column: 1 / -1;
+      width: 100%;
+      grid-template-columns: minmax(0, 1fr);
+      gap: 0.65rem;
+    }
+
+    .pie-figure {
+      padding: 0;
+    }
+
+    .worked-example h2 {
+      margin-bottom: 0.7rem;
+      font-size: 1.75rem;
+    }
+
+    .equation {
+      justify-content: center;
+      gap: 0.35rem;
+    }
+
+    .value-card {
+      min-width: 4.15rem;
+      min-height: 5.4rem;
+      padding: 0.5rem 0.4rem;
+      border-radius: 0.75rem;
+    }
+
+    .value-card strong {
+      font-size: 1.45rem;
+    }
+
+    .value-card span {
+      font-size: 0.56rem;
+    }
+
+    .value-card.result {
+      min-width: 5.1rem;
+    }
+
+    .value-group {
+      gap: 0.3rem;
+      padding: 0.3rem;
+      border-radius: 0.8rem;
+    }
+
+    .operator,
+    .paren {
+      font-size: 1.15rem;
+    }
+
+    .operator.equals,
+    .operator.divide {
+      font-size: 1.4rem;
+    }
+
+    .conversion-note {
+      align-items: flex-start;
+      margin-top: 1.2rem;
+      padding: 0.85rem;
+    }
+  }
+
+  @media (max-width: 380px) {
+    .solve-tab {
+      font-size: 0.64rem;
+    }
+
+    .equation {
+      gap: 0.25rem;
+    }
+
+    .value-card {
+      min-width: 3.8rem;
+      padding-inline: 0.3rem;
+    }
+
+    .value-card.result {
+      min-width: 4.7rem;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .solve-tab {
+      transition: none;
+    }
+
+    #solve-feed:checked ~ .solve-panel[data-solution="feed"],
+    #solve-dose:checked ~ .solve-panel[data-solution="dose"],
+    #solve-flow:checked ~ .solve-panel[data-solution="flow"] {
+      animation: none;
+    }
+  }
+</style>

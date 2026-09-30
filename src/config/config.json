@@ -1,0 +1,29 @@
+{
+  "site": {
+    "title": "Wastewater Field Guide",
+    "logo": "",
+    "logo_darkmode": "",
+    "logo_width": "127",
+    "logo_height": "32",
+    "logo_text": "Wastewater Field Guide"
+  },
+
+  "settings": {
+    "search": true,
+    "theme_switcher": true
+  },
+
+  "params": {
+    "footer_contact": {
+      "enable": false,
+      "action": "#"
+    },
+    "copyright": "Wastewater Field Guide"
+  },
+
+  "navigation_button": {
+    "enable": false,
+    "label": "Davidson Pie Chart",
+    "link": "/operator-math/davidson-pie-chart/"
+  }
+}

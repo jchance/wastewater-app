@@ -1,0 +1,503 @@
+---
+import { flowUnits, formatNumber } from "@/lib/dosage";
+import {
+  activeFields,
+  calculateLoading,
+  loadingModes,
+  loadingSteps,
+  mediaTypes,
+  modeFields,
+  parameters,
+  renderStages,
+  DEFAULT_LB_BOD_PER_PERSON,
+  type LoadingInput,
+  type LoadingMode,
+  type MediaType,
+} from "@/lib/loading";
+import { renderSteps } from "@/lib/processControl";
+import "@/styles/calculator.css";
+
+const initialMode: LoadingMode = "removal";
+const initial: LoadingInput = {
+  flow: 3.2,
+  flowUnit: "mgd",
+  parameter: "BOD",
+  conc: 220,
+  influent: 220,
+  primaryEff: 150,
+  secondaryEff: NaN,
+  finalEff: 12,
+  removalFlow: 3.2,
+  removalFlowUnit: "mgd",
+  media: "tf",
+  tfDiameter: 100,
+  tfDepth: 6,
+  rbcArea: 300000,
+  pondAcres: 20,
+  bod: 150,
+  perCapita: DEFAULT_LB_BOD_PER_PERSON,
+};
+
+const outcome = calculateLoading(initialMode, initial);
+const r = outcome.ok ? outcome.result : null;
+const stepsHtml = r ? renderSteps(loadingSteps(initialMode, initial, r)) : "";
+const stagesHtml = r ? renderStages(r) : "";
+const val = (n: number) => (Number.isFinite(n) ? n : "");
+const shows = (key: keyof LoadingInput) =>
+  (Object.keys(modeFields) as LoadingMode[]).filter((m) => modeFields[m].includes(key)).join(" ");
+const hidden = (key: keyof LoadingInput) => !activeFields(initialMode, initial.media).includes(key);
+const mediaOf: Partial<Record<keyof LoadingInput, MediaType>> = {
+  tfDiameter: "tf",
+  tfDepth: "tf",
+  rbcArea: "rbc",
+  pondAcres: "pond",
+};
+
+type Field = {
+  name: keyof LoadingInput;
+  label: string;
+  unit?: string;
+  flowUnit?: "flowUnit" | "removalFlowUnit";
+  optional?: boolean;
+  hint?: string;
+};
+const fields: Field[] = [
+  { name: "flow", label: "Flow", flowUnit: "flowUnit" },
+  { name: "conc", label: "Concentration", unit: "mg/L" },
+  { name: "influent", label: "Influent", unit: "mg/L" },
+  { name: "primaryEff", label: "Primary effluent", unit: "mg/L", optional: true },
+  { name: "secondaryEff", label: "Secondary effluent", unit: "mg/L", optional: true, hint: "Before filters or other tertiary steps." },
+  { name: "finalEff", label: "Final effluent", unit: "mg/L" },
+  { name: "removalFlow", label: "Flow", flowUnit: "removalFlowUnit", optional: true, hint: "Add it to see pounds removed." },
+  { name: "bod", label: "BOD applied", unit: "mg/L", hint: "What reaches the unit. Use soluble BOD for an RBC." },
+  { name: "tfDiameter", label: "Filter diameter", unit: "ft" },
+  { name: "tfDepth", label: "Media depth", unit: "ft" },
+  { name: "rbcArea", label: "Media surface area", unit: "ft²", hint: "From the manufacturer's data for the shafts in service." },
+  { name: "pondAcres", label: "Pond surface area", unit: "acres" },
+  {
+    name: "perCapita",
+    label: "BOD per person",
+    unit: "lb/day",
+    hint: "0.17 is the figure on the formula sheet. Change it if your state or design standard uses another.",
+  },
+];
+const out = (n: number | undefined, digits?: number) => (n === undefined ? "—" : formatNumber(n, digits));
+---
+
+<section class="calc-page" aria-label="Loading and removal calculator">
+  <form class="calc" data-loading-calc novalidate>
+    <fieldset class="calc-modes">
+      <legend>What are you working out?</legend>
+      {
+        loadingModes.map((m) => (
+          <label class="mode-tab">
+            <input type="radio" name="mode" value={m.id} checked={m.id === initialMode} />
+            <span class="mode-short">{m.label}</span>
+            <span class="mode-long">{m.long}</span>
+          </label>
+        ))
+      }
+    </fieldset>
+
+    <fieldset class="calc-inputs">
+      <legend>Your numbers</legend>
+
+      <label class="field field-wide" data-modes={shows("parameter")} hidden={hidden("parameter")}>
+        <span class="field-label">What you measured</span>
+        <select name="parameter">
+          {parameters.map((p) => <option value={p} selected={p === initial.parameter}>{p}</option>)}
+        </select>
+      </label>
+
+      <label class="field field-wide" data-modes={shows("media")} hidden={hidden("media")}>
+        <span class="field-label">Treatment unit</span>
+        <select name="media">
+          {
+            (Object.entries(mediaTypes) as [MediaType, { label: string }][]).map(([id, m]) => (
+              <option value={id} selected={id === initial.media}>{m.label}</option>
+            ))
+          }
+        </select>
+      </label>
+
+      {
+        fields.map((field) => {
+          const id = `ld-${field.name}`;
+          const current = field.flowUnit ? initial[field.flowUnit] : "";
+          return (
+            <div
+              class="field"
+              data-modes={shows(field.name)}
+              data-media={mediaOf[field.name]}
+              hidden={hidden(field.name)}
+            >
+              <label class="field-label" for={id}>
+                {field.label}
+                {field.optional && <span class="field-optional"> optional</span>}
+              </label>
+              <span class="field-input">
+                <input
+                  id={id}
+                  name={field.name}
+                  type="number"
+                  inputmode="decimal"
+                  min="0"
+                  step="any"
+                  value={val(initial[field.name] as number)}
+                />
+                {field.unit && <span class="unit">{field.unit}</span>}
+                {field.flowUnit && (
+                  <select name={field.flowUnit} aria-label={`${field.label} unit`} class="unit-select">
+                    {Object.entries(flowUnits).map(([uid, u]) => (
+                      <option value={uid} selected={uid === current}>
+                        {u.label}
+                      </option>
+                    ))}
+                  </select>
+                )}
+              </span>
+              {field.hint && <span class="field-hint">{field.hint}</span>}
+            </div>
+          );
+        })
+      }
+      <p class="field-hint field-wide" data-modes="removal" hidden={initialMode !== "removal"}>
+        Leave out any sample point you don't have. Each stage is worked out
+        between the points you fill in.
+      </p>
+    </fieldset>
+
+    <div class="calc-results" aria-live="polite">
+      <p class="calc-error" data-error hidden></p>
+
+      <dl class="result-grid" data-results>
+        <div class="result result-primary" data-modes="pounds" hidden>
+          <dt><span data-param>{initial.parameter}</span> load</dt>
+          <dd><output data-out="lbPerDay">—</output> <span>lb/day</span></dd>
+        </div>
+
+        <div class="result result-primary" data-modes="removal">
+          <dt>Overall <span data-param>{initial.parameter}</span> removal</dt>
+          <dd><output data-out="overallPercent" data-digits="1">{out(r?.overallPercent, 1)}</output> <span>%</span></dd>
+        </div>
+        <div class="result" data-modes="removal" data-needs-flow hidden={!r || r.removalMgd === 0}>
+          <dt>Removed overall</dt>
+          <dd><output data-out="overallLbRemoved">{out(r?.overallLbRemoved)}</output> <span>lb/day</span></dd>
+        </div>
+        <div class="result stage-box" data-modes="removal" data-needs-stages hidden={!r || r.stages.length < 2}>
+          <dt>By stage</dt>
+          <dd><ol class="stage-list" data-stages set:html={stagesHtml} /></dd>
+        </div>
+
+        <div class="result result-primary" data-modes="organic" hidden>
+          <dt>Organic loading</dt>
+          <dd><output data-out="organicRate" data-digits="1">—</output> <span data-rate-unit>{mediaTypes[initial.media].rateUnit}</span></dd>
+        </div>
+        <div class="result result-primary" data-modes="pe" hidden>
+          <dt>Population equivalent</dt>
+          <dd><output data-out="population" data-digits="0">—</output> <span>people</span></dd>
+        </div>
+        <div class="result" data-modes="organic pe" hidden>
+          <dt>BOD load</dt>
+          <dd><output data-out="bodLbPerDay">—</output> <span>lb/day</span></dd>
+        </div>
+
+      </dl>
+    </div>
+  </form>
+
+  <section class="steps" aria-labelledby="steps-heading">
+    <h2 id="steps-heading">Your numbers, step by step</h2>
+    <ol class="step-list" data-steps set:html={stepsHtml} />
+  </section>
+
+  <section class="prose" aria-labelledby="how-heading">
+    <h2 id="how-heading">Why it works</h2>
+    <p>
+      A lab result in mg/L says how strong the water is. A flow says how much
+      of it goes by. Multiply the two, with 8.34 to turn gallons of water into
+      pounds, and you get the pounds per day passing that point. It's the same
+      calculation as a chemical feed rate, which is why the <a href="/operator-math/three-names/">three names</a> page
+      treats them as one idea.
+    </p>
+    <ul class="checks">
+      <li>
+        <strong>Percent removal</strong> compares what came in with what went
+        out. Flow cancels out, so you only need the two concentrations. Add
+        flow when you want the pounds each stage takes out.
+      </li>
+      <li>
+        <strong>Stage by stage</strong>, each step uses the sample before it as
+        its own "in". That's why the stage percentages don't add up to the
+        overall number: secondary removing 90% of what primary left behind is
+        a smaller share of the raw load.
+      </li>
+      <li>
+        <strong>Organic loading</strong> spreads the daily pounds over the
+        size of the unit doing the work: media volume for a trickling filter,
+        media area for an RBC, surface acres for a pond.
+      </li>
+      <li>
+        <strong>Population equivalent</strong> divides the BOD load by what one
+        person contributes in a day. It tells you how many people a load is
+        "worth", which is handy for sizing up an industrial discharger.
+      </li>
+    </ul>
+    <p>
+      Every formula here is on the <a href="/operator-reference/formulas/">formula sheet</a>.
+    </p>
+  </section>
+
+  <section class="prose" aria-labelledby="example-heading">
+    <h2 id="example-heading">Example: monthly removal report</h2>
+    <p>
+      The monthly average flow is <strong>3.2 MGD</strong>. Influent BOD ran <strong>220 mg/L</strong>,
+      primary effluent <strong>150 mg/L</strong> and final effluent <strong>12 mg/L</strong>.
+    </p>
+    <ul class="example-math">
+      <li>220 × 3.2 × 8.34 = <b>5,871 lb/day</b> coming in</li>
+      <li>(220 − 150) ÷ 220 × 100 = <b>31.8%</b> through the primaries</li>
+      <li>(150 − 12) ÷ 150 × 100 = <b>92%</b> through secondary</li>
+      <li>(220 − 12) ÷ 220 × 100 = <b>94.5%</b> overall</li>
+      <li>208 × 3.2 × 8.34 = <b>5,551 lb/day</b> of BOD removed</li>
+    </ul>
+    <p>
+      The overall number is the one most permits check, usually against a
+      minimum of 85% for BOD and TSS. The stage numbers tell you where to look
+      when the overall number slips.
+    </p>
+    <button type="button" class="load-example" data-load-example>
+      Put this example in the calculator
+    </button>
+  </section>
+
+  <section class="prose" aria-labelledby="sanity-heading">
+    <h2 id="sanity-heading">Do the numbers look reasonable?</h2>
+    <p>
+      Your own plant's history is the best check. These broad ranges are for
+      catching a typo or a units slip, not for setting targets.
+    </p>
+    <div class="sanity-wrap">
+      <table class="sanity">
+        <thead>
+          <tr>
+            <th scope="col">Number</th>
+            <th scope="col">Typical</th>
+            <th scope="col">If it is far off</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <th scope="row" data-label="Number">Domestic influent BOD / TSS</th>
+            <td data-label="Typical">About 150–300 mg/L each</td>
+            <td data-label="If it is far off">Very low often means infiltration and inflow. Very high points to an industrial user or recycle streams.</td>
+          </tr>
+          <tr>
+            <th scope="row" data-label="Number">Primary removal</th>
+            <td data-label="Typical">About 25–40% BOD, 50–70% TSS</td>
+            <td data-label="If it is far off">Check that the primary effluent sample came from after the clarifiers, not the splitter box.</td>
+          </tr>
+          <tr>
+            <th scope="row" data-label="Number">Overall secondary removal</th>
+            <td data-label="Typical">85% or better</td>
+            <td data-label="If it is far off">Compare with the same day's influent sample; composite timing matters.</td>
+          </tr>
+          <tr>
+            <th scope="row" data-label="Number">Trickling filter</th>
+            <td data-label="Typical">About 5–25 lb/1,000 ft³ low rate, 25–100 high rate</td>
+            <td data-label="If it is far off">Diameter entered as radius cuts the volume to a quarter and quadruples the loading.</td>
+          </tr>
+          <tr>
+            <th scope="row" data-label="Number">RBC, soluble BOD</th>
+            <td data-label="Typical">About 2–4 lb/1,000 ft² overall; first stage often kept under ~6</td>
+            <td data-label="If it is far off">Total BOD entered instead of soluble BOD will read high.</td>
+          </tr>
+          <tr>
+            <th scope="row" data-label="Number">Facultative pond</th>
+            <td data-label="Typical">About 15–50 lb/acre per day</td>
+            <td data-label="If it is far off">Use the water surface of the cells in service, not the property acreage.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section class="prose" aria-labelledby="checks-heading">
+    <h2 id="checks-heading">Before you report it</h2>
+    <ul class="checks">
+      <li>
+        <strong>Match the samples.</strong> Influent and effluent should be
+        composites over the same period. A grab sample against a 24-hour
+        composite can make removal look better or worse than it is.
+      </li>
+      <li>
+        <strong>Use the flow for the same day.</strong> Pounds use the flow
+        over the sampling period, not the design flow.
+      </li>
+      <li>
+        <strong>Watch below-detection results.</strong> Report them the way
+        your permit says. Don't swap in zero on your own.
+      </li>
+      <li>
+        <strong>Know what the unit actually sees.</strong> Organic loading uses
+        what reaches the filter, RBC or pond, including recycle, not raw
+        influent.
+      </li>
+    </ul>
+    <p class="disclaimer">
+      This is a study and planning aid. Your permit, plant SOPs and process
+      engineer take priority over any number on this page.
+    </p>
+  </section>
+</section>
+
+<style>
+  .stage-box dd {
+    font-size: 1rem;
+  }
+  .stage-list {
+    display: grid;
+    gap: 0.35rem;
+    margin: 0.35rem 0 0;
+    padding: 0;
+    list-style: none;
+  }
+  .stage-list :global(li) {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.25rem 0.75rem;
+    align-items: baseline;
+    margin: 0;
+  }
+  .stage-list :global(li > span:first-child) {
+    flex: 1 1 12rem;
+    color: var(--muted);
+    font-size: 0.9rem;
+    font-weight: 650;
+    letter-spacing: 0;
+  }
+  .stage-list :global(.stage-lb) {
+    color: var(--muted);
+    font-size: 0.85rem;
+    font-weight: 650;
+    letter-spacing: 0;
+  }
+</style>
+
+<script>
+  import { formatNumber } from "@/lib/dosage";
+  import {
+    calculateLoading,
+    loadingSteps,
+    mediaTypes,
+    renderStages,
+    type LoadingInput,
+    type LoadingMode,
+    type MediaType,
+  } from "@/lib/loading";
+  import { renderSteps } from "@/lib/processControl";
+
+  const example: Record<string, string> = {
+    mode: "removal",
+    parameter: "BOD",
+    influent: "220",
+    primaryEff: "150",
+    secondaryEff: "",
+    finalEff: "12",
+    removalFlow: "3.2",
+    removalFlowUnit: "mgd",
+  };
+
+  function bind() {
+    const form = document.querySelector<HTMLFormElement>("[data-loading-calc]");
+    if (!form || form.dataset.bound) return;
+    form.dataset.bound = "true";
+
+    const el = <T extends Element>(name: string) => form.elements.namedItem(name) as unknown as T;
+    const num = (name: string) => {
+      const raw = el<HTMLInputElement>(name).value.trim();
+      return raw === "" ? NaN : Number(raw);
+    };
+    const str = (name: string) => el<HTMLSelectElement>(name).value;
+    const error = form.querySelector<HTMLElement>("[data-error]")!;
+    const results = form.querySelector<HTMLElement>("[data-results]")!;
+    const steps = document.querySelector<HTMLElement>("[data-steps]")!;
+    const stages = form.querySelector<HTMLElement>("[data-stages]")!;
+
+    function update() {
+      const mode = (form!.querySelector<HTMLInputElement>('input[name="mode"]:checked')?.value ?? "removal") as LoadingMode;
+      const media = str("media") as MediaType;
+      for (const node of form!.querySelectorAll<HTMLElement>("[data-modes]")) {
+        const inMode = node.dataset.modes!.split(" ").includes(mode);
+        node.hidden = !inMode || (node.dataset.media !== undefined && node.dataset.media !== media);
+      }
+      const filled = ["influent", "primaryEff", "secondaryEff", "finalEff"].filter((n) => Number.isFinite(num(n))).length;
+      form!.querySelector<HTMLElement>("[data-needs-flow]")!.hidden ||= !(num("removalFlow") > 0);
+      form!.querySelector<HTMLElement>("[data-needs-stages]")!.hidden ||= filled < 3;
+      for (const node of form!.querySelectorAll<HTMLElement>("[data-param]")) node.textContent = str("parameter");
+      form!.querySelector<HTMLElement>("[data-rate-unit]")!.textContent = mediaTypes[media].rateUnit;
+
+      const input: LoadingInput = {
+        flow: num("flow"),
+        flowUnit: str("flowUnit") as LoadingInput["flowUnit"],
+        parameter: str("parameter"),
+        conc: num("conc"),
+        influent: num("influent"),
+        primaryEff: num("primaryEff"),
+        secondaryEff: num("secondaryEff"),
+        finalEff: num("finalEff"),
+        removalFlow: num("removalFlow"),
+        removalFlowUnit: str("removalFlowUnit") as LoadingInput["removalFlowUnit"],
+        media,
+        tfDiameter: num("tfDiameter"),
+        tfDepth: num("tfDepth"),
+        rbcArea: num("rbcArea"),
+        pondAcres: num("pondAcres"),
+        bod: num("bod"),
+        perCapita: num("perCapita"),
+      };
+      const outcome = calculateLoading(mode, input);
+
+      error.hidden = outcome.ok;
+      results.classList.toggle("is-stale", !outcome.ok);
+      steps.classList.toggle("is-stale", !outcome.ok);
+      if (!outcome.ok) {
+        error.textContent = outcome.message;
+        return;
+      }
+
+      const r = outcome.result;
+      if (mode === "removal") {
+        stages.innerHTML = renderStages(r);
+      }
+      for (const out of results.querySelectorAll<HTMLOutputElement>("[data-out]")) {
+        const digits = out.dataset.digits ? Number(out.dataset.digits) : undefined;
+        const key = out.dataset.out as keyof typeof r;
+        const digitsFor = key === "organicRate" && media === "rbc" ? 2 : digits;
+        out.value = formatNumber(r[key] as number, digitsFor);
+      }
+      steps.innerHTML = renderSteps(loadingSteps(mode, input, r));
+    }
+
+    form.addEventListener("input", update);
+    form.addEventListener("change", update);
+    form.addEventListener("submit", (e) => e.preventDefault());
+
+    document.querySelector("[data-load-example]")?.addEventListener("click", () => {
+      for (const [name, value] of Object.entries(example)) {
+        if (name === "mode") {
+          form.querySelector<HTMLInputElement>(`input[name="mode"][value="${value}"]`)!.checked = true;
+        } else {
+          el<HTMLInputElement>(name).value = value;
+        }
+      }
+      update();
+      form.scrollIntoView({ behavior: "smooth", block: "start" });
+    });
+
+    update();
+  }
+
+  bind();
+  document.addEventListener("astro:page-load", bind);
+</script>

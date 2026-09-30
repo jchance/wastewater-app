@@ -1,0 +1,26 @@
+---
+---
+
+<script is:inline>
+  (() => {
+    const KEY = "starlight-theme";
+
+    const getPreference = () => {
+      try {
+        const stored = localStorage.getItem(KEY);
+        return stored === "light" || stored === "dark" ? stored : "auto";
+      } catch {
+        return "auto";
+      }
+    };
+
+    const resolve = (preference) =>
+      preference === "auto"
+        ? window.matchMedia("(prefers-color-scheme: dark)").matches
+          ? "dark"
+          : "light"
+        : preference;
+
+    document.documentElement.dataset.theme = resolve(getPreference());
+  })();
+</script>

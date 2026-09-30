@@ -1,0 +1,474 @@
+---
+import { formatNumber } from "@/lib/dosage";
+import { renderSteps } from "@/lib/processControl";
+import {
+  calculatePipe,
+  hazenPresets,
+  manningPresets,
+  pipeFlowUnits,
+  pipeModeFields,
+  pipeModes,
+  pipeSteps,
+  type PipeInput,
+  type PipeMode,
+} from "@/lib/pipeFlow";
+import "@/styles/calculator.css";
+
+const initialMode: PipeMode = "velocity";
+const initial: PipeInput = {
+  diameter: 6,
+  flow: 350,
+  flowUnit: "gpm",
+  depth: 2,
+  slope: 0.4,
+  n: 0.013,
+  length: 2400,
+  c: 120,
+};
+
+const outcome = calculatePipe(initialMode, initial);
+const r = outcome.ok ? outcome.result : null;
+const stepsHtml = r ? renderSteps(pipeSteps(initialMode, initial, r)) : "";
+const shows = (key: keyof PipeInput) =>
+  (Object.keys(pipeModeFields) as PipeMode[]).filter((m) => pipeModeFields[m].includes(key)).join(" ");
+const hidden = (key: keyof PipeInput) => !pipeModeFields[initialMode].includes(key);
+const out = (n: number | undefined, digits?: number) => (n === undefined ? "—" : formatNumber(n, digits));
+
+type Field = { name: keyof PipeInput; label: string; unit?: string; flowSelect?: boolean; step?: string };
+const fields: Field[] = [
+  { name: "diameter", label: "Pipe diameter", unit: "in" },
+  { name: "flow", label: "Flow", flowSelect: true },
+  { name: "depth", label: "Depth of flow", unit: "in" },
+  { name: "slope", label: "Slope", unit: "%" },
+  { name: "length", label: "Pipe length", unit: "ft" },
+];
+---
+
+<section class="calc-page" aria-label="Pipe flow calculator">
+  <form class="calc" data-pipe-calc novalidate>
+    <fieldset class="calc-modes">
+      <legend>What kind of pipe?</legend>
+      {
+        pipeModes.map((m) => (
+          <label class="mode-tab">
+            <input type="radio" name="mode" value={m.id} checked={m.id === initialMode} />
+            <span class="mode-short">{m.label}</span>
+            <span class="mode-long">{m.long}</span>
+          </label>
+        ))
+      }
+    </fieldset>
+
+    <fieldset class="calc-inputs">
+      <legend>Your numbers</legend>
+
+      <label class="field field-wide" data-modes={shows("n")} hidden={hidden("n")}>
+        <span class="field-label">Pipe material</span>
+        <select name="nPreset">
+          {
+            manningPresets.map((p) => (
+              <option value={p.id} selected={p.id === "design"}>
+                {p.name} — n {p.n}
+              </option>
+            ))
+          }
+          <option value="custom">Custom n</option>
+        </select>
+      </label>
+
+      <label class="field field-wide" data-modes={shows("c")} hidden={hidden("c")}>
+        <span class="field-label">Pipe material</span>
+        <select name="cPreset">
+          {
+            hazenPresets.map((p) => (
+              <option value={p.id} selected={p.id === "di"}>
+                {p.name} — C {p.c}
+              </option>
+            ))
+          }
+          <option value="custom">Custom C</option>
+        </select>
+      </label>
+
+      {
+        fields.map((field) => {
+          const id = `pf-${field.name}`;
+          return (
+            <div class="field" data-modes={shows(field.name)} hidden={hidden(field.name)}>
+              <label class="field-label" for={id}>{field.label}</label>
+              <span class="field-input">
+                <input id={id} name={field.name} type="number" inputmode="decimal" min="0" step="any" value={initial[field.name] as number} />
+                {field.unit && <span class="unit">{field.unit}</span>}
+                {field.flowSelect && (
+                  <select name="flowUnit" aria-label="Flow unit" class="unit-select">
+                    {Object.entries(pipeFlowUnits).map(([uid, u]) => (
+                      <option value={uid} selected={uid === initial.flowUnit}>
+                        {u.label}
+                      </option>
+                    ))}
+                  </select>
+                )}
+              </span>
+            </div>
+          );
+        })
+      }
+
+      <div class="field" data-modes={shows("n")} hidden={hidden("n")}>
+        <label class="field-label" for="pf-n">Manning's n</label>
+        <span class="field-input">
+          <input id="pf-n" name="n" type="number" inputmode="decimal" min="0" step="any" value={initial.n} />
+        </span>
+      </div>
+
+      <div class="field" data-modes={shows("c")} hidden={hidden("c")}>
+        <label class="field-label" for="pf-c">Hazen-Williams C</label>
+        <span class="field-input">
+          <input id="pf-c" name="c" type="number" inputmode="decimal" min="0" step="any" value={initial.c} />
+        </span>
+      </div>
+
+      <p class="field-hint field-wide" data-modes="manning" hidden>
+        Measure depth at a manhole with a clean, straight run upstream. Slope is
+        the fall per 100 ft: 0.4% drops 0.4 ft every 100 ft.
+      </p>
+      <p class="field-hint field-wide" data-modes="velocity">
+        This assumes the pipe is flowing full, like a force main or a
+        surcharged sewer. Use Gravity sewer for a pipe running partly full.
+      </p>
+    </fieldset>
+
+    <div class="calc-results" aria-live="polite">
+      <p class="calc-error" data-error hidden></p>
+
+      <dl class="result-grid" data-results>
+        <div class="result result-primary" data-modes="velocity hazen">
+          <dt>Velocity</dt>
+          <dd><output data-out="velocity" data-digits="2">{out(r?.velocity, 2)}</output> <span>ft/s</span></dd>
+        </div>
+        <div class="result" data-modes="velocity">
+          <dt>Pipe area</dt>
+          <dd><output data-out="areaFt2" data-digits="4">{out(r?.areaFt2, 4)}</output> <span>ft²</span></dd>
+        </div>
+        <div class="result" data-modes="velocity">
+          <dt>Flow for 2 ft/s</dt>
+          <dd><output data-out="scourGpm">{out(r?.scourGpm)}</output> <span>gpm</span></dd>
+        </div>
+
+        <div class="result result-primary" data-modes="manning" hidden>
+          <dt>Flow</dt>
+          <dd><output data-out="manningGpm">—</output> <span>gpm</span></dd>
+        </div>
+        <div class="result" data-modes="manning" hidden>
+          <dt>Velocity</dt>
+          <dd><output data-out="manningVelocity" data-digits="2">—</output> <span>ft/s</span></dd>
+        </div>
+        <div class="result" data-modes="manning" hidden>
+          <dt>In MGD</dt>
+          <dd><output data-out="manningMgd" data-digits="3">—</output> <span>MGD</span></dd>
+        </div>
+        <div class="result" data-modes="manning" hidden>
+          <dt>Full-pipe capacity</dt>
+          <dd><output data-out="fullGpm">—</output> <span>gpm</span></dd>
+        </div>
+        <div class="result" data-modes="manning" hidden>
+          <dt>Using capacity</dt>
+          <dd><output data-out="percentFull" data-digits="0">—</output> <span>%</span></dd>
+        </div>
+
+        <div class="result" data-modes="hazen" hidden>
+          <dt>Head loss</dt>
+          <dd><output data-out="headLossFt" data-digits="1">—</output> <span>ft</span></dd>
+        </div>
+        <div class="result" data-modes="hazen" hidden>
+          <dt>As pressure</dt>
+          <dd><output data-out="headLossPsi" data-digits="1">—</output> <span>psi</span></dd>
+        </div>
+        <div class="result" data-modes="hazen" hidden>
+          <dt>Per 1,000 ft</dt>
+          <dd><output data-out="headLossPer1000" data-digits="1">—</output> <span>ft</span></dd>
+        </div>
+      </dl>
+      <p class="velocity-flag" data-velocity-flag hidden></p>
+    </div>
+  </form>
+
+  <section class="steps" aria-labelledby="steps-heading">
+    <h2 id="steps-heading">Your numbers, step by step</h2>
+    <ol class="step-list" data-steps set:html={stepsHtml} />
+  </section>
+
+  <section class="prose" aria-labelledby="how-heading">
+    <h2 id="how-heading">Why it works</h2>
+    <p>
+      <strong>Full pipes</strong> follow the continuity rule on the <a href="/operator-reference/formulas/">formula sheet</a>: flow equals
+      area times velocity. Know any two and you have the third. Everything is
+      done in feet and seconds, so inches become feet and gpm becomes cubic
+      feet per second first. One cfs is 448.83 gpm.
+    </p>
+    <p>
+      <strong>Gravity sewers</strong> rarely run full, so the area is only the
+      wetted slice of the circle. Manning's equation sets the speed from three
+      things: how rough the pipe is (n), how steep it is (slope), and the
+      hydraulic radius, which is the flow area divided by the length of pipe
+      wall the water touches. A pipe running half full has the same hydraulic
+      radius as a full one, so it moves at the same speed carrying half the
+      flow.
+    </p>
+    <p>
+      <strong>Force mains</strong> are full and under pressure, so the question
+      becomes how much head friction eats. Hazen-Williams answers that from
+      flow, diameter, length and a smoothness factor (C). Higher C means a
+      smoother pipe and less loss. Head loss climbs with flow to the 1.85
+      power, so a pump running 20% faster loses about 40% more head in the
+      main.
+    </p>
+  </section>
+
+  <section class="prose" aria-labelledby="example-heading">
+    <h2 id="example-heading">Example: a slow night in an 8-inch sewer</h2>
+    <p>
+      An <strong>8-inch</strong> sewer laid at <strong>0.40%</strong> slope,
+      the usual minimum for that size, is running <strong>2 inches</strong> deep
+      at 3 a.m. Using the design n of <strong>0.013</strong>:
+    </p>
+    <ul class="example-math">
+      <li>d/D = 2 ÷ 8 = <b>0.25</b>, so the wetted area is <b>0.0682 ft²</b></li>
+      <li>Hydraulic radius = 0.0682 ÷ 0.698 = <b>0.0978 ft</b></li>
+      <li>V = 1.486 ÷ 0.013 × 0.0978<sup>2/3</sup> × 0.004<sup>1/2</sup> = <b>1.53 ft/s</b></li>
+      <li>Q = 1.53 × 0.0682 = <b>0.105 cfs</b>, about <b>47 gpm</b></li>
+    </ul>
+    <p>
+      Full, the same pipe carries about 343 gpm at 2.2 ft/s. At night it is
+      using about 14% of that and moving below 2 ft/s, so grit and grease can
+      settle. That is normal on a low-flow night. Daily peaks should flush it,
+      but a reach that stays shallow all day belongs on the cleaning schedule.
+    </p>
+    <button type="button" class="load-example" data-load-example="manning">
+      Put this example in the calculator
+    </button>
+  </section>
+
+  <section class="prose" aria-labelledby="example2-heading">
+    <h2 id="example2-heading">Example: checking a force main</h2>
+    <p>
+      A lift station pushes <strong>350 gpm</strong> through <strong>2,400 ft</strong> of <strong>6-inch</strong> cement-lined ductile
+      iron (C ≈ <strong>120</strong>).
+    </p>
+    <ul class="example-math">
+      <li>(100 ÷ 120)<sup>1.85</sup> = <b>0.714</b></li>
+      <li>0.002083 × 2,400 × 0.714 × 350<sup>1.85</sup> ÷ 6<sup>4.8655</sup> = <b>29.7 ft</b> of friction loss</li>
+      <li>29.7 ÷ 2.31 = <b>12.9 psi</b></li>
+      <li>350 gpm = 0.78 cfs ÷ 0.196 ft² = <b>3.97 ft/s</b></li>
+    </ul>
+    <p>
+      Add the static lift to the 29.7 ft to get the head the pump works
+      against. If discharge pressure creeps up over the years at the same flow,
+      the C value is dropping: buildup in the main, or a partly closed valve.
+    </p>
+    <button type="button" class="load-example" data-load-example="hazen">
+      Put this example in the calculator
+    </button>
+  </section>
+
+  <section class="prose" aria-labelledby="sanity-heading">
+    <h2 id="sanity-heading">Do the numbers look reasonable?</h2>
+    <div class="sanity-wrap">
+      <table class="sanity">
+        <thead>
+          <tr>
+            <th scope="col">Pipe</th>
+            <th scope="col">Typical velocity</th>
+            <th scope="col">Why it matters</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <th scope="row" data-label="Pipe">Gravity sewer</th>
+            <td data-label="Typical velocity">2 ft/s or more at design flow</td>
+            <td data-label="Why it matters">Below about 2 ft/s solids settle; above about 10 ft/s the pipe wears.</td>
+          </tr>
+          <tr>
+            <th scope="row" data-label="Pipe">Force main</th>
+            <td data-label="Typical velocity">About 2–8 ft/s</td>
+            <td data-label="Why it matters">Slow mains collect solids and go septic; fast ones waste energy and risk water hammer.</td>
+          </tr>
+          <tr>
+            <th scope="row" data-label="Pipe">Manning's n</th>
+            <td data-label="Typical velocity">About 0.011–0.015</td>
+            <td data-label="Why it matters">Most design standards use 0.013 for any material, allowing for slime and joints.</td>
+          </tr>
+          <tr>
+            <th scope="row" data-label="Pipe">Hazen-Williams C</th>
+            <td data-label="Typical velocity">About 100–150</td>
+            <td data-label="Why it matters">New plastic is near 140–150; old unlined iron can fall below 100.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section class="prose" aria-labelledby="checks-heading">
+    <h2 id="checks-heading">Before you trust the answer</h2>
+    <ul class="checks">
+      <li>
+        <strong>Use the inside diameter.</strong> A nominal 8-inch pipe can be
+        a little more or less inside. For rough checks nominal is fine.
+      </li>
+      <li>
+        <strong>Manning assumes steady, uniform flow.</strong> Depth taken just
+        upstream of a drop, a bend or a backed-up junction won't match the
+        formula.
+      </li>
+      <li>
+        <strong>Compare with a real number.</strong> A flow meter, a pump
+        drawdown or a timed wet-well fill beats any formula. Use the math to
+        spot a meter that's drifting.
+      </li>
+      <li>
+        <strong>Friction is only part of the head.</strong> Pump total dynamic
+        head also includes static lift and fitting losses.
+      </li>
+    </ul>
+    <p class="disclaimer">
+      This is a study and field-check aid, not a design tool. Your utility's
+      standards and engineer take priority over any number on this page.
+    </p>
+  </section>
+</section>
+
+<script>
+  import { formatNumber } from "@/lib/dosage";
+  import { renderSteps } from "@/lib/processControl";
+  import {
+    SCOUR_FPS,
+    calculatePipe,
+    hazenPresets,
+    manningPresets,
+    pipeSteps,
+    type PipeInput,
+    type PipeMode,
+  } from "@/lib/pipeFlow";
+
+  const examples: Record<string, Record<string, string>> = {
+    manning: { mode: "manning", diameter: "8", depth: "2", slope: "0.4", nPreset: "design", n: "0.013" },
+    hazen: { mode: "hazen", diameter: "6", flow: "350", flowUnit: "gpm", length: "2400", cPreset: "di", c: "120" },
+  };
+
+  function bind() {
+    const form = document.querySelector<HTMLFormElement>("[data-pipe-calc]");
+    if (!form || form.dataset.bound) return;
+    form.dataset.bound = "true";
+
+    const el = <T extends Element>(name: string) => form.elements.namedItem(name) as unknown as T;
+    const num = (name: string) => {
+      const raw = el<HTMLInputElement>(name).value.trim();
+      return raw === "" ? NaN : Number(raw);
+    };
+    const error = form.querySelector<HTMLElement>("[data-error]")!;
+    const results = form.querySelector<HTMLElement>("[data-results]")!;
+    const flag = form.querySelector<HTMLElement>("[data-velocity-flag]")!;
+    const steps = document.querySelector<HTMLElement>("[data-steps]")!;
+    const nPreset = el<HTMLSelectElement>("nPreset");
+    const cPreset = el<HTMLSelectElement>("cPreset");
+    const nInput = el<HTMLInputElement>("n");
+    const cInput = el<HTMLInputElement>("c");
+
+    function update() {
+      const mode = (form!.querySelector<HTMLInputElement>('input[name="mode"]:checked')?.value ?? "velocity") as PipeMode;
+      for (const node of form!.querySelectorAll<HTMLElement>("[data-modes]")) {
+        node.hidden = !node.dataset.modes!.split(" ").includes(mode);
+      }
+
+      const input: PipeInput = {
+        diameter: num("diameter"),
+        flow: num("flow"),
+        flowUnit: el<HTMLSelectElement>("flowUnit").value as PipeInput["flowUnit"],
+        depth: num("depth"),
+        slope: num("slope"),
+        n: num("n"),
+        length: num("length"),
+        c: num("c"),
+      };
+      const outcome = calculatePipe(mode, input);
+
+      error.hidden = outcome.ok;
+      results.classList.toggle("is-stale", !outcome.ok);
+      steps.classList.toggle("is-stale", !outcome.ok);
+      if (!outcome.ok) {
+        error.textContent = outcome.message;
+        flag.hidden = true;
+        return;
+      }
+
+      const r = outcome.result;
+      for (const out of results.querySelectorAll<HTMLOutputElement>("[data-out]")) {
+        const digits = out.dataset.digits ? Number(out.dataset.digits) : undefined;
+        out.value = formatNumber(r[out.dataset.out as keyof typeof r], digits);
+      }
+      steps.innerHTML = renderSteps(pipeSteps(mode, input, r));
+
+      const v = mode === "manning" ? r.manningVelocity : r.velocity;
+      const slow = v < SCOUR_FPS;
+      const fast = mode === "hazen" && v > 8;
+      flag.hidden = !(slow || fast);
+      flag.textContent = slow
+        ? `${formatNumber(v, 2)} ft/s is below the 2 ft/s usually needed to keep solids moving.`
+        : `${formatNumber(v, 2)} ft/s is above the usual 8 ft/s upper limit for a force main.`;
+    }
+
+    nPreset.addEventListener("change", () => {
+      const p = manningPresets.find((x) => x.id === nPreset.value);
+      if (p) nInput.value = String(p.n);
+    });
+    cPreset.addEventListener("change", () => {
+      const p = hazenPresets.find((x) => x.id === cPreset.value);
+      if (p) cInput.value = String(p.c);
+    });
+    nInput.addEventListener("input", () => {
+      const p = manningPresets.find((x) => x.id === nPreset.value);
+      if (p && Number(nInput.value) !== p.n) nPreset.value = "custom";
+    });
+    cInput.addEventListener("input", () => {
+      const p = hazenPresets.find((x) => x.id === cPreset.value);
+      if (p && Number(cInput.value) !== p.c) cPreset.value = "custom";
+    });
+
+    form.addEventListener("input", update);
+    form.addEventListener("change", update);
+    form.addEventListener("submit", (e) => e.preventDefault());
+
+    for (const button of document.querySelectorAll<HTMLButtonElement>("[data-load-example]")) {
+      button.addEventListener("click", () => {
+        const values = examples[button.dataset.loadExample!];
+        for (const [name, value] of Object.entries(values)) {
+          if (name === "mode") {
+            form.querySelector<HTMLInputElement>(`input[name="mode"][value="${value}"]`)!.checked = true;
+          } else {
+            el<HTMLInputElement>(name).value = value;
+          }
+        }
+        update();
+        form.scrollIntoView({ behavior: "smooth", block: "start" });
+      });
+    }
+
+    update();
+  }
+
+  bind();
+  document.addEventListener("astro:page-load", bind);
+</script>
+
+<style>
+  .velocity-flag {
+    margin: 0;
+    padding: 0.75rem 0.9rem;
+    border: 1px solid var(--fg-coral);
+    border-radius: 0.7rem;
+    background: color-mix(in srgb, var(--fg-coral) 8%, transparent);
+    color: var(--fg-ink);
+    font-size: 0.9rem;
+    line-height: 1.5;
+  }
+</style>

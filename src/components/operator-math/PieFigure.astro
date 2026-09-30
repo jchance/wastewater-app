@@ -1,0 +1,154 @@
+---
+interface Props {
+  highlight: "feed" | "dose" | "flow";
+}
+
+const { highlight } = Astro.props;
+const labels = {
+  feed: "The pounds-per-day section is highlighted.",
+  dose: "The dose section is highlighted.",
+  flow: "The flow section is highlighted.",
+};
+---
+
+<figure class="pie-figure">
+  <svg class="pie" data-highlight={highlight} viewBox="44 24 232 232" role="img" aria-label={`Davidson pie chart. ${labels[highlight]}`}>
+    <path class="pie-wedge wedge-feed" d="M48 140A112 112 0 0 1 272 140Z" />
+    <path class="pie-wedge wedge-dose" d="M48 140A112 112 0 0 0 113 238L160 140Z" />
+    <path class="pie-wedge wedge-conversion" d="M160 140L113 238A112 112 0 0 0 207 238Z" />
+    <path class="pie-wedge wedge-flow" d="M160 140L207 238A112 112 0 0 0 272 140Z" />
+    <circle class="pie-outline" cx="160" cy="140" r="112" />
+    <path class="pie-divider" d="M48 140H272" />
+    <path class="pie-separator" d="M160 140L113 238M160 140L207 238" />
+    <text class="pie-label pie-label-main" x="160" y="105">lb/day</text>
+    <text class="pie-label pie-label-small" x="160" y="124">POUNDS PER DAY</text>
+    <text class="pie-label pie-label-main" x="103" y="181" font-size="16">dose</text>
+    <text class="pie-label pie-label-small" x="103" y="198">mg/L</text>
+    <text class="pie-label pie-label-main" x="217" y="181" font-size="16">flow</text>
+    <text class="pie-label pie-label-small" x="217" y="198">MGD</text>
+    <text class="pie-label pie-label-main" x="160" y="202" font-size="17">8.34</text>
+    <text class="pie-label pie-label-small" x="160" y="219">lb/gal</text>
+  </svg>
+</figure>
+
+<style>
+  .pie-figure {
+    display: grid;
+    justify-items: start;
+    align-content: center;
+    gap: 0.55rem;
+    min-width: 0;
+    margin: 0;
+    padding-block: clamp(0.5rem, 2vw, 1.25rem);
+  }
+
+  .pie {
+    display: block;
+    width: min(100%, 14.5rem);
+    height: auto;
+    overflow: visible;
+  }
+
+  .pie-outline,
+  .pie-divider,
+  .pie-separator {
+    fill: none;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    vector-effect: non-scaling-stroke;
+  }
+
+  .pie-outline,
+  .pie-separator {
+    stroke: #c8dfe8;
+    stroke-width: 2;
+  }
+
+  .pie-divider {
+    stroke: #102f43;
+    stroke-width: 2.6;
+  }
+
+  .pie-wedge {
+    fill: #fff;
+    stroke: #c8dfe8;
+    stroke-width: 1.6;
+    vector-effect: non-scaling-stroke;
+  }
+
+  .pie[data-highlight="feed"] .wedge-feed,
+  .pie[data-highlight="dose"] .wedge-dose,
+  .pie[data-highlight="flow"] .wedge-flow {
+    fill: #fff2e9;
+    stroke: #d65b49;
+    stroke-width: 2.5;
+  }
+
+  :global(html[data-theme="dark"]) .pie-wedge {
+    fill: #1b2a32;
+    stroke: #536e7a;
+  }
+
+  :global(html[data-theme="dark"]) .pie-divider {
+    stroke: #d9e8ed;
+  }
+
+  :global(html[data-theme="dark"]) .pie-outline,
+  :global(html[data-theme="dark"]) .pie-separator {
+    stroke: #536e7a;
+  }
+
+  :global(html[data-theme="dark"]) .pie-label {
+    fill: #e8f2f5;
+  }
+
+  :global(html[data-theme="dark"]) .pie-label-small,
+  :global(html[data-theme="dark"]) figcaption {
+    fill: #a7bbc4;
+    color: #a7bbc4;
+  }
+
+  :global(html[data-theme="dark"]) .pie[data-highlight="feed"] .wedge-feed,
+  :global(html[data-theme="dark"]) .pie[data-highlight="dose"] .wedge-dose,
+  :global(html[data-theme="dark"]) .pie[data-highlight="flow"] .wedge-flow {
+    fill: #442b27;
+    stroke: #f08b73;
+  }
+
+  .pie-label {
+    fill: #102f43;
+    font-family: var(--fg-font);
+    font-weight: 750;
+    text-anchor: middle;
+  }
+
+  .pie-label-main {
+    font-size: 20px;
+  }
+
+  .pie-label-small {
+    fill: #718793;
+    font-size: 12px;
+    font-weight: 650;
+    letter-spacing: 0.025em;
+  }
+
+  figcaption {
+    max-width: 22rem;
+    color: #526979;
+    font-size: 0.8rem;
+    line-height: 1.45;
+    text-align: center;
+  }
+
+  @media (max-width: 700px) {
+    .pie-figure {
+      justify-items: center;
+      padding: 0;
+    }
+
+    .pie {
+      width: min(54vw, 12.3rem);
+    }
+  }
+</style>

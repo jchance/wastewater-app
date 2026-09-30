@@ -1,0 +1,564 @@
+/*
+ * Operator math reference primitives.
+ *
+ * Shared, unscoped building blocks for the quick-reference pages: the section
+ * shell, equation rows, value cards, tab switcher and the callout boxes.
+ * Prefixed `om-` so these never collide with DavidsonCalculator's scoped
+ * styles, which intentionally keep their own copy.
+ *
+ * Everything here reads from the --fg-* tokens, so light/dark comes for free.
+ */
+
+.om-reference {
+  max-width: 76rem;
+  margin: 1rem auto 2.5rem;
+  color: var(--fg-body);
+  font-family: var(--fg-font);
+}
+
+/* ---------- headings ---------- */
+
+.om-block {
+  margin: 0 0 2.25rem;
+}
+
+.om-block h2 {
+  margin: 0 0 0.5rem;
+  color: var(--fg-ink);
+  font-size: clamp(1.4rem, 2.4vw, 1.95rem);
+  font-weight: 780;
+  letter-spacing: -0.035em;
+  line-height: 1.15;
+  text-wrap: balance;
+}
+
+.om-block h3 {
+  margin: 0 0 0.45rem;
+  color: var(--fg-ink);
+  font-size: clamp(1.1rem, 1.7vw, 1.3rem);
+  font-weight: 760;
+  letter-spacing: -0.02em;
+}
+
+.om-block p {
+  margin: 0 0 0.9rem;
+  line-height: 1.6;
+  text-wrap: pretty;
+}
+
+.om-block p strong {
+  color: var(--fg-ink);
+}
+
+/* ---------- scenario ---------- */
+
+.om-scenario {
+  margin: 0 0 1.1rem;
+  padding: 1rem 1.2rem;
+  border: 1px solid var(--fg-line);
+  border-radius: 0.9rem;
+  background: var(--fg-paper);
+}
+
+.om-scenario-label {
+  display: block;
+  margin-bottom: 0.4rem;
+  color: var(--fg-teal);
+  font-size: 0.66rem;
+  font-weight: 850;
+  letter-spacing: 0.19em;
+}
+
+.om-scenario p {
+  margin: 0;
+  color: var(--fg-ink);
+  font-size: clamp(1rem, 1.6vw, 1.12rem);
+  line-height: 1.55;
+}
+
+/* ---------- equations ---------- */
+
+.om-equation {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: clamp(0.45rem, 1.15vw, 0.9rem);
+  margin: 0 0 1rem;
+}
+
+.om-card {
+  display: grid;
+  min-width: 5.25rem;
+  min-height: 6.1rem;
+  align-content: center;
+  justify-items: center;
+  gap: 0.25rem;
+  padding: 0.6rem 0.75rem;
+  border: 1px solid var(--fg-line);
+  border-radius: 0.9rem;
+  background: var(--fg-paper);
+  box-shadow: 0 4px 12px rgb(24 60 78 / 4%);
+  text-align: center;
+}
+
+.om-card strong {
+  color: var(--fg-blue);
+  font-size: clamp(1.45rem, 2.4vw, 2rem);
+  font-weight: 800;
+  letter-spacing: -0.04em;
+  line-height: 1;
+}
+
+.om-card span {
+  color: var(--fg-muted);
+  font-size: 0.64rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  line-height: 1.3;
+}
+
+.om-card.is-conversion {
+  border-color: #efdfb8;
+  background: #fffaf0;
+}
+
+.om-card.is-conversion strong {
+  color: #8c5a12;
+}
+
+.om-card.is-subtracted {
+  border-color: #efdfb8;
+  background: #fffaf0;
+}
+
+.om-card.is-subtracted strong {
+  color: #b5730f;
+}
+
+.om-card.is-result {
+  min-width: 6.5rem;
+  border-color: #b9e8dd;
+  background: #f0fbf8;
+}
+
+.om-card.is-result strong {
+  color: #129d89;
+}
+
+.om-card.is-result span {
+  color: #166a5c;
+}
+
+.om-op {
+  color: #879ba5;
+  font-size: 1.55rem;
+  font-weight: 650;
+  line-height: 1;
+}
+
+.om-op.is-equals {
+  margin-inline: 0.1rem;
+  font-size: 1.75rem;
+}
+
+.om-op.is-divide {
+  font-size: 1.8rem;
+}
+
+.om-group {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.45rem;
+  padding: 0.4rem 0.55rem;
+  border: 1px dashed var(--fg-line);
+  border-radius: 1rem;
+  background: var(--fg-pale-blue);
+}
+
+.om-inline-math {
+  display: inline-block;
+  padding: 0.5rem 0.85rem;
+  border-radius: 0.6rem;
+  background: var(--fg-pale-blue);
+  color: var(--fg-blue);
+  font-size: clamp(1rem, 1.8vw, 1.2rem);
+  font-weight: 800;
+  letter-spacing: -0.01em;
+}
+
+.om-inline-math b {
+  color: var(--fg-teal);
+  font-weight: 800;
+}
+
+/* ---------- callouts ---------- */
+
+.om-note {
+  margin: 0 0 1rem;
+  padding: 0.95rem 1.1rem;
+  border: 1px solid var(--fg-line);
+  border-radius: 0.9rem;
+  background: var(--fg-pale-blue);
+}
+
+.om-note p {
+  margin: 0;
+  color: var(--fg-body);
+  font-size: 0.92rem;
+  line-height: 1.6;
+  text-wrap: pretty;
+}
+
+.om-note p + p {
+  margin-top: 0.55rem;
+}
+
+.om-note strong {
+  color: var(--fg-ink);
+}
+
+.om-note-label {
+  display: block;
+  margin-bottom: 0.4rem;
+  font-size: 0.66rem;
+  font-weight: 850;
+  letter-spacing: 0.19em;
+}
+
+.om-note.is-watch {
+  border-color: #efdfb8;
+  background: #fffaf0;
+}
+
+.om-note.is-watch .om-note-label {
+  color: #8c5a12;
+}
+
+.om-note.is-watch p {
+  color: #6b4a14;
+}
+
+.om-note.is-watch strong {
+  color: #4a3208;
+}
+
+.om-note.is-check {
+  border-color: #b9e8dd;
+  background: #f0fbf8;
+}
+
+.om-note.is-check .om-note-label {
+  color: #0f8474;
+}
+
+.om-note.is-check p {
+  color: #1c5a50;
+}
+
+.om-note.is-check strong {
+  color: #10403a;
+}
+
+/* ---------- tabs ---------- */
+
+.om-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin: 0 0 1.8rem;
+  padding: 0;
+  border: 0;
+}
+
+.om-tabs legend {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+.om-radio {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+.om-tab {
+  display: inline-flex;
+  min-height: 3.1rem;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.55rem 1.15rem;
+  border: 1px solid var(--fg-line);
+  border-radius: 0.8rem;
+  background: var(--fg-paper);
+  color: var(--fg-ink);
+  cursor: pointer;
+  font-size: 0.95rem;
+  font-weight: 700;
+  transition: border-color 150ms ease, background-color 150ms ease, color 150ms ease;
+}
+
+.om-tab-number {
+  display: grid;
+  width: 1.7rem;
+  aspect-ratio: 1;
+  place-items: center;
+  border-radius: 0.42rem;
+  background: var(--fg-pale-blue);
+  color: var(--fg-muted);
+  font-size: 0.82rem;
+  font-weight: 800;
+}
+
+.om-radio:checked + .om-tab {
+  border-color: var(--fg-teal);
+  background: var(--fg-teal);
+  color: #fff;
+  box-shadow: 0 9px 18px rgb(11 130 117 / 17%);
+}
+
+.om-radio:checked + .om-tab .om-tab-number {
+  background: #fff;
+  color: var(--fg-teal-dark);
+}
+
+.om-radio:focus-visible + .om-tab {
+  outline: 3px solid #1b6389;
+  outline-offset: 3px;
+}
+
+.om-tab:hover {
+  border-color: var(--fg-teal);
+}
+
+.om-panel {
+  display: none;
+}
+
+.om-panel.is-active {
+  display: block;
+  animation: om-panel-enter 260ms cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+/* ---------- table ---------- */
+
+.om-table-wrap {
+  margin: 0 0 1.25rem;
+  overflow-x: auto;
+  border: 1px solid var(--fg-line);
+  border-radius: 0.9rem;
+  background: var(--fg-paper);
+}
+
+.om-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.97rem;
+}
+
+.om-table th {
+  padding: 0.85rem 1.1rem;
+  background: var(--fg-pale-blue);
+  color: var(--fg-ink);
+  font-size: 0.66rem;
+  font-weight: 850;
+  letter-spacing: 0.15em;
+  text-align: left;
+  white-space: nowrap;
+}
+
+.om-table td {
+  padding: 1rem 1.1rem;
+  border-top: 1px solid var(--fg-line);
+  color: var(--fg-body);
+  line-height: 1.5;
+  vertical-align: top;
+}
+
+.om-table tbody tr:first-child td {
+  border-top: 0;
+}
+
+.om-table .om-row-name {
+  color: var(--fg-ink);
+  font-size: 1.05rem;
+  font-weight: 780;
+}
+
+.om-table .om-row-sub {
+  display: block;
+  margin-top: 0.2rem;
+  color: var(--fg-muted);
+  font-size: 0.85rem;
+  font-weight: 500;
+}
+
+.om-table .om-row-out {
+  color: var(--fg-blue);
+  font-weight: 800;
+  white-space: nowrap;
+}
+
+.om-table .om-row-out.is-total {
+  color: var(--fg-teal);
+}
+
+.om-table strong {
+  color: var(--fg-ink);
+}
+
+/* ---------- two-up cards ---------- */
+
+.om-split > * {
+  /* Starlight's markdown flow adds margin-top to every sibling, which staggers grid rows. */
+  margin-top: 0;
+}
+
+.om-split {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(19rem, 1fr));
+  gap: 1.25rem;
+  margin: 0 0 1.25rem;
+}
+
+.om-panel-card {
+  padding: 1.35rem 1.4rem;
+  border: 1px solid var(--fg-line);
+  border-radius: 1rem;
+  background: var(--fg-paper);
+  box-shadow: 0 4px 14px rgb(24 60 78 / 4%);
+}
+
+.om-panel-card > h3 {
+  margin-top: 0.75rem;
+}
+
+.om-badge {
+  display: grid;
+  width: 2.5rem;
+  aspect-ratio: 1;
+  place-items: center;
+  border-radius: 0.7rem;
+  background: var(--fg-teal);
+  color: #fff;
+  font-size: 1.05rem;
+  font-weight: 850;
+}
+
+.om-badge.is-blue {
+  background: var(--fg-blue);
+  color: #06283a;
+}
+
+.om-steps {
+  margin: 0 0 0.9rem;
+  color: var(--fg-muted);
+  font-size: 0.7rem;
+  font-weight: 850;
+  letter-spacing: 0.16em;
+}
+
+/* ---------- dark theme ---------- */
+
+:root[data-theme="dark"] .om-card.is-conversion,
+:root[data-theme="dark"] .om-card.is-subtracted {
+  border-color: #76623a;
+  background: #302b20;
+}
+
+:root[data-theme="dark"] .om-card.is-conversion strong,
+:root[data-theme="dark"] .om-card.is-subtracted strong {
+  color: #f0c06b;
+}
+
+:root[data-theme="dark"] .om-card.is-result {
+  border-color: #31675d;
+  background: #193832;
+}
+
+:root[data-theme="dark"] .om-card.is-result strong {
+  color: #5bd2b4;
+}
+
+:root[data-theme="dark"] .om-card.is-result span {
+  color: #a4e7d4;
+}
+
+:root[data-theme="dark"] .om-note.is-watch {
+  border-color: #76623a;
+  background: #2a2318;
+}
+
+:root[data-theme="dark"] .om-note.is-watch .om-note-label,
+:root[data-theme="dark"] .om-note.is-watch strong {
+  color: #f0c06b;
+}
+
+:root[data-theme="dark"] .om-note.is-watch p {
+  color: #e0cba4;
+}
+
+:root[data-theme="dark"] .om-note.is-check {
+  border-color: #31675d;
+  background: #16302b;
+}
+
+:root[data-theme="dark"] .om-note.is-check .om-note-label,
+:root[data-theme="dark"] .om-note.is-check strong {
+  color: #5bd2b4;
+}
+
+:root[data-theme="dark"] .om-note.is-check p {
+  color: #a4e7d4;
+}
+
+:root[data-theme="dark"] .om-tab:hover {
+  border-color: var(--fg-teal);
+  background: #233b43;
+}
+
+:root[data-theme="dark"] .om-radio:checked + .om-tab:hover {
+  background: var(--fg-teal);
+}
+
+@keyframes om-panel-enter {
+  from {
+    opacity: 0.65;
+    transform: translateY(0.35rem);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .om-panel.is-active {
+    animation: none;
+  }
+}
+
+@media (max-width: 640px) {
+  .om-card {
+    min-width: 4.15rem;
+    min-height: 5.4rem;
+    padding: 0.5rem 0.4rem;
+  }
+
+  .om-equation {
+    gap: 0.35rem;
+  }
+
+  .om-scenario,
+  .om-panel-card {
+    padding: 0.9rem 1rem;
+  }
+}

@@ -1,0 +1,96 @@
+{
+  "main": [
+    {
+      "name": "Home",
+      "url": "/"
+    },
+    {
+      "name": "Operator Math",
+      "hasChildren": true,
+      "children": [
+        {
+          "name": "Davidson Pie Chart",
+          "url": "/operator-math/davidson-pie-chart/"
+        },
+        {
+          "name": "Three Names, One Formula",
+          "url": "/operator-math/three-names/"
+        },
+        {
+          "name": "Demand, Strength and Purity",
+          "url": "/operator-math/demand-strength-purity/"
+        },
+        {
+          "name": "Cost and Days of Supply",
+          "url": "/operator-math/cost-and-supply/"
+        }
+      ]
+    },
+    {
+      "name": "Operator Reference",
+      "hasChildren": true,
+      "children": [
+        {
+          "name": "Formulas",
+          "url": "/operator-reference/formulas/"
+        },
+        {
+          "name": "Pie Wheels",
+          "url": "/operator-reference/pie-wheels/"
+        },
+        {
+          "name": "Conversion Factors",
+          "url": "/operator-reference/conversion-factors/"
+        },
+        {
+          "name": "Abbreviations",
+          "url": "/operator-reference/abbreviations/"
+        }
+      ]
+    },
+    {
+      "name": "Calculators",
+      "hasChildren": true,
+      "children": [
+        {
+          "name": "Chemical Dosage",
+          "url": "/calculators/chemical-dosage/"
+        },
+        {
+          "name": "Loading & Removal",
+          "url": "/calculators/loading-removal/"
+        },
+        {
+          "name": "Process Control",
+          "url": "/calculators/process-control/"
+        },
+        {
+          "name": "Clarifier & Tank Loading",
+          "url": "/calculators/clarifier-loading/"
+        },
+        {
+          "name": "Pipe Flow",
+          "url": "/calculators/pipe-flow/"
+        },
+        {
+          "name": "Stank Index",
+          "url": "/calculators/stank-index/"
+        }
+      ]
+    }
+  ],
+  "footer": {
+    "community": {
+      "title": "",
+      "links": []
+    },
+    "help_links": {
+      "title": "",
+      "links": []
+    },
+    "company": {
+      "title": "",
+      "links": []
+    }
+  }
+}

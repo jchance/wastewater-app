@@ -1,0 +1,34 @@
+{
+  "name": "wastewater-app",
+  "version": "0.1.0",
+  "description": "A responsive wastewater operator math field guide",
+  "license": "MIT",
+  "type": "module",
+  "engines": {
+    "node": ">=22.12.0"
+  },
+  "scripts": {
+    "dev": "astro dev",
+    "start": "astro dev",
+    "build": "astro build",
+    "preview": "astro preview",
+    "check": "astro check"
+  },
+  "dependencies": {
+    "@astrojs/starlight": "0.41.1",
+    "@pagefind/default-ui": "^1.5.2",
+    "@astrojs/starlight-tailwind": "5.0.0",
+    "@tailwindcss/vite": "^4.3.1",
+    "astro": "^7.3.5",
+    "astro-font": "^1.1.0",
+    "marked": "^18.0.5",
+    "sharp": "^0.35.2",
+    "vite": "^8.1.0"
+  },
+  "devDependencies": {
+    "@astrojs/check": "0.9.9",
+    "astro-vtbot": "^2.1.12",
+    "tailwindcss": "^4.3.1",
+    "typescript": "^6.0.3"
+  }
+}

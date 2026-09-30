@@ -1,0 +1,430 @@
+---
+import { flowUnits, formatNumber } from "@/lib/dosage";
+import {
+  calculateProcess,
+  processModes,
+  processSteps,
+  renderSteps,
+  volumeUnits,
+  modeFields,
+  type ProcessInput,
+  type ProcessMode,
+} from "@/lib/processControl";
+import "@/styles/calculator.css";
+
+const initialMode: ProcessMode = "fm";
+const initial: ProcessInput = {
+  flow: 2.5,
+  flowUnit: "mgd",
+  bod: 140,
+  aerationVolume: 0.75,
+  aerationUnit: "mg",
+  mlss: 2800,
+  mlvss: 2100,
+  clarifierVolume: NaN,
+  clarifierUnit: "mg",
+  clarifierTss: NaN,
+  wasFlow: 30000,
+  wasFlowUnit: "gpd",
+  wasTss: 8000,
+  effluentTss: 12,
+  ssv30: 300,
+  targetMcrt: 9,
+};
+
+const outcome = calculateProcess(initialMode, initial);
+const r = outcome.ok ? outcome.result : null;
+const stepsHtml = r ? renderSteps(processSteps(initialMode, initial, r)) : "";
+const val = (n: number) => (Number.isFinite(n) ? n : "");
+const shows = (key: keyof ProcessInput) =>
+  (Object.keys(modeFields) as ProcessMode[]).filter((m) => modeFields[m].includes(key)).join(" ");
+const hidden = (key: keyof ProcessInput) => !modeFields[initialMode].includes(key);
+
+type Field = { name: keyof ProcessInput; label: string; unit?: string; unitSelect?: "flow" | "volume"; optional?: boolean; hint?: string };
+const fields: Field[] = [
+  { name: "targetMcrt", label: "Target MCRT", unit: "days" },
+  { name: "ssv30", label: "Settled volume, 30 min (SSV30)", unit: "mL/L" },
+  { name: "flow", label: "Plant flow", unitSelect: "flow" },
+  { name: "bod", label: "BOD to aeration", unit: "mg/L", hint: "Primary effluent, or raw if you have no primaries." },
+  { name: "aerationVolume", label: "Aeration volume", unitSelect: "volume" },
+  { name: "mlss", label: "MLSS", unit: "mg/L" },
+  { name: "mlvss", label: "MLVSS", unit: "mg/L" },
+  { name: "wasFlow", label: "WAS flow", unitSelect: "flow" },
+  { name: "wasTss", label: "WAS / RAS concentration", unit: "mg/L" },
+  { name: "effluentTss", label: "Effluent TSS", unit: "mg/L", optional: true },
+  { name: "clarifierVolume", label: "Clarifier volume", unitSelect: "volume", optional: true },
+  { name: "clarifierTss", label: "Clarifier solids", unit: "mg/L", optional: true },
+];
+const unitName = { flow: "flowUnit", volume: "aerationUnit" } as const;
+const unitSelectName = (field: Field) =>
+  field.name === "wasFlow" ? "wasFlowUnit" : field.name === "clarifierVolume" ? "clarifierUnit" : unitName[field.unitSelect!];
+const out = (n: number | undefined, digits?: number) => (n === undefined ? "—" : formatNumber(n, digits));
+---
+
+<section class="calc-page" aria-label="Activated sludge process control calculator">
+  <form class="calc" data-process-calc novalidate>
+    <fieldset class="calc-modes">
+      <legend>What are you checking?</legend>
+      {
+        processModes.map((m) => (
+          <label class="mode-tab">
+            <input type="radio" name="mode" value={m.id} checked={m.id === initialMode} />
+            <span class="mode-short">{m.label}</span>
+            <span class="mode-long">{m.long}</span>
+          </label>
+        ))
+      }
+    </fieldset>
+
+    <fieldset class="calc-inputs">
+      <legend>Your numbers</legend>
+      {
+        fields.map((field) => {
+          const id = `pc-${field.name}`;
+          const unitKey = field.unitSelect ? unitSelectName(field) : null;
+          const units = field.unitSelect === "flow" ? flowUnits : volumeUnits;
+          const current = unitKey ? (initial[unitKey as keyof ProcessInput] as string) : "";
+          return (
+            <div class="field" data-modes={shows(field.name)} hidden={hidden(field.name)}>
+              <label class="field-label" for={id}>
+                {field.label}
+                {field.optional && <span class="field-optional"> optional</span>}
+              </label>
+              <span class="field-input">
+                <input
+                  id={id}
+                  name={field.name}
+                  type="number"
+                  inputmode="decimal"
+                  min="0"
+                  step="any"
+                  value={val(initial[field.name] as number)}
+                  placeholder={field.optional ? "0" : undefined}
+                />
+                {field.unit && <span class="unit">{field.unit}</span>}
+                {unitKey && (
+                  <select name={unitKey} aria-label={`${field.label} unit`} class="unit-select">
+                    {Object.entries(units).map(([uid, u]) => (
+                      <option value={uid} selected={uid === current}>
+                        {u.label}
+                      </option>
+                    ))}
+                  </select>
+                )}
+              </span>
+              {field.hint && <span class="field-hint">{field.hint}</span>}
+            </div>
+          );
+        })
+      }
+      <p class="field-hint field-wide" data-modes="mcrt was" hidden={hidden("clarifierTss")}>
+        Leave the clarifier fields blank to count only the aeration tanks, which
+        is how many plants run the number day to day.
+      </p>
+    </fieldset>
+
+    <div class="calc-results" aria-live="polite">
+      <p class="calc-error" data-error hidden></p>
+
+      <dl class="result-grid" data-results>
+        <div class="result result-primary" data-modes="fm">
+          <dt>F/M ratio</dt>
+          <dd><output data-out="fm" data-digits="2">{out(r?.fm, 2)}</output> <span>lb BOD / lb MLVSS·day</span></dd>
+        </div>
+        <div class="result" data-modes="fm">
+          <dt>Food</dt>
+          <dd><output data-out="bodLbPerDay">{out(r?.bodLbPerDay)}</output> <span>lb BOD/day</span></dd>
+        </div>
+        <div class="result" data-modes="fm">
+          <dt>Microorganisms</dt>
+          <dd><output data-out="mlvssLb">{out(r?.mlvssLb)}</output> <span>lb MLVSS</span></dd>
+        </div>
+
+        <div class="result result-primary" data-modes="mcrt" hidden>
+          <dt>MCRT</dt>
+          <dd><output data-out="mcrt" data-digits="1">—</output> <span>days</span></dd>
+        </div>
+        <div class="result" data-modes="mcrt was" hidden>
+          <dt>Solids inventory</dt>
+          <dd><output data-out="inventoryLb">—</output> <span>lb</span></dd>
+        </div>
+        <div class="result" data-modes="mcrt" hidden>
+          <dt>Solids leaving</dt>
+          <dd><output data-out="solidsOutLbPerDay">—</output> <span>lb/day</span></dd>
+        </div>
+
+        <div class="result result-primary" data-modes="svi" hidden>
+          <dt>Sludge volume index</dt>
+          <dd><output data-out="svi" data-digits="0">—</output> <span>mL/g</span></dd>
+        </div>
+
+        <div class="result result-primary" data-modes="was" hidden>
+          <dt>WAS flow</dt>
+          <dd><output data-out="targetWasGpd">—</output> <span>gal/day</span></dd>
+        </div>
+        <div class="result" data-modes="was" hidden>
+          <dt>Pump rate</dt>
+          <dd><output data-out="targetWasGpm">—</output> <span>gpm</span></dd>
+        </div>
+        <div class="result" data-modes="was" hidden>
+          <dt>Solids to waste</dt>
+          <dd><output data-out="targetWasLbPerDay">—</output> <span>lb/day</span></dd>
+        </div>
+      </dl>
+    </div>
+  </form>
+
+  <section class="steps" aria-labelledby="steps-heading">
+    <h2 id="steps-heading">Your numbers, step by step</h2>
+    <ol class="step-list" data-steps set:html={stepsHtml} />
+  </section>
+
+  <section class="prose" aria-labelledby="how-heading">
+    <h2 id="how-heading">Why it works</h2>
+    <p>
+      Every number here except SVI comes from the same pounds formula used in
+      the <a href="/operator-math/davidson-pie-chart/">Davidson pie chart</a>:
+      concentration in mg/L × volume or flow in millions of gallons × 8.34. A
+      tank volume gives pounds sitting in the tank; a flow gives pounds moving
+      per day. The process control numbers are ratios of those pounds.
+    </p>
+    <ul class="checks">
+      <li>
+        <strong>F/M</strong> compares the food arriving each day with the bugs
+        available to eat it. More food per pound of bugs means a younger, faster
+        growing, poorer settling biomass.
+      </li>
+      <li>
+        <strong>MCRT</strong> divides the solids you are holding by the solids
+        leaving each day, through the WAS line and over the weirs. The answer is
+        the average number of days a floc particle stays in the system.
+      </li>
+      <li>
+        <strong>WAS rate</strong> runs MCRT backwards. Pick the sludge age you
+        want, work out how many pounds must leave each day to hold it, subtract
+        what the effluent already carries out, and waste the rest.
+      </li>
+      <li>
+        <strong>SVI</strong> is a settling test, not a pounds problem. It asks
+        how much space one gram of sludge takes up after 30 minutes. The × 1,000
+        turns milligrams into grams.
+      </li>
+    </ul>
+    <p>
+      The MCRT formula matches the one on the <a href="/operator-reference/formulas/">formula sheet</a>, including
+      clarifier solids. If you leave those blank you get the simpler
+      aeration-only version many plants use for daily control.
+    </p>
+  </section>
+
+  <section class="prose" aria-labelledby="example-heading">
+    <h2 id="example-heading">Example: sludge age is drifting short</h2>
+    <p>
+      A <strong>2.5 MGD</strong> plant has <strong>0.75 MG</strong> of aeration
+      at <strong>2,800 mg/L MLSS</strong>. The crew has been wasting <strong>30,000 gal/day</strong> of <strong>8,000 mg/L</strong> return
+      sludge, and effluent TSS is running <strong>12 mg/L</strong>. Ammonia has
+      started creeping up, and nitrifiers need age, so the goal is <strong>9 days</strong>.
+    </p>
+    <ul class="example-math">
+      <li>2,800 × 0.75 × 8.34 = <b>17,514 lb</b> under aeration</li>
+      <li>8,000 × 0.03 × 8.34 = <b>2,002 lb/day</b> wasted</li>
+      <li>12 × 2.5 × 8.34 = <b>250.2 lb/day</b> lost over the weirs</li>
+      <li>17,514 ÷ (2,002 + 250.2) = <b>7.8 days</b> MCRT today</li>
+      <li>17,514 ÷ 9 = <b>1,946 lb/day</b> may leave at a 9-day MCRT</li>
+      <li>1,946 − 250.2 = <b>1,696 lb/day</b> to waste</li>
+      <li>1,696 ÷ (8,000 × 8.34) = <b>0.0254 MGD</b>, about <b>25,400 gal/day</b> or <b>17.7 gpm</b></li>
+    </ul>
+    <p>
+      That is a cut of about 4,600 gal/day. Make it in steps over several days
+      rather than all at once, and watch the blanket depth as the inventory
+      builds.
+    </p>
+    <button type="button" class="load-example" data-load-example>
+      Put this example in the calculator
+    </button>
+  </section>
+
+  <section class="prose" aria-labelledby="sanity-heading">
+    <h2 id="sanity-heading">Do the numbers look reasonable?</h2>
+    <p>
+      Your plant's normal range is the one that matters: the values it runs at
+      when the effluent is good. Use these broad ranges to catch a typo or a
+      units slip, not to set targets.
+    </p>
+    <div class="sanity-wrap">
+      <table class="sanity">
+        <thead>
+          <tr>
+            <th scope="col">Number</th>
+            <th scope="col">Conventional</th>
+            <th scope="col">Extended aeration</th>
+            <th scope="col">If it is far off</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <th scope="row" data-label="Number">F/M</th>
+            <td data-label="Conventional">About 0.2–0.5</td>
+            <td data-label="Extended aeration">About 0.05–0.15</td>
+            <td data-label="If it is far off">Check that BOD and MLVSS are mg/L and volume is MG, not gallons.</td>
+          </tr>
+          <tr>
+            <th scope="row" data-label="Number">MCRT</th>
+            <td data-label="Conventional">About 5–15 days</td>
+            <td data-label="Extended aeration">About 20–30 days or more</td>
+            <td data-label="If it is far off">A WAS flow entered in gpm but labeled gal/day will be off by 1,440×.</td>
+          </tr>
+          <tr>
+            <th scope="row" data-label="Number">SVI</th>
+            <td data-label="Typical" colspan="2">About 80–150 mL/g settles well</td>
+            <td data-label="If it is far off">Above ~150 suggests bulking. If SSV30 reads above ~800 mL/L, dilute the sample and retest.</td>
+          </tr>
+          <tr>
+            <th scope="row" data-label="Number">MLVSS ÷ MLSS</th>
+            <td data-label="Typical" colspan="2">About 0.65–0.85</td>
+            <td data-label="If it is far off">Low values point to grit or inert solids building up.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section class="prose" aria-labelledby="checks-heading">
+    <h2 id="checks-heading">Before you change the wasting</h2>
+    <ul class="checks">
+      <li>
+        <strong>Trend it.</strong> One day's MCRT bounces with every lab result.
+        Steer by a 3- to 7-day rolling average.
+      </li>
+      <li>
+        <strong>Move slowly.</strong> Change the WAS rate by no more than about
+        10 to 15% a day, then give the system a sludge age or so to respond.
+      </li>
+      <li>
+        <strong>Same-day samples.</strong> The WAS concentration, MLSS and
+        effluent TSS should come from the same day. A stale RAS number is the
+        most common reason the math and the tanks disagree.
+      </li>
+      <li>
+        <strong>Know your BOD sample point.</strong> F/M uses the load reaching
+        aeration. Recycle streams from digesters and belt presses add load that
+        a raw influent sample won't show.
+      </li>
+      <li>
+        <strong>Watch the clarifier too.</strong> Holding more solids to raise
+        MCRT only works if the clarifier can store them. Check blanket depth
+        before and after.
+      </li>
+    </ul>
+    <p class="disclaimer">
+      This is a study and planning aid. Your plant's SOPs, permit and process
+      engineer take priority over any number on this page.
+    </p>
+  </section>
+</section>
+
+<script>
+  import { formatNumber } from "@/lib/dosage";
+  import {
+    calculateProcess,
+    processSteps,
+    renderSteps,
+    type ProcessInput,
+    type ProcessMode,
+  } from "@/lib/processControl";
+
+  const example: Record<string, string> = {
+    mode: "was",
+    flow: "2.5",
+    flowUnit: "mgd",
+    aerationVolume: "0.75",
+    aerationUnit: "mg",
+    mlss: "2800",
+    wasFlow: "30000",
+    wasFlowUnit: "gpd",
+    wasTss: "8000",
+    effluentTss: "12",
+    clarifierVolume: "",
+    clarifierTss: "",
+    targetMcrt: "9",
+  };
+
+  function bind() {
+    const form = document.querySelector<HTMLFormElement>("[data-process-calc]");
+    if (!form || form.dataset.bound) return;
+    form.dataset.bound = "true";
+
+    const el = <T extends Element>(name: string) => form.elements.namedItem(name) as unknown as T;
+    const num = (name: string) => {
+      const raw = el<HTMLInputElement>(name).value.trim();
+      return raw === "" ? NaN : Number(raw);
+    };
+    const str = (name: string) => el<HTMLSelectElement>(name).value;
+    const error = form.querySelector<HTMLElement>("[data-error]")!;
+    const results = form.querySelector<HTMLElement>("[data-results]")!;
+    const steps = document.querySelector<HTMLElement>("[data-steps]")!;
+
+    function update() {
+      const mode = (form!.querySelector<HTMLInputElement>('input[name="mode"]:checked')?.value ?? "fm") as ProcessMode;
+      for (const node of form!.querySelectorAll<HTMLElement>("[data-modes]")) {
+        node.hidden = !node.dataset.modes!.split(" ").includes(mode);
+      }
+
+      const input: ProcessInput = {
+        flow: num("flow"),
+        flowUnit: str("flowUnit") as ProcessInput["flowUnit"],
+        bod: num("bod"),
+        aerationVolume: num("aerationVolume"),
+        aerationUnit: str("aerationUnit") as ProcessInput["aerationUnit"],
+        mlss: num("mlss"),
+        mlvss: num("mlvss"),
+        clarifierVolume: num("clarifierVolume"),
+        clarifierUnit: str("clarifierUnit") as ProcessInput["clarifierUnit"],
+        clarifierTss: num("clarifierTss"),
+        wasFlow: num("wasFlow"),
+        wasFlowUnit: str("wasFlowUnit") as ProcessInput["wasFlowUnit"],
+        wasTss: num("wasTss"),
+        effluentTss: num("effluentTss"),
+        ssv30: num("ssv30"),
+        targetMcrt: num("targetMcrt"),
+      };
+      const outcome = calculateProcess(mode, input);
+
+      error.hidden = outcome.ok;
+      results.classList.toggle("is-stale", !outcome.ok);
+      steps.classList.toggle("is-stale", !outcome.ok);
+      if (!outcome.ok) {
+        error.textContent = outcome.message;
+        return;
+      }
+
+      const r = outcome.result;
+      for (const out of results.querySelectorAll<HTMLOutputElement>("[data-out]")) {
+        const digits = out.dataset.digits ? Number(out.dataset.digits) : undefined;
+        out.value = formatNumber(r[out.dataset.out as keyof typeof r], digits);
+      }
+      steps.innerHTML = renderSteps(processSteps(mode, input, r));
+    }
+
+    form.addEventListener("input", update);
+    form.addEventListener("change", update);
+    form.addEventListener("submit", (e) => e.preventDefault());
+
+    document.querySelector("[data-load-example]")?.addEventListener("click", () => {
+      for (const [name, value] of Object.entries(example)) {
+        if (name === "mode") {
+          form.querySelector<HTMLInputElement>(`input[name="mode"][value="${value}"]`)!.checked = true;
+        } else {
+          el<HTMLInputElement>(name).value = value;
+        }
+      }
+      update();
+      form.scrollIntoView({ behavior: "smooth", block: "start" });
+    });
+
+    update();
+  }
+
+  bind();
+  document.addEventListener("astro:page-load", bind);
+</script>
