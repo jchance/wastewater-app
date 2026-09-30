@@ -1,0 +1,243 @@
+---
+/**
+ * Prompts a phone user to install the guide. Hidden until the client decides
+ * which path applies, because that answer is device-specific:
+ *   - Chromium on Android fires `beforeinstallprompt`, so one tap can install.
+ *   - iOS Safari has no such API, so all we can do is show where Share lives.
+ * Desktop and already-installed visitors never see it.
+ */
+---
+
+<div class="install-card" data-install-card hidden>
+  <span class="install-icon" aria-hidden="true">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
+      <rect x="5" y="2" width="14" height="20" rx="2.5" />
+      <path d="M12 7v7m0 0 3-3m-3 3-3-3" />
+      <path d="M10.5 18.5h3" />
+    </svg>
+  </span>
+
+  <div class="install-copy">
+    <strong>Keep this in your pocket</strong>
+    <span>Save it to your home screen and every page works with no signal.</span>
+  </div>
+
+  <button type="button" class="install-btn" data-install-btn hidden>Save to phone</button>
+  <button type="button" class="install-btn" data-ios-btn hidden aria-expanded="false">How to save</button>
+
+  <div class="install-steps" data-ios-steps hidden>
+    <ol>
+      <li>
+        Tap
+        <span class="ios-glyph" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 15V3m0 0L8.5 6.5M12 3l3.5 3.5" />
+            <path d="M6 12H4.5v8.5h15V12H18" />
+          </svg>
+        </span>
+        <b>Share</b> at the bottom of Safari.
+      </li>
+      <li>Scroll down and tap <b>Add to Home Screen</b>.</li>
+      <li>Tap <b>Add</b>. The pie chart icon lands on your home screen.</li>
+    </ol>
+  </div>
+</div>
+
+<style>
+  .install-card {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    align-items: center;
+    gap: 0.65rem 0.85rem;
+    margin: 0 0 1.75rem;
+    padding: 0.85rem 1rem;
+    border: 1px solid var(--fg-line);
+    border-radius: 0.85rem;
+    background: color-mix(in srgb, var(--fg-teal) 7%, var(--fg-paper));
+    color: var(--fg-ink);
+    font-family: var(--fg-font);
+  }
+
+  .install-card[hidden] {
+    display: none;
+  }
+
+  .install-icon {
+    display: grid;
+    place-items: center;
+    width: 2.1rem;
+    height: 2.1rem;
+    border-radius: 0.6rem;
+    background: var(--fg-teal);
+    color: #fff;
+  }
+
+  .install-icon svg {
+    width: 1.15rem;
+    height: 1.15rem;
+  }
+
+  .install-copy {
+    display: flex;
+    flex-direction: column;
+    gap: 0.1rem;
+    min-width: 0;
+  }
+
+  .install-copy strong {
+    font-size: 0.95rem;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+  }
+
+  .install-copy span {
+    color: var(--fg-muted);
+    font-size: 0.85rem;
+    line-height: 1.45;
+    text-wrap: pretty;
+  }
+
+  .install-btn {
+    grid-column: 2;
+    justify-self: start;
+    padding: 0.45rem 0.9rem;
+    border: 0;
+    border-radius: 0.5rem;
+    background: var(--fg-teal);
+    color: #fff;
+    font: inherit;
+    font-size: 0.88rem;
+    font-weight: 650;
+    cursor: pointer;
+    transition: background 150ms ease;
+  }
+
+  .install-btn[hidden] {
+    display: none;
+  }
+
+  .install-btn:hover {
+    background: color-mix(in srgb, var(--fg-teal) 85%, #000);
+  }
+
+  .install-btn:focus-visible {
+    outline: 2px solid var(--fg-teal);
+    outline-offset: 2px;
+  }
+
+  .install-steps {
+    grid-column: 1 / -1;
+    margin-top: 0.15rem;
+    padding-top: 0.75rem;
+    border-top: 1px solid var(--fg-line);
+  }
+
+  .install-steps[hidden] {
+    display: none;
+  }
+
+  .install-steps ol {
+    margin: 0;
+    padding-left: 1.15rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    color: var(--fg-body);
+    font-size: 0.88rem;
+    line-height: 1.5;
+  }
+
+  .install-steps b {
+    color: var(--fg-ink);
+    font-weight: 700;
+  }
+
+  .ios-glyph {
+    display: inline-grid;
+    place-items: center;
+    width: 1.35rem;
+    height: 1.35rem;
+    margin: 0 0.3rem;
+    border-radius: 0.3rem;
+    background: #007aff;
+    color: #fff;
+    vertical-align: -0.3rem;
+  }
+
+  .ios-glyph svg {
+    width: 0.85rem;
+    height: 0.85rem;
+  }
+
+  /* Side by side once there is room for the button on the same line. */
+  @media (min-width: 34rem) {
+    .install-card {
+      grid-template-columns: auto 1fr auto;
+    }
+
+    .install-btn {
+      grid-column: 3;
+      justify-self: end;
+    }
+  }
+</style>
+
+<script>
+  const card = document.querySelector<HTMLElement>("[data-install-card]");
+  if (card) {
+    const installBtn = card.querySelector<HTMLButtonElement>("[data-install-btn]");
+    const iosBtn = card.querySelector<HTMLButtonElement>("[data-ios-btn]");
+    const steps = card.querySelector<HTMLElement>("[data-ios-steps]");
+
+    const standalone =
+      window.matchMedia("(display-mode: standalone)").matches ||
+      // iOS reports installed apps here rather than through display-mode.
+      (navigator as Navigator & { standalone?: boolean }).standalone === true;
+
+    const ua = navigator.userAgent;
+    const iOS =
+      /iPad|iPhone|iPod/.test(ua) ||
+      // iPadOS 13+ claims to be a Mac; touch points give it away.
+      (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
+    const iOSSafari = iOS && !/CriOS|FxiOS|EdgiOS|OPiOS/.test(ua);
+
+    const show = () => {
+      card.hidden = false;
+    };
+
+    if (!standalone) {
+      if (iOSSafari && iosBtn && steps) {
+        iosBtn.hidden = false;
+        show();
+        iosBtn.addEventListener("click", () => {
+          const open = !steps.hidden;
+          steps.hidden = open;
+          iosBtn.setAttribute("aria-expanded", String(!open));
+          iosBtn.textContent = open ? "How to save" : "Hide steps";
+        });
+      } else if (installBtn) {
+        // Chromium fires this only when the site is actually installable, so
+        // the button appears exactly when it will work.
+        let deferred: (Event & { prompt(): Promise<void> }) | null = null;
+
+        window.addEventListener("beforeinstallprompt", (event) => {
+          event.preventDefault();
+          deferred = event as Event & { prompt(): Promise<void> };
+          installBtn.hidden = false;
+          show();
+        });
+
+        installBtn.addEventListener("click", async () => {
+          if (!deferred) return;
+          await deferred.prompt();
+          deferred = null;
+          card.hidden = true;
+        });
+
+        window.addEventListener("appinstalled", () => {
+          card.hidden = true;
+        });
+      }
+    }
+  }
+</script>
