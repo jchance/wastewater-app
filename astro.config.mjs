@@ -2,6 +2,7 @@
 import { defineConfig } from "astro/config";
 import starlight from "@astrojs/starlight";
 import { viewTransitions } from "astro-vtbot/starlight-view-transitions";
+import { serviceWorker } from "./integrations/service-worker.mjs";
 
 import tailwindcss from "@tailwindcss/vite";
 import config from "./src/config/config.json";
@@ -33,6 +34,15 @@ export default defineConfig({
       head: [
         { tag: "link", attrs: { rel: "icon", href: "/favicon.ico", sizes: "32x32" } },
         { tag: "link", attrs: { rel: "apple-touch-icon", href: "/apple-touch-icon.png" } },
+        { tag: "link", attrs: { rel: "manifest", href: "/manifest.webmanifest" } },
+        { tag: "meta", attrs: { name: "theme-color", content: "#16847d" } },
+        { tag: "meta", attrs: { name: "mobile-web-app-capable", content: "yes" } },
+        { tag: "meta", attrs: { name: "apple-mobile-web-app-capable", content: "yes" } },
+        { tag: "meta", attrs: { name: "apple-mobile-web-app-title", content: "Field Guide" } },
+        {
+          tag: "meta",
+          attrs: { name: "apple-mobile-web-app-status-bar-style", content: "black-translucent" },
+        },
       ],
       locales,
       sidebar: sidebar.main || [],
@@ -53,6 +63,7 @@ export default defineConfig({
       },
       
     }),
+    serviceWorker(),
   ],
   vite: {
     plugins: /** @type {any} */ ([tailwindcss(), viewTransitions()]),

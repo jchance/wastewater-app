@@ -1,0 +1,30 @@
+---
+title: No connection
+description: This page has not been saved to your phone yet.
+template: splash
+sidebar:
+  exclude: true
+kicker: Offline
+hero:
+  title: No connection
+  tagline: This page has not been saved to your phone yet. Anything you opened before, and every calculator, still works.
+---
+
+import { Card, CardGrid } from "@astrojs/starlight/components";
+
+<CardGrid>
+  <Card title="Calculators">
+    [Chemical Dosage](/calculators/chemical-dosage/) ·
+    [Loading &amp; Removal](/calculators/loading-removal/) ·
+    [Process Control](/calculators/process-control/) ·
+    [Clarifier &amp; Tank Loading](/calculators/clarifier-loading/) ·
+    [Pipe Flow](/calculators/pipe-flow/)
+  </Card>
+  <Card title="Reference">
+    [Formula sheet](/operator-reference/formulas/) ·
+    [Pie wheels](/operator-reference/pie-wheels/) ·
+    [Davidson pie chart](/operator-math/davidson-pie-chart/)
+  </Card>
+</CardGrid>
+
+When you get a signal back, this page will load normally.

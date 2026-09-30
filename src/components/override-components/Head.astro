@@ -26,6 +26,33 @@ if (theme.fonts.font_family.secondary) {
 
 {head.map(({ tag: Tag, attrs, content }) => <Tag {...attrs} set:html={content} />)}
 
+<script is:inline>
+  // Registered on every page so the guide keeps working after the operator
+  // walks into a dead spot, whether or not they installed it.
+  if ("serviceWorker" in navigator) {
+    window.addEventListener("load", () => {
+      navigator.serviceWorker
+        .register("/sw.js")
+        .then((reg) => {
+          // A new build was deployed: let it take over immediately instead of
+          // waiting for every tab to close, but never reload out from under
+          // someone who is mid-calculation. The next navigation gets it.
+          reg.addEventListener("updatefound", () => {
+            const next = reg.installing;
+            if (!next) return;
+            next.addEventListener("statechange", () => {
+              if (next.state === "installed" && navigator.serviceWorker.controller) {
+                next.postMessage("skip-waiting");
+              }
+            });
+          });
+          reg.update();
+        })
+        .catch(() => {});
+    });
+  }
+</script>
+
 <!-- google font css -->
 {
   fontPrimary && (
