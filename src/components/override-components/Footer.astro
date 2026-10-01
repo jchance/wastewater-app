@@ -130,7 +130,7 @@ const year = new Date().getFullYear();
           View on GitHub
         </a>
         <p class="footer-copyright">
-          &copy; {year} <span set:html={markdownify(config?.params?.copyright)} />
+          Wastewater Field Guide &copy; {year} <a href="https://jasonchance.com" target="_blank" rel="noopener">Jason Chance</a>
         </p>
       </div>
     </div>
@@ -148,6 +148,18 @@ const year = new Date().getFullYear();
   .footer-copyright {
     margin: 0;
     font-size: 0.875rem;
+  }
+  .footer-copyright a {
+    color: var(--fg-ink);
+    text-decoration: underline;
+    text-underline-offset: 2px;
+    text-decoration-color: color-mix(in srgb, var(--fg-teal) 40%, var(--fg-line));
+    transition: color 0.2s ease, text-decoration-color 0.2s ease;
+  }
+  .footer-copyright a:hover,
+  .footer-copyright a:focus-visible {
+    color: var(--fg-teal);
+    text-decoration-color: var(--fg-teal);
   }
   .footer-meta {
     display: flex;
