@@ -20,7 +20,7 @@ export const locales = locals
 
 // https://astro.build/config
 export default defineConfig({
-  site: "https://wastewater.jasonchance.com",
+  site: "https://wastewaterfieldguide.com",
   image: {
     service: { entrypoint: "astro/assets/services/noop" },
   },
