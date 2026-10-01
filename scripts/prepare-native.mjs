@@ -7,8 +7,8 @@ import path from "node:path";
 const SRC = "dist";
 const OUT = "dist-native";
 
-// The app bundle is already on the device, so it needs no service worker cache,
-// and app launches should not be counted as website visits.
+// The app bundle is already on the device, so it needs no service worker (file
+// or registration), and app launches should not be counted as website visits.
 const WEB_ONLY = [
   "sw.js",
   "CNAME",
@@ -17,6 +17,7 @@ const WEB_ONLY = [
   "sitepins-manifest.json",
 ];
 const BEACON = /<script\b[^>]*static\.cloudflareinsights\.com[^>]*><\/script>/g;
+const SW_REGISTRATION = /<script>(?:(?!<\/script>)[\s\S])*?serviceWorker\s*\.register\(["']\/sw\.js["']\)[\s\S]*?<\/script>/g;
 
 async function htmlFiles(dir) {
   const out = [];
@@ -40,9 +41,9 @@ for (const file of WEB_ONLY) await rm(path.join(OUT, file), { force: true });
 const pages = await htmlFiles(OUT);
 for (const file of pages) {
   const html = await readFile(file, "utf8");
-  const stripped = html.replace(BEACON, "");
-  if (stripped.includes("cloudflareinsights")) {
-    console.error(`prepare-native: analytics beacon still present in ${file}`);
+  const stripped = html.replace(BEACON, "").replace(SW_REGISTRATION, "");
+  if (stripped.includes("cloudflareinsights") || stripped.includes("/sw.js")) {
+    console.error(`prepare-native: analytics beacon or service worker still present in ${file}`);
     process.exit(1);
   }
   if (stripped !== html) await writeFile(file, stripped, "utf8");
