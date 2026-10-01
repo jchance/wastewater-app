@@ -6,8 +6,10 @@ const config: CapacitorConfig = {
   // Produced by `npm run build:native`; see scripts/prepare-native.mjs.
   webDir: "dist-native",
   ios: {
-    // Keep the site's fixed header below the status bar and notch.
-    contentInset: "always",
+    // Pages fill the screen edge to edge (viewport-fit=cover) and clear the
+    // status bar and home indicator with env(safe-area-inset-*) in CSS.
+    // "always" would add the status bar height a second time.
+    contentInset: "never",
   },
   plugins: {
     SplashScreen: {
