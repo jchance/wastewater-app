@@ -79,9 +79,11 @@ npm run native:ios      # sync, then open the project in Xcode
 npm run native:android  # sync, then open the project in Android Studio
 ```
 
-`npm run build:native` copies `dist/` to `dist-native/` and leaves out website-only pieces: the service worker (the app already has its files on the device), the Cloudflare analytics beacon, `CNAME`, and sitemaps. The website build itself is unchanged.
+Android builds need JDK 21. The Gradle version in the Capacitor template can't run on the JDK 25 that ships with current Android Studio. Install it with `brew install openjdk@21`, then set **Settings → Build, Execution, Deployment → Build Tools → Gradle → Gradle JDK** to that JDK. For command-line builds, export `JAVA_HOME=/opt/homebrew/opt/openjdk@21/libexec/openjdk.jdk/Contents/Home`.
 
-Every page is served from `some/path/index.html` at the URL `some/path/`. By default, Capacitor serves the root `index.html` for any URL without a file extension, so custom native routers map these URLs to their pages instead: `ios/App/App/FieldGuideViewController.swift` and `android/app/src/main/java/com/wastewaterfieldguide/app/FieldGuideWebViewClient.java`.
+`npm run build:native` copies `dist/` to `dist-native/` and leaves out website-only pieces: the service worker and its registration script (the app already has its files on the device), the Cloudflare analytics beacon, `CNAME`, and sitemaps. The website build itself is unchanged. The home page's install card also hides itself when `window.Capacitor` is present.
+
+Every page is served from `some/path/index.html` at the URL `some/path/`. By default, Capacitor serves the root `index.html` for any URL without a file extension, so custom native routers map these URLs to their pages instead: `ios/App/App/FieldGuideViewController.swift` (set as the scene root in `SceneDelegate.swift`) and `android/app/src/main/java/com/wastewaterfieldguide/app/FieldGuideWebViewClient.java`.
 
 Keep the `@capacitor/*` packages on the same version.
 
