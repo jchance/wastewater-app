@@ -358,6 +358,7 @@
 }
 
 .om-table {
+  display: table;
   width: 100%;
   border-collapse: collapse;
   font-size: 0.97rem;
@@ -560,5 +561,18 @@
   .om-scenario,
   .om-panel-card {
     padding: 0.9rem 1rem;
+  }
+
+  .om-table th,
+  .om-table td {
+    padding-inline: 0.7rem;
+  }
+
+  .om-table th {
+    white-space: normal;
+  }
+
+  .om-table .om-row-out {
+    white-space: normal;
   }
 }
