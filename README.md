@@ -88,6 +88,10 @@ npm run native:assets   # regenerate app icons and splash screens
 
 The splash screen stays up until the first page paints. `prepare-native.mjs` adds a script to each page that hides it on load. `launchShowDuration` in `capacitor.config.ts` is only a fallback.
 
+### Status bar
+
+`prepare-native.mjs` also adds a script that sends each page's header color and current theme to a small native plugin, `FieldGuideChrome`. The plugin is defined in `FieldGuideViewController.swift` on iOS and in `FieldGuideChromePlugin.java` on Android. It fills the strip behind the status bar with the header color and picks light or dark status bar icons. It follows the site's theme toggle, which can differ from the system setting, and updates when the theme changes.
+
 Android builds need JDK 21. The Gradle version in the Capacitor template can't run on the JDK 25 that ships with current Android Studio. Install it with `brew install openjdk@21`, then set **Settings → Build, Execution, Deployment → Build Tools → Gradle → Gradle JDK** to that JDK. For command-line builds, export `JAVA_HOME=/opt/homebrew/opt/openjdk@21/libexec/openjdk.jdk/Contents/Home`.
 
 `npm run build:native` copies `dist/` to `dist-native/` and leaves out website-only pieces: the service worker and its registration script (the app already has its files on the device), the Cloudflare analytics beacon, `CNAME`, and sitemaps. The website build itself is unchanged. The home page's install card also hides itself when `window.Capacitor` is present.

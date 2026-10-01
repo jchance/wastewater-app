@@ -22,6 +22,19 @@ const SW_REGISTRATION = /<script>(?:(?!<\/script>)[\s\S])*?serviceWorker\s*\.reg
 // has painted, so launch never shows a blank web view.
 const HIDE_SPLASH =
   "<script>addEventListener('load',()=>requestAnimationFrame(()=>window.Capacitor?.Plugins?.SplashScreen?.hide()))</script>";
+// Fills the strip behind the status bar with the header's color and picks
+// light or dark status bar icons. Follows the site's own theme setting, which
+// can differ from the system's, and re-runs when the theme toggle changes it.
+const SYNC_CHROME = `<script>(()=>{
+const plugin=window.Capacitor?.Plugins?.FieldGuideChrome;
+if(!plugin)return;
+const hex=(c)=>{const m=c.match(/[\\d.]+/g);if(!m||m.length<3||m[3]==="0")return null;return "#"+m.slice(0,3).map((n)=>Math.round(+n).toString(16).padStart(2,"0")).join("")};
+const sync=()=>{const header=document.querySelector("header.header");const color=(header&&hex(getComputedStyle(header).backgroundColor))||hex(getComputedStyle(document.body).backgroundColor);if(color)plugin.set({color,dark:document.documentElement.dataset.theme==="dark"}).catch(()=>{})};
+sync();
+new MutationObserver(()=>requestAnimationFrame(sync)).observe(document.documentElement,{attributes:true,attributeFilter:["data-theme"]});
+document.querySelector("header.header")?.addEventListener("transitionend",sync);
+addEventListener("resize",sync);
+})()</script>`;
 
 async function htmlFiles(dir) {
   const out = [];
@@ -54,7 +67,7 @@ for (const file of pages) {
     console.error(`prepare-native: no </body> in ${file}`);
     process.exit(1);
   }
-  await writeFile(file, stripped.replace("</body>", `${HIDE_SPLASH}</body>`), "utf8");
+  await writeFile(file, stripped.replace("</body>", `${SYNC_CHROME}${HIDE_SPLASH}</body>`), "utf8");
 }
 
 console.log(`prepare-native: ${pages.length} pages copied to ${OUT}/ (web-only files removed)`);
