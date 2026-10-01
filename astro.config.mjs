@@ -37,11 +37,19 @@ export default defineConfig({
         { tag: "link", attrs: { rel: "manifest", href: "/manifest.webmanifest" } },
         { tag: "meta", attrs: { name: "theme-color", content: "#16847d" } },
         { tag: "meta", attrs: { name: "mobile-web-app-capable", content: "yes" } },
-        { tag: "meta", attrs: { name: "apple-mobile-web-app-capable", content: "yes" } },
+        { tag: "meta", attrs: { name: "apple-web-app-capable", content: "yes" } },
         { tag: "meta", attrs: { name: "apple-mobile-web-app-title", content: "Field Guide" } },
         {
           tag: "meta",
           attrs: { name: "apple-mobile-web-app-status-bar-style", content: "black-translucent" },
+        },
+        {
+          tag: "script",
+          attrs: {
+            type: "module",
+            src: "https://static.cloudflareinsights.com/beacon.min.js",
+            "data-cf-beacon": '{"token": "dddec9a7972f48eb99407770871093de"}',
+          },
         },
       ],
       locales,
