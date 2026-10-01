@@ -77,7 +77,16 @@ The iOS and Android apps (`com.wastewaterfieldguide.app`) wrap the same Astro bu
 npm run native:sync     # build the site, prepare dist-native/, copy it into ios/ and android/
 npm run native:ios      # sync, then open the project in Xcode
 npm run native:android  # sync, then open the project in Android Studio
+npm run native:assets   # regenerate app icons and splash screens
 ```
+
+`npm run native:ios` doesn't launch a simulator. Choose one in Xcode and press **Run**.
+
+### Icons and splash screens
+
+`scripts/make-native-assets.mjs` draws the source images in `assets/` from the logo in `public/favicon.svg`. `@capacitor/assets` then generates every iOS and Android size from them. The splash has a light and a dark version that follow the system appearance. To change the artwork, edit the script and run `npm run native:assets`. The generator reformats `android/app/src/main/AndroidManifest.xml` without changing anything, so discard that diff with `git checkout android/app/src/main/AndroidManifest.xml`.
+
+The splash screen stays up until the first page paints. `prepare-native.mjs` adds a script to each page that hides it on load. `launchShowDuration` in `capacitor.config.ts` is only a fallback.
 
 Android builds need JDK 21. The Gradle version in the Capacitor template can't run on the JDK 25 that ships with current Android Studio. Install it with `brew install openjdk@21`, then set **Settings → Build, Execution, Deployment → Build Tools → Gradle → Gradle JDK** to that JDK. For command-line builds, export `JAVA_HOME=/opt/homebrew/opt/openjdk@21/libexec/openjdk.jdk/Contents/Home`.
 

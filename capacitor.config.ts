@@ -9,6 +9,14 @@ const config: CapacitorConfig = {
     // Keep the site's fixed header below the status bar and notch.
     contentInset: "always",
   },
+  plugins: {
+    SplashScreen: {
+      // Hidden by a script prepare-native.mjs adds to every page once the
+      // first page paints; the duration is only a fallback.
+      launchShowDuration: 10000,
+      launchFadeOutDuration: 200,
+    },
+  },
 };
 
 export default config;

@@ -18,6 +18,10 @@ const WEB_ONLY = [
 ];
 const BEACON = /<script\b[^>]*static\.cloudflareinsights\.com[^>]*><\/script>/g;
 const SW_REGISTRATION = /<script>(?:(?!<\/script>)[\s\S])*?serviceWorker\s*\.register\(["']\/sw\.js["']\)[\s\S]*?<\/script>/g;
+// The splash screen stays up (see capacitor.config.ts) until the first page
+// has painted, so launch never shows a blank web view.
+const HIDE_SPLASH =
+  "<script>addEventListener('load',()=>requestAnimationFrame(()=>window.Capacitor?.Plugins?.SplashScreen?.hide()))</script>";
 
 async function htmlFiles(dir) {
   const out = [];
@@ -46,7 +50,11 @@ for (const file of pages) {
     console.error(`prepare-native: analytics beacon or service worker still present in ${file}`);
     process.exit(1);
   }
-  if (stripped !== html) await writeFile(file, stripped, "utf8");
+  if (!stripped.includes("</body>")) {
+    console.error(`prepare-native: no </body> in ${file}`);
+    process.exit(1);
+  }
+  await writeFile(file, stripped.replace("</body>", `${HIDE_SPLASH}</body>`), "utf8");
 }
 
 console.log(`prepare-native: ${pages.length} pages copied to ${OUT}/ (web-only files removed)`);

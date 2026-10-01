@@ -16,7 +16,8 @@
     "build:native": "astro build && node scripts/prepare-native.mjs",
     "native:sync": "npm run build:native && cap sync",
     "native:ios": "npm run native:sync && cap open ios",
-    "native:android": "npm run native:sync && cap open android"
+    "native:android": "npm run native:sync && cap open android",
+    "native:assets": "node scripts/make-native-assets.mjs && capacitor-assets generate --ios --android --iconBackgroundColor '#16847d' --iconBackgroundColorDark '#16847d' --splashBackgroundColor '#f6f9fa' --splashBackgroundColorDark '#121e24'"
   },
   "dependencies": {
     "@astrojs/starlight": "0.41.1",
@@ -24,6 +25,7 @@
     "@capacitor/android": "^8.5.2",
     "@capacitor/core": "^8.5.2",
     "@capacitor/ios": "^8.5.2",
+    "@capacitor/splash-screen": "^8.0.2",
     "@pagefind/default-ui": "^1.5.2",
     "@tailwindcss/vite": "^4.3.1",
     "astro": "^7.3.5",
@@ -34,6 +36,7 @@
   },
   "devDependencies": {
     "@astrojs/check": "0.9.9",
+    "@capacitor/assets": "^3.0.5",
     "@capacitor/cli": "^8.5.2",
     "astro-vtbot": "^2.1.12",
     "tailwindcss": "^4.3.1",
