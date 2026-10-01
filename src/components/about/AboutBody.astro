@@ -1,0 +1,12 @@
+---
+// Puts the About page's markdown in the same column as the page title,
+// like the calculator and reference pages.
+---
+
+<div class="page-column about-body"><slot /></div>
+
+<style>
+  .about-body {
+    padding-block: clamp(1rem, 3vw, 2rem) 3rem;
+  }
+</style>
