@@ -31,6 +31,8 @@ class FieldGuideViewController: CAPBridgeViewController {
 
     override func capacitorDidLoad() {
         bridge?.registerPluginInstance(FieldGuideChromePlugin())
+        // Swipe in from the left edge to go back, as in other iOS apps.
+        webView?.allowsBackForwardNavigationGestures = true
     }
 }
 
