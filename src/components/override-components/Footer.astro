@@ -1,6 +1,7 @@
 ---
 import config from "@/config/config.json";
 import { getTranslations } from "@/lib/utils/languagePerser";
+import { disclaimer } from "@/lib/disclaimer";
 
 const locale = Astro.currentLocale;
 
@@ -100,13 +101,7 @@ const year = new Date().getFullYear();
     </div>
     )}
     <div class="bottom-footer">
-      <p class="footer-disclaimer">
-        Formulas follow the conventions used on WPI operator certification
-        formula sheets. Typical ranges, presets, and example values are general
-        guidance, not your plant's numbers. Check results against your own
-        plant data, permit limits, SOPs, and O&amp;M manual, and confirm with your
-        supervisor or engineer before changing anything.
-      </p>
+      <p class="footer-disclaimer">{disclaimer}</p>
       <div class="footer-meta">
         <a
           href="https://github.com/jchance/wastewater-app"

@@ -149,15 +149,19 @@ input#nav-toggle:checked ~ #nav-menu {
 .theme-switcher {
   @apply inline-flex border border-lightmode-light/10! dark:border-light/10! rounded-full bg-lightmode-dark dark:bg-dark;
 
-  button {
+  button,
+  a {
     @apply flex h-9 w-9 cursor-pointer items-center justify-center rounded-full bg-transparent text-lightmode-light dark:text-light transition-colors duration-200;
   }
 
-  button:hover {
+  button:hover,
+  a:hover,
+  a[aria-current="page"] {
     @apply bg-lightmode-light/10 dark:bg-light/10;
   }
 
-  button:focus-visible {
+  button:focus-visible,
+  a:focus-visible {
     @apply outline-2 outline-offset-2 outline-current;
   }
 

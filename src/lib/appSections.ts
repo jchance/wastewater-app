@@ -13,7 +13,11 @@ export const appSections: AppSection[] = [
   { slug: "operator-math", tab: "Math", title: "Operator Math" },
 ];
 
-export const sectionFor = (pathname: string): AppSection["slug"] => {
+// Pages reached from the header rather than a tab leave every tab unselected.
+const untabbed = new Set(["about"]);
+
+export const sectionFor = (pathname: string): AppSection["slug"] | null => {
   const first = pathname.split("/").filter(Boolean)[0] ?? "";
+  if (untabbed.has(first)) return null;
   return appSections.some((s) => s.slug === first) ? (first as AppSection["slug"]) : "";
 };

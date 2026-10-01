@@ -1,0 +1,66 @@
+---
+import { appVersion, isNativeBuild } from "@/lib/native";
+
+const year = new Date().getFullYear();
+---
+
+{
+  isNativeBuild && (
+    <dl class="about-details">
+      <div>
+        <dt>Version</dt>
+        <dd>{appVersion}</dd>
+      </div>
+      <div>
+        <dt>Author</dt>
+        <dd>
+          <a href="https://jasonchance.com">Jason Chance</a>
+        </dd>
+      </div>
+      <div>
+        <dt>Website</dt>
+        <dd>
+          <a href="https://wastewaterfieldguide.com">wastewaterfieldguide.com</a>
+        </dd>
+      </div>
+      <div>
+        <dt>Copyright</dt>
+        <dd>© {year} Jason Chance</dd>
+      </div>
+    </dl>
+  )
+}
+
+<style>
+  .about-details {
+    display: grid;
+    margin: 0;
+    border: 1px solid var(--fg-line);
+    border-radius: 0.9rem;
+    overflow: hidden;
+  }
+
+  .about-details div {
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+    margin: 0;
+    padding: 0.75rem 1rem;
+  }
+
+  .about-details div + div {
+    border-top: 1px solid var(--fg-line);
+  }
+
+  .about-details dt {
+    color: var(--fg-muted);
+    font-weight: 600;
+  }
+
+  .about-details dd {
+    margin: 0;
+    color: var(--fg-ink);
+    text-align: right;
+    font-variant-numeric: tabular-nums;
+  }
+</style>
