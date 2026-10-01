@@ -74,7 +74,7 @@ The repository and the published site are both public.
 The iOS and Android apps (`com.wastewaterfieldguide.app`) wrap the same Astro build with [Capacitor](https://capacitorjs.com). Requires Xcode for iOS and Android Studio for Android.
 
 ```sh
-npm run native:sync     # build the site, prepare dist-native/, copy it into ios/ and android/
+npm run native:sync     # build the app bundle into dist-native/, copy it into ios/ and android/
 npm run native:ios      # sync, then open the project in Xcode
 npm run native:android  # sync, then open the project in Android Studio
 npm run native:assets   # regenerate app icons and splash screens
@@ -88,13 +88,19 @@ npm run native:assets   # regenerate app icons and splash screens
 
 The splash screen stays up until the first page paints. `prepare-native.mjs` adds a script to each page that hides it on load. `launchShowDuration` in `capacitor.config.ts` is only a fallback.
 
+### Navigation
+
+The apps use a bottom tab bar (Home, Calculators, Reference, Math) instead of the website's menu. The tab for the current section stays highlighted on its detail pages. Tapping a section tab opens a list page for that section at `/calculators/`, `/operator-reference/` or `/operator-math/`. Those pages reuse the lists from the home page. The tab bar is in `src/components/app/AppTabBar.astro`, the sections are listed in `src/lib/appSections.ts`, and the list pages come from `src/pages/[section]/index.astro`.
+
+On iOS you can swipe in from the left edge to go back. On Android the back button goes to the previous page and only leaves the app from the first page.
+
 ### Status bar
 
 `prepare-native.mjs` also adds a script that sends each page's header color and current theme to a small native plugin, `FieldGuideChrome`. The plugin is defined in `FieldGuideViewController.swift` on iOS and in `FieldGuideChromePlugin.java` on Android. It fills the strip behind the status bar with the header color and picks light or dark status bar icons. It follows the site's theme toggle, which can differ from the system setting, and updates when the theme changes.
 
 Android builds need JDK 21. The Gradle version in the Capacitor template can't run on the JDK 25 that ships with current Android Studio. Install it with `brew install openjdk@21`, then set **Settings → Build, Execution, Deployment → Build Tools → Gradle → Gradle JDK** to that JDK. For command-line builds, export `JAVA_HOME=/opt/homebrew/opt/openjdk@21/libexec/openjdk.jdk/Contents/Home`.
 
-`npm run build:native` copies `dist/` to `dist-native/` and leaves out website-only pieces: the service worker and its registration script (the app already has its files on the device), the Cloudflare analytics beacon, `CNAME`, and sitemaps. The website build itself is unchanged. The home page's install card also hides itself when `window.Capacitor` is present.
+`npm run build:native` sets `NATIVE_BUILD=1` (see `src/lib/native.ts`), which builds into `dist-native/` instead of `dist/`. It adds the tab bar and section list pages and drops the website menu. `prepare-native.mjs` then removes website-only pieces: the service worker and its registration script (the app already has its files on the device), the Cloudflare analytics beacon, `CNAME`, and sitemaps. The website build (`npm run build`) has none of these changes. The home page's install card also hides itself when `window.Capacitor` is present.
 
 Every page is served from `some/path/index.html` at the URL `some/path/`. By default, Capacitor serves the root `index.html` for any URL without a file extension, so custom native routers map these URLs to their pages instead: `ios/App/App/FieldGuideViewController.swift` (set as the scene root in `SceneDelegate.swift`) and `android/app/src/main/java/com/wastewaterfieldguide/app/FieldGuideWebViewClient.java`.
 

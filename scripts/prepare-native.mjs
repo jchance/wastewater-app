@@ -1,10 +1,10 @@
-// Copies the Astro build into the folder Capacitor ships inside the native
-// apps, minus the pieces that only make sense on the public website.
-import { cp, readdir, readFile, rm, writeFile } from "node:fs/promises";
+// Finishes the app build (`NATIVE_BUILD=1 astro build`, which writes to
+// dist-native/ and adds the app's tab bar and section pages) by removing the
+// pieces that only make sense on the public website.
+import { readdir, readFile, rm, writeFile } from "node:fs/promises";
 import { existsSync } from "node:fs";
 import path from "node:path";
 
-const SRC = "dist";
 const OUT = "dist-native";
 
 // The app bundle is already on the device, so it needs no service worker (file
@@ -46,13 +46,11 @@ async function htmlFiles(dir) {
   return out;
 }
 
-if (!existsSync(path.join(SRC, "index.html"))) {
-  console.error(`prepare-native: ${SRC}/index.html not found; run "npm run build" first.`);
+if (!existsSync(path.join(OUT, "index.html")) || !existsSync(path.join(OUT, "calculators", "index.html"))) {
+  console.error(`prepare-native: no app build in ${OUT}/; run "npm run build:native".`);
   process.exit(1);
 }
 
-await rm(OUT, { recursive: true, force: true });
-await cp(SRC, OUT, { recursive: true });
 for (const file of WEB_ONLY) await rm(path.join(OUT, file), { force: true });
 
 const pages = await htmlFiles(OUT);
@@ -70,4 +68,4 @@ for (const file of pages) {
   await writeFile(file, stripped.replace("</body>", `${SYNC_CHROME}${HIDE_SPLASH}</body>`), "utf8");
 }
 
-console.log(`prepare-native: ${pages.length} pages copied to ${OUT}/ (web-only files removed)`);
+console.log(`prepare-native: ${pages.length} pages ready in ${OUT}/ (web-only files removed)`);

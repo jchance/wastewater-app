@@ -1,0 +1,26 @@
+---
+import StarlightPage from "@astrojs/starlight/components/StarlightPage.astro";
+import FieldGuideHome from "@/components/home/FieldGuideHome.astro";
+import { appSections, type AppSection } from "@/lib/appSections";
+import { isNativeBuild } from "@/lib/native";
+
+export function getStaticPaths() {
+  if (!isNativeBuild) return [];
+  return appSections
+    .filter((s) => s.slug)
+    .map((s) => ({ params: { section: s.slug }, props: { section: s } }));
+}
+
+const { section } = Astro.props as { section: AppSection };
+const slug = section.slug as Exclude<AppSection["slug"], "">;
+---
+
+<StarlightPage
+  frontmatter={{
+    title: section.title,
+    template: "splash",
+    hero: { title: section.title },
+  }}
+>
+  <FieldGuideHome section={slug} />
+</StarlightPage>

@@ -13,7 +13,7 @@
     "build": "astro build",
     "preview": "astro preview",
     "check": "astro check",
-    "build:native": "astro build && node scripts/prepare-native.mjs",
+    "build:native": "NATIVE_BUILD=1 astro build && node scripts/prepare-native.mjs",
     "native:sync": "npm run build:native && cap sync",
     "native:ios": "npm run native:sync && cap open ios",
     "native:android": "npm run native:sync && cap open android",

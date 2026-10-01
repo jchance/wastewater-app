@@ -3,6 +3,8 @@ import MobileMenuToggle from "./MobileMenuToggle.astro";
 import Footer from "./Footer.astro";
 import CTA from "../CTA.astro";
 import SidebarNav from "../SidebarNav.astro";
+import AppTabBar from "../app/AppTabBar.astro";
+import { isNativeBuild } from "@/lib/native";
 
 const { hasSidebar } = Astro.locals.starlightRoute;
 ---
@@ -35,6 +37,7 @@ const { hasSidebar } = Astro.locals.starlightRoute;
   </div>
   {!hasSidebar && <CTA />}
   {!hasSidebar && <Footer />}
+  {isNativeBuild && <AppTabBar />}
 </div>
 
 <style>

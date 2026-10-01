@@ -1,11 +1,24 @@
 ---
 import InstallCard from "./InstallCard.astro";
+
+interface Props {
+  // Renders one section's list on its own, for the app's section tabs.
+  section?: "calculators" | "operator-reference" | "operator-math";
+}
+
+const { section } = Astro.props;
+const shows = (name: Props["section"]) => !section || section === name;
 ---
 
-<section class="field-guide-home" aria-labelledby="home-heading">
-  <InstallCard />
-  <p class="section-label">CALCULATORS</p>
-  <h2 id="home-heading">Plug in your numbers.</h2>
+<section
+  class:list={["field-guide-home", { "single-section": section }]}
+  aria-labelledby={section ? undefined : "home-heading"}
+>
+  {!section && <InstallCard />}
+  {shows("calculators") && (
+  <>
+  {!section && <p class="section-label">CALCULATORS</p>}
+  {!section && <h2 id="home-heading">Plug in your numbers.</h2>}
   <p class="home-intro">
     Calculators that show their work, so the answer comes with the steps
     you'd write on paper.
@@ -104,10 +117,13 @@ import InstallCard from "./InstallCard.astro";
       </a>
     </li>
   </ul>
+  </>
+  )}
 
+  {shows("operator-reference") && (
   <div class="home-section">
-    <p class="section-label">OPERATOR REFERENCE</p>
-    <h2>Look it up instead of guessing.</h2>
+    {!section && <p class="section-label">OPERATOR REFERENCE</p>}
+    {!section && <h2>Look it up instead of guessing.</h2>}
     <p class="home-intro">
       Every formula in US and metric, the twelve wheels worth memorizing, the
       conversions that make units line up, the abbreviations behind the
@@ -172,10 +188,12 @@ import InstallCard from "./InstallCard.astro";
       </li>
     </ul>
   </div>
+  )}
 
+  {shows("operator-math") && (
   <div class="home-section">
-    <p class="section-label">OPERATOR MATH</p>
-    <h2>Know why the number works.</h2>
+    {!section && <p class="section-label">OPERATOR MATH</p>}
+    {!section && <h2>Know why the number works.</h2>}
     <p class="home-intro">
       For the days you have to show your work, defend a result, or study for
       the next license. It all comes back to one relationship between dose,
@@ -238,7 +256,7 @@ import InstallCard from "./InstallCard.astro";
       </li>
     </ul>
   </div>
-
+  )}
 </section>
 
 <style>
@@ -376,6 +394,17 @@ import InstallCard from "./InstallCard.astro";
     margin-top: 3rem;
     padding-top: 2.25rem;
     border-top: 1px solid var(--line);
+  }
+
+  .single-section {
+    margin-top: 0;
+    padding-top: 0;
+  }
+
+  .single-section .home-section {
+    margin-top: 0;
+    padding-top: 0;
+    border-top: 0;
   }
 
   .home-section .home-intro:has(+ .reference-list) {
