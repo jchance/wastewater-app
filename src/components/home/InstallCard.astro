@@ -205,7 +205,10 @@
       card.hidden = false;
     };
 
-    if (!standalone) {
+    // The Capacitor app is already installed, so it never needs the prompt.
+    const nativeApp = "Capacitor" in window;
+
+    if (!standalone && !nativeApp) {
       if (iOSSafari && iosBtn && steps) {
         iosBtn.hidden = false;
         show();
