@@ -12,12 +12,19 @@
     "start": "astro dev",
     "build": "astro build",
     "preview": "astro preview",
-    "check": "astro check"
+    "check": "astro check",
+    "build:native": "astro build && node scripts/prepare-native.mjs",
+    "native:sync": "npm run build:native && cap sync",
+    "native:ios": "npm run native:sync && cap open ios",
+    "native:android": "npm run native:sync && cap open android"
   },
   "dependencies": {
     "@astrojs/starlight": "0.41.1",
-    "@pagefind/default-ui": "^1.5.2",
     "@astrojs/starlight-tailwind": "5.0.0",
+    "@capacitor/android": "^8.5.2",
+    "@capacitor/core": "^8.5.2",
+    "@capacitor/ios": "^8.5.2",
+    "@pagefind/default-ui": "^1.5.2",
     "@tailwindcss/vite": "^4.3.1",
     "astro": "^7.3.5",
     "astro-font": "^1.1.0",
@@ -27,6 +34,7 @@
   },
   "devDependencies": {
     "@astrojs/check": "0.9.9",
+    "@capacitor/cli": "^8.5.2",
     "astro-vtbot": "^2.1.12",
     "tailwindcss": "^4.3.1",
     "typescript": "^6.0.3"
