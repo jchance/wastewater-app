@@ -24,6 +24,8 @@ Built with [Astro](https://astro.build) and [Starlight](https://starlight.astro.
 - `src/config/` – site title (`config.json`), header menu (`menu.en.json`), sidebar (`sidebar.json`)
 - `src/components/override-components/` – Starlight component overrides (header, footer, site title, etc.)
 - `public/` – static files copied as-is: favicon, apple touch icon, `CNAME`
+- `ios/`, `android/` – Capacitor native app projects (Xcode and Android Studio)
+- `capacitor.config.ts`, `scripts/prepare-native.mjs` – native app identity and web bundle preparation
 
 ## Local development
 
@@ -66,6 +68,22 @@ You can also run it manually from **Actions → Deploy to GitHub Pages → Run w
 - **HTTPS:** after DNS resolves and GitHub issues a certificate, enable **Enforce HTTPS** in the Pages settings
 
 The repository and the published site are both public.
+
+## Native apps (Capacitor)
+
+The iOS and Android apps (`com.wastewaterfieldguide.app`) wrap the same Astro build with [Capacitor](https://capacitorjs.com). Requires Xcode for iOS and Android Studio for Android.
+
+```sh
+npm run native:sync     # build the site, prepare dist-native/, copy it into ios/ and android/
+npm run native:ios      # sync, then open the project in Xcode
+npm run native:android  # sync, then open the project in Android Studio
+```
+
+`npm run build:native` copies `dist/` to `dist-native/` and leaves out website-only pieces: the service worker (the app already has its files on the device), the Cloudflare analytics beacon, `CNAME`, and sitemaps. The website build itself is unchanged.
+
+Every page is served from `some/path/index.html` at the URL `some/path/`. By default, Capacitor serves the root `index.html` for any URL without a file extension, so custom native routers map these URLs to their pages instead: `ios/App/App/FieldGuideViewController.swift` and `android/app/src/main/java/com/wastewaterfieldguide/app/FieldGuideWebViewClient.java`.
+
+Keep the `@capacitor/*` packages on the same version.
 
 ## License
 
