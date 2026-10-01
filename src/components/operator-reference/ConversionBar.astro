@@ -1,0 +1,399 @@
+---
+import {
+  calculateConversions,
+  unitOptions,
+  unitOptionsByGroup,
+} from "@/lib/conversions";
+
+const defaultUnitId = "foot";
+const defaultQuantity = 1;
+const initialOutputs = calculateConversions(defaultQuantity, defaultUnitId);
+---
+
+<section class="conv-tool" aria-label="Interactive unit converter" data-conv-tool>
+  <div class="conv-tool-header">
+    <span class="conv-tool-kicker">Quick Converter</span>
+    <span class="conv-tool-hint">Enter a number or tap any table row below to calculate equivalents</span>
+  </div>
+
+  <form class="conv-tool-form" onsubmit="event.preventDefault()">
+    <div class="conv-tool-row">
+      <div class="conv-input-group">
+        <label class="sr-only" for="conv-qty-input">Quantity</label>
+        <input
+          id="conv-qty-input"
+          class="conv-input-num"
+          type="number"
+          inputmode="decimal"
+          step="any"
+          value={defaultQuantity}
+          placeholder="Qty"
+          aria-label="Quantity to convert"
+        />
+        <label class="sr-only" for="conv-unit-select">Unit</label>
+        <select id="conv-unit-select" class="conv-input-unit" aria-label="Unit to convert from">
+          {
+            unitOptionsByGroup.map(({ group, units }) => (
+              <optgroup label={group.name}>
+                {units.map((u) => (
+                  <option value={u.id} selected={u.id === defaultUnitId}>
+                    {u.label}
+                  </option>
+                ))}
+              </optgroup>
+            ))
+          }
+        </select>
+      </div>
+
+      <span class="conv-equals" aria-hidden="true">=</span>
+
+      <div class="conv-outputs" aria-live="polite" aria-atomic="true">
+        {
+          initialOutputs.map((out) => (
+            <span class="conv-chip">
+              <strong class="conv-chip-val">{out.formatted}</strong>
+              <span class="conv-chip-unit">{out.unit}</span>
+            </span>
+          ))
+        }
+      </div>
+    </div>
+  </form>
+</section>
+
+<!-- Embedded data for zero-latency client calculation -->
+<script is:inline type="application/json" id="conv-units-data" set:html={JSON.stringify(unitOptions)} />
+
+<script>
+  function initConverter() {
+    const root = document.querySelector<HTMLElement>("[data-conv-tool]");
+    const dataEl = document.getElementById("conv-units-data");
+    if (!root || !dataEl) return;
+
+    interface Target {
+      factor: number;
+      unit: string;
+      factorDecimals: number;
+      originalText: string;
+    }
+
+    interface UnitOpt {
+      id: string;
+      from: string;
+      label: string;
+      targets: Target[];
+    }
+
+    let units: UnitOpt[] = [];
+    try {
+      units = JSON.parse(dataEl.textContent || "[]");
+    } catch {
+      return;
+    }
+
+    const unitMap = new Map<string, UnitOpt>(units.map((u) => [u.id, u]));
+
+    const numInput = root.querySelector<HTMLInputElement>(".conv-input-num");
+    const unitSelect = root.querySelector<HTMLSelectElement>(".conv-input-unit");
+    const outputsEl = root.querySelector<HTMLElement>(".conv-outputs");
+
+    if (!numInput || !unitSelect || !outputsEl) return;
+
+    function formatVal(val: number, factorDecimals = 0): string {
+      if (!isFinite(val)) return "—";
+      if (val === 0) return "0";
+
+      const abs = Math.abs(val);
+      if (abs < 0.0001) {
+        return val.toExponential(3);
+      }
+
+      let maxDec = Math.max(factorDecimals, 2);
+      if (abs >= 100000) {
+        maxDec = factorDecimals > 0 ? factorDecimals : 0;
+      } else if (abs >= 1000) {
+        maxDec = factorDecimals > 0 ? factorDecimals : 1;
+      }
+
+      const rounded = Number(val.toPrecision(10));
+      return rounded.toLocaleString("en-US", {
+        minimumFractionDigits: 0,
+        maximumFractionDigits: Math.min(maxDec, 5),
+      });
+    }
+
+    function update() {
+      if (!numInput || !unitSelect || !outputsEl) return;
+      const rawVal = numInput.value.trim();
+      const unit = unitMap.get(unitSelect.value);
+
+      if (!unit) {
+        outputsEl.innerHTML = `<span class="conv-chip conv-chip-empty">—</span>`;
+        return;
+      }
+
+      if (rawVal === "" || isNaN(Number(rawVal))) {
+        outputsEl.innerHTML = unit.targets
+          .map(
+            (t) => `
+          <span class="conv-chip conv-chip-dim">
+            <strong class="conv-chip-val">?</strong>
+            <span class="conv-chip-unit">${escapeHtml(t.unit)}</span>
+          </span>
+        `
+          )
+          .join("");
+        return;
+      }
+
+      const qty = parseFloat(rawVal);
+      outputsEl.innerHTML = unit.targets
+        .map((t) => {
+          const calculated = qty * t.factor;
+          const formatted = formatVal(calculated, t.factorDecimals);
+          return `
+          <span class="conv-chip">
+            <strong class="conv-chip-val">${formatted}</strong>
+            <span class="conv-chip-unit">${escapeHtml(t.unit)}</span>
+          </span>
+        `;
+        })
+        .join("");
+    }
+
+    function escapeHtml(str: string): string {
+      return str
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+    }
+
+    numInput.addEventListener("input", update);
+    unitSelect.addEventListener("change", update);
+
+    // Allow clicking table rows below to quickly populate the converter
+    document.querySelectorAll<HTMLElement>("[data-conv-trigger]").forEach((row) => {
+      row.addEventListener("click", () => {
+        const targetUnitId = row.dataset.convTrigger;
+        if (!targetUnitId || !unitMap.has(targetUnitId)) return;
+
+        unitSelect.value = targetUnitId;
+        update();
+
+        // Subtle highlight & focus
+        root.scrollIntoView({ behavior: "smooth", block: "nearest" });
+        numInput.focus();
+        numInput.select();
+      });
+    });
+  }
+
+  // Support both initial load and Astro View Transitions
+  initConverter();
+  document.addEventListener("astro:page-load", initConverter);
+</script>
+
+<style>
+  .conv-tool {
+    --ink: var(--fg-ink);
+    --muted: var(--fg-muted);
+    --line: var(--fg-line);
+    --paper: var(--fg-paper);
+    --canvas: var(--fg-canvas);
+    --teal: var(--fg-teal);
+    --teal-dark: var(--fg-teal-dark);
+
+    margin-bottom: 2.5rem;
+    padding: clamp(0.9rem, 2.5vw, 1.25rem);
+    border: 1px solid var(--line);
+    border-radius: 0.85rem;
+    background: var(--paper);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  }
+
+  .conv-tool-header {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+    margin-bottom: 0.75rem;
+  }
+
+  .conv-tool-kicker {
+    color: var(--teal-dark);
+    font-size: 0.72rem;
+    font-weight: 800;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+  }
+
+  html[data-theme="dark"] .conv-tool-kicker {
+    color: var(--teal);
+  }
+
+  .conv-tool-hint {
+    color: var(--muted);
+    font-size: 0.78rem;
+  }
+
+  .conv-tool-form {
+    margin: 0;
+  }
+
+  .conv-tool-row {
+    display: flex;
+    align-items: center;
+    gap: 0.85rem;
+    flex-wrap: wrap;
+  }
+
+  .conv-input-group {
+    display: inline-flex;
+    align-items: stretch;
+    border: 1px solid var(--line);
+    border-radius: 0.6rem;
+    background: var(--canvas);
+    overflow: hidden;
+    transition: border-color 0.15s ease, outline 0.15s ease;
+  }
+
+  .conv-input-group:focus-within {
+    border-color: var(--teal);
+    outline: 2px solid var(--teal);
+    outline-offset: 1px;
+  }
+
+  .conv-input-num {
+    width: 6.5rem;
+    min-width: 4.5rem;
+    padding: 0.55rem 0.75rem;
+    border: none;
+    background: transparent;
+    color: var(--ink);
+    font: inherit;
+    font-size: 1.05rem;
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+    outline: none;
+  }
+
+  .conv-input-num::placeholder {
+    color: var(--muted);
+    opacity: 0.7;
+  }
+
+  .conv-input-unit {
+    padding: 0.55rem 1.75rem 0.55rem 0.75rem;
+    border: none;
+    border-left: 1px solid var(--line);
+    background: var(--fg-pale-blue);
+    color: var(--ink);
+    font: inherit;
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+    outline: none;
+  }
+
+  .conv-input-unit:focus-visible {
+    outline: none;
+  }
+
+  .conv-equals {
+    color: var(--muted);
+    font-size: 1.35rem;
+    font-weight: 750;
+    line-height: 1;
+    user-select: none;
+  }
+
+  .conv-outputs {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+    min-height: 2.5rem;
+  }
+
+  :global(.conv-chip) {
+    display: inline-flex;
+    align-items: baseline;
+    gap: 0.4rem;
+    padding: 0.45rem 0.75rem;
+    border: 1px solid color-mix(in srgb, var(--fg-teal) 30%, var(--fg-line));
+    border-radius: 0.55rem;
+    background: color-mix(in srgb, var(--fg-teal) 9%, var(--fg-canvas));
+    font-variant-numeric: tabular-nums;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+  }
+
+  :global(.conv-chip-val) {
+    color: var(--fg-teal-dark);
+    font-size: 1.05rem;
+    font-weight: 800;
+  }
+
+  html[data-theme="dark"] :global(.conv-chip-val) {
+    color: var(--fg-teal);
+  }
+
+  :global(.conv-chip-unit) {
+    color: var(--fg-body);
+    font-size: 0.88rem;
+    font-weight: 600;
+  }
+
+  :global(.conv-chip-dim) {
+    opacity: 0.6;
+  }
+
+  :global(.conv-chip-empty) {
+    color: var(--muted);
+    font-style: italic;
+  }
+
+  .sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+  }
+
+  @media (max-width: 38rem) {
+    .conv-tool-row {
+      flex-direction: column;
+      align-items: stretch;
+      gap: 0.65rem;
+    }
+
+    .conv-input-group {
+      width: 100%;
+    }
+
+    .conv-input-num {
+      flex: 1;
+      width: auto;
+    }
+
+    .conv-input-unit {
+      flex: 1.5;
+    }
+
+    .conv-equals {
+      display: none;
+    }
+
+    .conv-outputs {
+      width: 100%;
+    }
+  }
+</style>

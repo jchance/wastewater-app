@@ -1,5 +1,7 @@
 ---
 import { conversionGroups, conversions } from "../../data/conversions";
+import { fromToUnitIdMap } from "../../lib/conversions";
+import ConversionBar from "./ConversionBar.astro";
 
 const grouped = conversionGroups.map((group) => ({
   group,
@@ -8,21 +10,30 @@ const grouped = conversionGroups.map((group) => ({
 ---
 
 <section class="or-page" aria-label="Conversion factors">
+  <ConversionBar />
+
   {
     grouped.map(({ group, items }) => (
       <section class="conv-group" aria-labelledby={`c-${group.id}`}>
         <h2 id={`c-${group.id}`}>{group.name}</h2>
         <ul class="conv-list">
-          {items.map((c) => (
-            <li class="conv-row">
-              <span class="conv-from">{c.from}</span>
-              <span class="conv-to">
-                {c.to.map((value) => (
-                  <span class="conv-value">{value}</span>
-                ))}
-              </span>
-            </li>
-          ))}
+          {items.map((c) => {
+            const unitId = fromToUnitIdMap.get(c.from);
+            return (
+              <li
+                class={`conv-row ${unitId ? "conv-row-clickable" : ""}`}
+                data-conv-trigger={unitId}
+                title={unitId ? `Click to convert ${c.from} in Quick Converter` : undefined}
+              >
+                <span class="conv-from">{c.from}</span>
+                <span class="conv-to">
+                  {c.to.map((value) => (
+                    <span class="conv-value">{value}</span>
+                  ))}
+                </span>
+              </li>
+            );
+          })}
         </ul>
       </section>
     ))
@@ -41,9 +52,6 @@ const grouped = conversionGroups.map((group) => ({
     color: var(--ink);
     font-family: var(--fg-font);
   }
-
-
-
 
   .conv-group + .conv-group {
     margin-top: 2rem;
@@ -73,6 +81,15 @@ const grouped = conversionGroups.map((group) => ({
     gap: 0.4rem 1rem;
     align-items: baseline;
     padding: 0.7rem 0.95rem;
+    transition: background-color 0.15s ease;
+  }
+
+  .conv-row-clickable {
+    cursor: pointer;
+  }
+
+  .conv-row-clickable:hover {
+    background: color-mix(in srgb, var(--fg-teal) 5%, var(--fg-paper));
   }
 
   .conv-row + .conv-row {
