@@ -1,5 +1,4 @@
 ---
-import InstallCard from "./InstallCard.astro";
 
 interface Props {
   // Renders one section's list on its own, for the app's section tabs.
@@ -14,7 +13,6 @@ const shows = (name: Props["section"]) => !section || section === name;
   class:list={["field-guide-home", { "single-section": section }]}
   aria-labelledby={section ? undefined : "home-heading"}
 >
-  {!section && <InstallCard />}
   {shows("calculators") && (
   <>
   {!section && <p class="section-label">CALCULATORS</p>}
