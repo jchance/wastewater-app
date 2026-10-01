@@ -1,0 +1,715 @@
+---
+import { formatNumber } from "@/lib/dosage";
+import {
+  activeFields,
+  calculatePumping,
+  pumpingModes,
+  pumpingSteps,
+  rangeNote,
+  maxStartsByHp,
+  money,
+  type PumpingInput,
+  type PumpingMode,
+  type PumpingMetric,
+} from "@/lib/pumping";
+import { renderSteps } from "@/lib/processControl";
+import "@/styles/calculator.css";
+
+const initialMode: PumpingMode = "rate";
+const initial: PumpingInput = {
+  shape: "circular",
+  length: 10,
+  width: 8,
+  diameter: 6,
+  depthMethod: "floats",
+  drawdown: 0.75,
+  pumpOn: -2.5,
+  pumpOff: -3.25,
+  minutes: 2,
+  seconds: 32,
+  influent: 49,
+  cycleInflow: 49,
+  pumpCapacity: 111.5,
+  motorHp: 7.5,
+  flowGpm: 104,
+  head: 34.42,
+  pumpEff: 65,
+  motorEff: 88,
+  showCost: false,
+  rate: 0.12,
+  hoursPerDay: 11.3,
+};
+
+const outcome = calculatePumping(initialMode, initial);
+const r = outcome.ok ? outcome.result : null;
+const stepsHtml = r ? renderSteps(pumpingSteps(initialMode, initial, r)) : "";
+const active = activeFields(initialMode, initial);
+const val = (n: number) => (Number.isFinite(n) ? n : "");
+const out = (n: number | undefined, digits?: number) => (n === undefined ? "—" : formatNumber(n, digits));
+
+type Option = { value: string; label: string };
+type Field = {
+  name: keyof PumpingInput;
+  label: string;
+  options?: Option[];
+  checkbox?: boolean;
+  unit?: string;
+  hint?: string;
+  optional?: boolean;
+  /** Float elevations are read off a datum, so they can be negative. */
+  allowNegative?: boolean;
+};
+
+const fields: Field[] = [
+  {
+    name: "shape",
+    label: "Wet well shape",
+    options: [
+      { value: "circular", label: "Circular" },
+      { value: "rectangular", label: "Rectangular" },
+    ],
+  },
+  { name: "diameter", label: "Diameter", unit: "ft" },
+  { name: "length", label: "Length", unit: "ft" },
+  { name: "width", label: "Width", unit: "ft" },
+  {
+    name: "depthMethod",
+    label: "Drawdown from",
+    options: [
+      { value: "depth", label: "A measured depth" },
+      { value: "floats", label: "Float elevations" },
+    ],
+  },
+  {
+    name: "drawdown",
+    label: "Drawdown depth",
+    unit: "ft",
+    hint: "How far the water dropped between pump on and pump off.",
+  },
+  {
+    name: "pumpOn",
+    label: "Pump-on level",
+    unit: "ft",
+    allowNegative: true,
+    hint: "Elevations off your station drawing. Negative numbers are fine as long as both use the same datum.",
+  },
+  { name: "pumpOff", label: "Pump-off level", unit: "ft", allowNegative: true },
+  { name: "minutes", label: "Pump-down time", unit: "min" },
+  { name: "seconds", label: "plus", unit: "sec", optional: true },
+  {
+    name: "influent",
+    label: "Flow still coming in",
+    unit: "gpm",
+    optional: true,
+    hint: "Leave blank if you isolated the well. Otherwise this gets added back to the rate.",
+  },
+  { name: "cycleInflow", label: "Average flow in", unit: "gpm" },
+  { name: "pumpCapacity", label: "Pump capacity", unit: "gpm", hint: "One pump, from the drawdown test or the pump curve." },
+  {
+    name: "motorHp",
+    label: "Motor size",
+    unit: "hp",
+    optional: true,
+    hint: "Used only to compare starts per hour against a typical maximum.",
+  },
+  { name: "flowGpm", label: "Flow", unit: "gpm" },
+  { name: "head", label: "Total dynamic head", unit: "ft", hint: "Static lift plus friction losses. Pipe Flow works out the friction side." },
+  { name: "pumpEff", label: "Pump efficiency", unit: "%" },
+  { name: "motorEff", label: "Motor efficiency", unit: "%" },
+  { name: "showCost", label: "Add energy cost", checkbox: true },
+  { name: "rate", label: "Power rate", unit: "$/kWh", optional: true },
+  { name: "hoursPerDay", label: "Pump runs", unit: "hr/day", optional: true },
+];
+
+type MetricDef = {
+  id: string;
+  title: string;
+  key: keyof NonNullable<typeof r>;
+  unit: string;
+  digits: number;
+  modes: PumpingMode[];
+  primary?: boolean;
+  note?: PumpingMetric;
+  /** Only shown when the cost block is switched on. */
+  cost?: boolean;
+  /** Only shown when influent flow was entered. */
+  needsInfluent?: boolean;
+  money?: boolean;
+};
+
+const metrics: MetricDef[] = [
+  { id: "netGpm", title: "Pump rate", key: "netGpm", unit: "gpm", digits: 1, modes: ["rate"], primary: true },
+  { id: "grossGpm", title: "Gross, before inflow", key: "grossGpm", unit: "gpm", digits: 1, modes: ["rate"], needsInfluent: true },
+  { id: "mgd", title: "If it ran all day", key: "mgd", unit: "MGD", digits: 3, modes: ["rate"] },
+  { id: "volumeGal", title: "Volume per cycle", key: "volumeGal", unit: "gal", digits: 1, modes: ["rate", "cycle"] },
+  { id: "startsPerHour", title: "Starts per hour", key: "startsPerHour", unit: "starts/hr", digits: 1, modes: ["cycle"], primary: true, note: "startsPerHour" },
+  { id: "cycleMinutes", title: "Full cycle", key: "cycleMinutes", unit: "min", digits: 2, modes: ["cycle"], note: "cycleMinutes" },
+  { id: "fillMinutes", title: "Fill time", key: "fillMinutes", unit: "min", digits: 2, modes: ["cycle"] },
+  { id: "pumpMinutes", title: "Pump-down time", key: "pumpMinutes", unit: "min", digits: 2, modes: ["cycle"] },
+  { id: "mhp", title: "Motor horsepower", key: "mhp", unit: "mhp", digits: 2, modes: ["hp"], primary: true },
+  { id: "whp", title: "Water horsepower", key: "whp", unit: "whp", digits: 2, modes: ["hp"] },
+  { id: "bhp", title: "Brake horsepower", key: "bhp", unit: "bhp", digits: 2, modes: ["hp"] },
+  { id: "wireToWater", title: "Wire-to-water", key: "wireToWater", unit: "%", digits: 1, modes: ["hp"], note: "wireToWater" },
+  { id: "psi", title: "Head as pressure", key: "psi", unit: "psi", digits: 1, modes: ["hp"] },
+  { id: "costPerDay", title: "Cost per day", key: "costPerDay", unit: "per day", digits: 2, modes: ["hp"], cost: true, money: true },
+  { id: "costPerMg", title: "Cost per million gallons", key: "costPerMg", unit: "per MG", digits: 2, modes: ["hp"], cost: true, money: true },
+  { id: "kwhPerDay", title: "Energy per day", key: "kwhPerDay", unit: "kWh", digits: 1, modes: ["hp"], cost: true },
+];
+
+const metricShown = (m: MetricDef) => {
+  if (!m.modes.includes(initialMode)) return false;
+  if (m.cost && !initial.showCost) return false;
+  if (m.needsInfluent && !r?.hasInfluent) return false;
+  return true;
+};
+const initialNote = (m: MetricDef) =>
+  r && m.note ? rangeNote(m.note, r[m.key] as number, initial) : null;
+---
+
+<section class="calc-page" aria-label="Pumping and wet well calculator">
+  <form class="calc" data-pumping-calc novalidate>
+    <fieldset class="calc-modes">
+      <legend>What are you working out?</legend>
+      {
+        pumpingModes.map((m) => (
+          <label class="mode-tab">
+            <input type="radio" name="mode" value={m.id} checked={m.id === initialMode} />
+            <span class="mode-short">{m.label}</span>
+            <span class="mode-long">{m.long}</span>
+          </label>
+        ))
+      }
+    </fieldset>
+
+    <fieldset class="calc-inputs">
+      <legend>Your numbers</legend>
+      {
+        fields.map((field) => {
+          const id = `pw-${field.name}`;
+          const value = initial[field.name];
+          return (
+            <div
+              class:list={["field", { "field-check": field.checkbox }]}
+              data-field={field.name}
+              hidden={!active.includes(field.name)}
+            >
+              <label class="field-label" for={id}>
+                {field.label}
+                {field.optional && <span class="field-optional"> optional</span>}
+              </label>
+              <span class="field-input">
+                {field.checkbox ? (
+                  <input id={id} name={field.name} type="checkbox" checked={value === true} />
+                ) : field.options ? (
+                  <select id={id} name={field.name}>
+                    {field.options.map((o) => (
+                      <option value={o.value} selected={o.value === value}>
+                        {o.label}
+                      </option>
+                    ))}
+                  </select>
+                ) : (
+                  <input
+                    id={id}
+                    name={field.name}
+                    type="number"
+                    inputmode="decimal"
+                    min={field.allowNegative ? undefined : "0"}
+                    step="any"
+                    value={val(value as number)}
+                  />
+                )}
+                {field.unit && <span class="unit">{field.unit}</span>}
+              </span>
+              {field.hint && <span class="field-hint">{field.hint}</span>}
+            </div>
+          );
+        })
+      }
+    </fieldset>
+
+    <div class="calc-results" aria-live="polite">
+      <p class="calc-error" data-error hidden></p>
+
+      <dl class="result-grid" data-results>
+        {
+          metrics.map((m) => {
+            const note = initialNote(m);
+            return (
+              <div
+                class:list={["result", { "result-primary": m.primary }]}
+                data-metric={m.id}
+                hidden={!metricShown(m)}
+              >
+                <dt>{m.title}</dt>
+                <dd>
+                  <output data-out={m.key} data-digits={m.digits} data-money={m.money ? "" : undefined}>
+                    {r && m.money ? `$${money(r[m.key] as number)}` : out(r?.[m.key] as number | undefined, m.digits)}
+                  </output>{" "}
+                  <span>{m.unit}</span>
+                  <small class:list={["range-note", { "is-concern": note?.concern }]} data-note hidden={!note}>
+                    {note?.text}
+                  </small>
+                </dd>
+              </div>
+            );
+          })
+        }
+      </dl>
+    </div>
+  </form>
+
+  <section class="steps" aria-labelledby="steps-heading">
+    <h2 id="steps-heading">Your numbers, step by step</h2>
+    <ol class="step-list" data-steps set:html={stepsHtml} />
+  </section>
+
+  <section class="prose" aria-labelledby="how-heading">
+    <h2 id="how-heading">Why it works</h2>
+    <p>
+      A wet well is a measuring tank you already own. If you know its area and
+      you watch the water drop a known distance, you know exactly how many
+      gallons the pump moved. Time it, and you have the pump rate — no meter
+      needed.
+    </p>
+    <ul class="checks">
+      <li>
+        <strong>Pump rate</strong> is gallons drawn down divided by the minutes
+        it took. If flow kept coming in during the test, the well emptied more
+        slowly than the pump was actually moving water, so you add the influent
+        rate back on to get the true pump rate.
+      </li>
+      <li>
+        <strong>Cycle time</strong> is the fill plus the pump-down. While the
+        pump runs, the well only drops at the difference between what goes out
+        and what comes in, which is why a station near its capacity takes much
+        longer to draw down than you'd expect.
+      </li>
+      <li>
+        <strong>Starts per hour</strong> is just 60 divided by the cycle
+        length. Motors are rated for a maximum number of starts, because each
+        one heats the windings. Short cycling is the fastest way to kill a
+        pump motor.
+      </li>
+      <li>
+        <strong>Horsepower</strong> starts with the work the water actually
+        needs — flow times head — then divides by each efficiency in turn.
+        The pump loses some, the motor loses some, and what's left is what the
+        power bill sees.
+      </li>
+    </ul>
+    <p>
+      The friction side of total dynamic head comes from the force main. The
+      <a href="/calculators/pipe-flow/">Pipe Flow calculator</a> works that out with
+      Hazen-Williams. All of these formulas are on the
+      <a href="/operator-reference/formulas/">formula sheet</a>.
+    </p>
+  </section>
+
+  <section class="prose" aria-labelledby="field-heading">
+    <h2 id="field-heading">Running a drawdown test</h2>
+    <ol class="procedure">
+      <li>
+        <strong>Measure the well.</strong> Get the inside dimensions, not the
+        outside of the structure. A circular well needs the diameter; a
+        rectangular one needs length and width. Do this once and write it on
+        the panel — you'll use it for years.
+      </li>
+      <li>
+        <strong>Deal with the incoming flow.</strong> The cleanest test is to
+        plug or divert the influent so nothing enters while you time it. If you
+        can't, measure the inflow first: let the pumps stay off, time how long
+        the water takes to rise a known depth, and work out that rate the same
+        way. Then enter it in the influent field.
+      </li>
+      <li>
+        <strong>Mark your start and stop points.</strong> The pump-on and
+        pump-off floats are the obvious choice because they're repeatable. A
+        tape or an ultrasonic reading works too. Just use the same two points
+        every time you repeat the test.
+      </li>
+      <li>
+        <strong>Time it.</strong> Run one pump, not both. Start the watch when
+        the water passes the upper mark and stop it at the lower mark — not
+        when the pump starts and stops, since there's a lag. Record minutes and
+        seconds.
+      </li>
+      <li>
+        <strong>Do it three times.</strong> Average the runs. If one is well
+        off the others, something moved — a check valve, a float, or the
+        influent.
+      </li>
+      <li>
+        <strong>Test each pump separately.</strong> That's the whole point.
+        A lead pump at 110 gpm and a lag pump at 70 gpm tells you which one to
+        pull, and you'd never see it from the station's flow meter.
+      </li>
+      <li>
+        <strong>Write it down and compare.</strong> A drawdown test is only
+        worth something next to the last one. A rate that has quietly fallen
+        20% is a worn impeller, a partly closed valve or a greased-up force
+        main.
+      </li>
+    </ol>
+  </section>
+
+  <section class="prose" aria-labelledby="example-heading">
+    <h2 id="example-heading">Example: a real 6-foot duplex lift station</h2>
+    <p>
+      These are the published design numbers for the <strong>Warwick Park Pump
+      Station (PS-329)</strong> in Sussex County, Delaware — a duplex
+      submersible station serving Gull Point and Warwick Cove, from the
+      engineering calculations filed with DNREC permit WR20250183.
+    </p>
+    <ul class="example-math">
+      <li>Wet well: <b>6 ft diameter</b>, circular</li>
+      <li>Lead pump on at <b>−2.50 ft</b>, pumps off at <b>−3.25 ft</b> — a <b>0.75 ft</b> working band</li>
+      <li>Average daily flow <b>70,490 gpd</b>, which is <b>49 gpm</b></li>
+      <li>Pump operating point <b>111.5 gpm</b> at <b>36.5 ft</b> of head; design point 104 gpm at 34.42 ft</li>
+      <li>Motor: Flygt NP 3127, <b>7.5 hp</b></li>
+    </ul>
+    <p>
+      Work the drawdown out from the geometry: 0.785 × 6 × 6 = 28.3 ft², times
+      0.75 ft is 21.2 ft³, times 7.48 = <b>158.5 gallons</b> per cycle. With 49
+      gpm still coming in, the well drops at 111.5 − 49 = 62.5 gpm, so the
+      pump-down takes about <b>2 minutes 32 seconds</b>. Run that backwards
+      through the calculator and you land on 62.6 gpm gross, plus 49 gpm
+      influent — <b>111.6 gpm</b>, within a tenth of the published operating
+      point.
+    </p>
+    <p>
+      The cycle tab is where it gets interesting. Filling 158.5 gallons at 49
+      gpm takes 3.24 minutes, the pump-down takes 2.54, so a full cycle is
+      about <b>5.8 minutes</b> — roughly <b>10.4 starts per hour</b>. That is
+      right at the usual ceiling for a motor this size, which is exactly the
+      kind of thing worth checking before you narrow a float band.
+    </p>
+    <p class="example-caveat">
+      One caveat on the horsepower tab: the report publishes the flow, head and
+      motor size but not the pump and motor efficiencies. The 65% and 88%
+      loaded below are typical values, not this station's. Use your own pump
+      curve if you want a real answer.
+    </p>
+    <button type="button" class="load-example" data-load-example>
+      Put this example in the calculator
+    </button>
+  </section>
+
+  <section class="prose" aria-labelledby="sanity-heading">
+    <h2 id="sanity-heading">Do the numbers look reasonable?</h2>
+    <p>
+      Motor manufacturers publish a maximum number of starts per hour, because
+      each start heats the windings and the motor needs the run time to cool.
+      These are common guidelines for submersible sewage pumps — they are not a
+      substitute for the curve and data sheet that came with your pump.
+    </p>
+    <div class="sanity-wrap">
+      <table class="sanity">
+        <thead>
+          <tr>
+            <th scope="col">Motor size</th>
+            <th scope="col">Typical maximum starts per hour</th>
+          </tr>
+        </thead>
+        <tbody>
+          {
+            maxStartsByHp.map((b) => (
+              <tr>
+                <th scope="row" data-label="Motor size">{b.label}</th>
+                <td data-label="Typical maximum starts per hour">About {b.maxStarts}</td>
+              </tr>
+            ))
+          }
+        </tbody>
+      </table>
+    </div>
+    <p>
+      <strong>Check your pump curve.</strong> Larger motors take longer to cool
+      and tolerate fewer starts, but the real limit depends on the motor, the
+      starting method and how warm the wet well runs. If the manufacturer's
+      number differs from the table, the manufacturer wins.
+    </p>
+    <div class="sanity-wrap">
+      <table class="sanity">
+        <thead>
+          <tr>
+            <th scope="col">Number</th>
+            <th scope="col">Usually lands near</th>
+            <th scope="col">If it is far off</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <th scope="row" data-label="Number">Pump rate vs. the pump curve</th>
+            <td data-label="Usually lands near">Within about 10% of the curve at your head</td>
+            <td data-label="If it is far off">A radius entered as the diameter makes the volume four times too small. Check the units on the drawing too — some are in inches.</td>
+          </tr>
+          <tr>
+            <th scope="row" data-label="Number">Cycle time</th>
+            <td data-label="Usually lands near">Rarely under about 5 minutes</td>
+            <td data-label="If it is far off">Short cycling usually means the floats are too close together or the pump is oversized for the flow.</td>
+          </tr>
+          <tr>
+            <th scope="row" data-label="Number">Wire-to-water efficiency</th>
+            <td data-label="Usually lands near">About 45–80%</td>
+            <td data-label="If it is far off">Under 45% points at a worn impeller, a fouled force main, or a pump running far off its best efficiency point.</td>
+          </tr>
+          <tr>
+            <th scope="row" data-label="Number">Total dynamic head</th>
+            <td data-label="Usually lands near">Static lift plus friction, so always more than the lift alone</td>
+            <td data-label="If it is far off">Forgetting force main friction makes the horsepower read low. Grease buildup raises real head over the design value.</td>
+          </tr>
+          <tr>
+            <th scope="row" data-label="Number">Two pumps, two rates</th>
+            <td data-label="Usually lands near">Within a few percent of each other</td>
+            <td data-label="If it is far off">A big gap between lead and lag is the most useful thing a drawdown test tells you. Test them separately.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section class="prose" aria-labelledby="checks-heading">
+    <h2 id="checks-heading">Before you change anything</h2>
+    <ul class="checks">
+      <li>
+        <strong>Confined space rules apply.</strong> A wet well is a permit-
+        required confined space. Measure from the top, use the station drawing,
+        and don't enter for a drawdown test.
+      </li>
+      <li>
+        <strong>Don't widen a float band to fix short cycling without
+        checking detention.</strong> More storage means longer cycles, but
+        sewage sitting in a wet well goes septic and you'll smell it downstream.
+      </li>
+      <li>
+        <strong>Run one pump at a time.</strong> Two pumps in the same force
+        main don't move twice the water, and a test with both running tells you
+        nothing about either.
+      </li>
+      <li>
+        <strong>Watch the check valve.</strong> A valve that doesn't seat lets
+        the force main drain back, which shows up as a pump rate that reads
+        low and a cycle that repeats sooner than it should.
+      </li>
+      <li>
+        <strong>Baseline it now.</strong> A drawdown test on a healthy station
+        is worth more than one on a failing station, because it gives you the
+        number to compare against later.
+      </li>
+    </ul>
+    <p class="disclaimer">
+      This is a study and planning aid. Your plant's SOPs, permit and process
+      engineer take priority over any number on this page.
+    </p>
+  </section>
+</section>
+
+<style>
+  .field-input:has(> select:only-child) {
+    min-height: calc(2.75rem + 2px);
+    box-sizing: border-box;
+  }
+  .field-input > select:only-child {
+    flex: 1;
+    width: 100%;
+    padding: 0 0.6rem;
+    cursor: pointer;
+    outline: none;
+  }
+  .field-check .field-input {
+    border: none;
+    background: none;
+    padding: 0;
+    min-height: 0;
+  }
+  .field-check input[type="checkbox"] {
+    width: 1.1rem;
+    height: 1.1rem;
+    accent-color: var(--fg-teal, currentColor);
+    cursor: pointer;
+  }
+  .range-note {
+    display: block;
+    margin-top: 0.4rem;
+    color: var(--muted);
+    font-size: 0.78rem;
+    font-weight: 600;
+    letter-spacing: 0;
+    line-height: 1.4;
+  }
+  .range-note.is-concern {
+    padding: 0.3rem 0.5rem;
+    border: 1px solid var(--fg-coral);
+    border-radius: 0.4rem;
+    background: color-mix(in srgb, var(--fg-coral) 12%, transparent);
+    color: var(--ink);
+  }
+  .procedure {
+    margin: 0;
+    padding-left: 1.2rem;
+    display: grid;
+    gap: 0.75rem;
+  }
+  .procedure li {
+    line-height: 1.6;
+  }
+  .example-caveat {
+    color: var(--muted);
+    font-size: 0.9rem;
+  }
+</style>
+
+<script>
+  import { formatNumber } from "@/lib/dosage";
+  import {
+    activeFields,
+    calculatePumping,
+    pumpingSteps,
+    rangeNote,
+    money,
+    type PumpingInput,
+    type PumpingMode,
+    type PumpingMetric,
+  } from "@/lib/pumping";
+  import { renderSteps } from "@/lib/processControl";
+
+  const example: Record<string, string> = {
+    mode: "rate",
+    shape: "circular",
+    diameter: "6",
+    depthMethod: "floats",
+    pumpOn: "-2.5",
+    pumpOff: "-3.25",
+    minutes: "2",
+    seconds: "32",
+    influent: "49",
+    cycleInflow: "49",
+    pumpCapacity: "111.5",
+    motorHp: "7.5",
+    flowGpm: "104",
+    head: "34.42",
+    pumpEff: "65",
+    motorEff: "88",
+    rate: "0.12",
+    hoursPerDay: "11.3",
+  };
+
+  const costMetrics = ["costPerDay", "costPerMg", "kwhPerDay"];
+  const modeMetrics: Record<string, string[]> = {
+    rate: ["netGpm", "grossGpm", "mgd", "volumeGal"],
+    cycle: ["startsPerHour", "cycleMinutes", "fillMinutes", "pumpMinutes", "volumeGal"],
+    hp: ["mhp", "whp", "bhp", "wireToWater", "psi", ...costMetrics],
+  };
+  const noteFor: Record<string, PumpingMetric> = {
+    startsPerHour: "startsPerHour",
+    cycleMinutes: "cycleMinutes",
+    wireToWater: "wireToWater",
+  };
+
+  function bind() {
+    const form = document.querySelector<HTMLFormElement>("[data-pumping-calc]");
+    if (!form || form.dataset.bound) return;
+    form.dataset.bound = "true";
+
+    const el = <T extends Element>(name: string) => form.elements.namedItem(name) as unknown as T;
+    const num = (name: string) => {
+      const raw = el<HTMLInputElement>(name).value.trim();
+      return raw === "" ? NaN : Number(raw);
+    };
+    const str = (name: string) => el<HTMLSelectElement>(name).value;
+    const error = form.querySelector<HTMLElement>("[data-error]")!;
+    const results = form.querySelector<HTMLElement>("[data-results]")!;
+    const steps = document.querySelector<HTMLElement>("[data-steps]")!;
+
+    function update() {
+      const mode = (form!.querySelector<HTMLInputElement>('input[name="mode"]:checked')?.value ??
+        "rate") as PumpingMode;
+      const input: PumpingInput = {
+        shape: str("shape") as PumpingInput["shape"],
+        length: num("length"),
+        width: num("width"),
+        diameter: num("diameter"),
+        depthMethod: str("depthMethod") as PumpingInput["depthMethod"],
+        drawdown: num("drawdown"),
+        pumpOn: num("pumpOn"),
+        pumpOff: num("pumpOff"),
+        minutes: num("minutes"),
+        seconds: num("seconds"),
+        influent: num("influent"),
+        cycleInflow: num("cycleInflow"),
+        pumpCapacity: num("pumpCapacity"),
+        motorHp: num("motorHp"),
+        flowGpm: num("flowGpm"),
+        head: num("head"),
+        pumpEff: num("pumpEff"),
+        motorEff: num("motorEff"),
+        showCost: el<HTMLInputElement>("showCost").checked,
+        rate: num("rate"),
+        hoursPerDay: num("hoursPerDay"),
+      };
+
+      const active = activeFields(mode, input);
+      for (const node of form!.querySelectorAll<HTMLElement>("[data-field]")) {
+        node.hidden = !active.includes(node.dataset.field as keyof PumpingInput);
+      }
+
+      const outcome = calculatePumping(mode, input);
+      const hasInfluent = outcome.ok && outcome.result.hasInfluent;
+      for (const card of results.querySelectorAll<HTMLElement>("[data-metric]")) {
+        const id = card.dataset.metric!;
+        let shown = modeMetrics[mode].includes(id);
+        if (shown && costMetrics.includes(id)) shown = input.showCost;
+        if (shown && id === "grossGpm") shown = hasInfluent;
+        card.hidden = !shown;
+      }
+
+      error.hidden = outcome.ok;
+      results.classList.toggle("is-stale", !outcome.ok);
+      steps.classList.toggle("is-stale", !outcome.ok);
+      if (!outcome.ok) {
+        error.textContent = outcome.message;
+        return;
+      }
+
+      const r = outcome.result;
+      for (const out of results.querySelectorAll<HTMLOutputElement>("[data-out]")) {
+        const key = out.dataset.out as keyof typeof r;
+        const digits = out.dataset.digits ? Number(out.dataset.digits) : undefined;
+        const value = r[key] as number;
+        out.value = out.dataset.money !== undefined ? `$${money(value)}` : formatNumber(value, digits);
+      }
+      for (const card of results.querySelectorAll<HTMLElement>("[data-metric]")) {
+        const noteEl = card.querySelector<HTMLElement>("[data-note]");
+        const metric = noteFor[card.dataset.metric!];
+        if (!noteEl || !metric) continue;
+        const note = rangeNote(metric, r[metric] as number, input);
+        noteEl.hidden = !note;
+        noteEl.textContent = note?.text ?? "";
+        noteEl.classList.toggle("is-concern", !!note?.concern);
+      }
+      steps.innerHTML = renderSteps(pumpingSteps(mode, input, r));
+    }
+
+    form.addEventListener("input", update);
+    form.addEventListener("change", update);
+    form.addEventListener("submit", (e) => e.preventDefault());
+
+    document.querySelector("[data-load-example]")?.addEventListener("click", () => {
+      for (const [name, value] of Object.entries(example)) {
+        if (name === "mode") {
+          form.querySelector<HTMLInputElement>(`input[name="mode"][value="${value}"]`)!.checked = true;
+        } else {
+          el<HTMLInputElement>(name).value = value;
+        }
+      }
+      update();
+      form.scrollIntoView({ behavior: "smooth", block: "start" });
+    });
+
+    update();
+  }
+
+  bind();
+  document.addEventListener("astro:page-load", bind);
+</script>

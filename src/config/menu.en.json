@@ -73,6 +73,10 @@
           "url": "/calculators/pipe-flow/"
         },
         {
+          "name": "Pumping & Wet Well",
+          "url": "/calculators/pumping-wet-well/"
+        },
+        {
           "name": "Stank Index",
           "url": "/calculators/stank-index/"
         }
