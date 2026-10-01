@@ -92,6 +92,8 @@ The splash screen stays up until the first page paints. `prepare-native.mjs` add
 
 The apps use a bottom tab bar (Home, Calculators, Reference, Math) instead of the website's menu. The tab for the current section stays highlighted on its detail pages. Tapping a section tab opens a list page for that section at `/calculators/`, `/operator-reference/` or `/operator-math/`. Those pages reuse the lists from the home page. The tab bar is in `src/components/app/AppTabBar.astro`, the sections are listed in `src/lib/appSections.ts`, and the list pages come from `src/pages/[section]/index.astro`.
 
+App pages use `viewport-fit=cover` (added by `prepare-native.mjs`), so `env(safe-area-inset-*)` reports the status bar and home indicator. The tab bar uses the bottom inset to stay clear of the iOS home indicator, and the header uses the top inset to stay below the status bar.
+
 On iOS you can swipe in from the left edge to go back. On Android the back button goes to the previous page and only leaves the app from the first page.
 
 ### Status bar

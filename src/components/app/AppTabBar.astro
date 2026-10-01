@@ -141,6 +141,18 @@ const current = sectionFor(path);
     padding-bottom: calc(3.25rem + env(safe-area-inset-bottom));
   }
 
+  /* The app's pages are laid out edge to edge (viewport-fit=cover), so the
+     header has to clear the status bar itself. */
+  :global(.page > .header) {
+    padding-top: calc(var(--sl-nav-pad-y) + env(safe-area-inset-top));
+  }
+
+  @media (max-width: 800px) {
+    :global(.page > .header) {
+      padding-top: calc(6px + env(safe-area-inset-top));
+    }
+  }
+
   @media print {
     .app-tabbar {
       display: none;

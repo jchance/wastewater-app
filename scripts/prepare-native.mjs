@@ -18,6 +18,8 @@ const WEB_ONLY = [
 ];
 const BEACON = /<script\b[^>]*static\.cloudflareinsights\.com[^>]*><\/script>/g;
 const SW_REGISTRATION = /<script>(?:(?!<\/script>)[\s\S])*?serviceWorker\s*\.register\(["']\/sw\.js["']\)[\s\S]*?<\/script>/g;
+// Lets env(safe-area-inset-bottom) report the home indicator so the tab bar clears it.
+const VIEWPORT = "width=device-width, initial-scale=1";
 // The splash screen stays up (see capacitor.config.ts) until the first page
 // has painted, so launch never shows a blank web view.
 const HIDE_SPLASH =
@@ -56,9 +58,16 @@ for (const file of WEB_ONLY) await rm(path.join(OUT, file), { force: true });
 const pages = await htmlFiles(OUT);
 for (const file of pages) {
   const html = await readFile(file, "utf8");
-  const stripped = html.replace(BEACON, "").replace(SW_REGISTRATION, "");
+  const stripped = html
+    .replace(BEACON, "")
+    .replace(SW_REGISTRATION, "")
+    .replace(VIEWPORT, `${VIEWPORT}, viewport-fit=cover`);
   if (stripped.includes("cloudflareinsights") || stripped.includes("/sw.js")) {
     console.error(`prepare-native: analytics beacon or service worker still present in ${file}`);
+    process.exit(1);
+  }
+  if (!stripped.includes("viewport-fit=cover")) {
+    console.error(`prepare-native: no viewport meta tag in ${file}`);
     process.exit(1);
   }
   if (!stripped.includes("</body>")) {
