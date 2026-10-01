@@ -65,8 +65,17 @@ You can also run it manually from **Actions → Deploy to GitHub Pages → Run w
 - **Legacy domain:** `wastewater.jasonchance.com` is served by a separate repo that redirects to this site, preserving the path. GitHub Pages allows only one repo per custom domain, so the redirect cannot live here.
 - **HTTPS:** after DNS resolves and GitHub issues a certificate, enable **Enforce HTTPS** in the Pages settings
 
-The repository is private, but the published site is public.
+The repository and the published site are both public.
 
 ## License
 
-MIT. See [LICENSE](LICENSE).
+Free for operators, students, utilities, and the public. Not available for commercial resale or repackaging into a paid product.
+
+| | License |
+|---|---|
+| Content — prose, examples, reference and safety text, data tables, wiki | [CC BY-NC-SA 4.0](LICENSE-CONTENT.md) |
+| Software — calculator logic, components, styles, build config | [PolyForm Noncommercial 1.0.0](LICENSE-CODE.md) |
+
+Using it at your plant, your district, or your training program is expressly permitted — including at for-profit utilities and tuition-charging schools. See [LICENSE](LICENSE) for the full terms and the author's clarifications, and [THIRD-PARTY-NOTICES.md](THIRD-PARTY-NOTICES.md) for upstream components, which remain under their own licenses.
+
+Formulas, constants, and regulatory limits are facts and are not claimed.

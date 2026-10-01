@@ -1,22 +1,76 @@
-MIT License
+Wastewater Field Guide
+Copyright 2026 Jason Chance
+https://wastewaterfieldguide.com
 
-Copyright (c) 2023 [Astro contributors](https://github.com/withastro/starlight/graphs/contributors)
-Copyright (c) 2025 Themefisher
+This project is free for operators, students, utilities, and the public to use.
+It is not available for commercial resale or for repackaging into a paid product.
 
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
+Two licenses apply, depending on what you are using.
 
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
+--------------------------------------------------------------------------------
+CONTENT  —  Creative Commons Attribution-NonCommercial-ShareAlike 4.0
+            Full text: LICENSE-CONTENT.md
+--------------------------------------------------------------------------------
 
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.
+Covers the written and curated material: explanatory prose, worked examples,
+calculator descriptions, operator-math pages, safety and reference text, the
+assembled data tables in src/data/, the project wiki, and the selection and
+arrangement of all of it — including prose that appears inside component files.
+
+You may share and adapt it, for noncommercial purposes, with attribution, and
+derivative works must carry the same license.
+
+--------------------------------------------------------------------------------
+SOFTWARE  —  PolyForm Noncommercial License 1.0.0
+             Full text: LICENSE-CODE.md
+--------------------------------------------------------------------------------
+
+Covers everything else: the calculator and conversion logic in src/lib/,
+component and page implementation, styles, build configuration, the service
+worker, and supporting scripts.
+
+You may use, modify, and distribute it for any noncommercial purpose.
+
+--------------------------------------------------------------------------------
+THIRD-PARTY WORK
+--------------------------------------------------------------------------------
+
+This project is built on the DocKit Astro theme, Starlight, and other
+open-source packages. Those portions remain under their original licenses,
+which the above does not and cannot alter. See THIRD-PARTY-NOTICES.md.
+
+--------------------------------------------------------------------------------
+CLARIFICATIONS FROM THE AUTHOR
+--------------------------------------------------------------------------------
+
+"Noncommercial" is meant narrowly, and as the copyright holder I read it this
+way. The following are expressly permitted:
+
+  - Use by wastewater operators in the course of their work, including at
+    investor-owned and for-profit utilities.
+  - Use by municipalities, districts, authorities, and government agencies.
+  - Use by schools, colleges, and operator-certification training programs,
+    including ones that charge tuition.
+  - Printing, posting, and distributing pages internally at a plant.
+  - Self-hosting a copy, forking the repository, and adapting it for your own
+    plant or curriculum.
+
+What is not permitted is selling this work or a derivative of it, placing it
+behind a paywall or subscription, or publishing it as a paid application.
+
+Mathematical formulas, physical constants, regulatory limits, and other facts
+are not copyrightable and are not claimed here. Anyone is free to implement the
+same calculations independently. What is licensed is the original expression,
+code, design, and curation built around them.
+
+If you want to do something these terms do not allow, ask. Permission for
+reasonable uses is likely and free.
+
+--------------------------------------------------------------------------------
+NO WARRANTY
+--------------------------------------------------------------------------------
+
+Formulas and default values are provided for convenience and carry no warranty
+of any kind. Always verify results against your own plant data, permits, and
+standard operating procedures. The author is not liable for any damages arising
+from use of this work.

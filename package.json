@@ -2,7 +2,7 @@
   "name": "wastewater-app",
   "version": "0.1.0",
   "description": "A responsive wastewater operator math field guide",
-  "license": "MIT",
+  "license": "SEE LICENSE IN LICENSE",
   "type": "module",
   "engines": {
     "node": ">=22.12.0"
