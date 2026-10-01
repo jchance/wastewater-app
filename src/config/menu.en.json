@@ -45,6 +45,10 @@
         {
           "name": "Abbreviations",
           "url": "/operator-reference/abbreviations/"
+        },
+        {
+          "name": "Confined Space & LOTO",
+          "url": "/operator-reference/safety/"
         }
       ]
     },

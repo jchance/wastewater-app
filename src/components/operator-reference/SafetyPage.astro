@@ -1,0 +1,587 @@
+---
+import {
+  sections,
+  gasRows,
+  gasNotes,
+  tierLabels,
+  tierMeanings,
+  publicOnlyStatePlans,
+  links,
+} from "../../data/safety";
+
+const gasColumns = [
+  { key: "generalIndustry" as const, label: "OSHA general industry" },
+  { key: "construction" as const, label: "OSHA construction" },
+  { key: "niosh" as const, label: "NIOSH" },
+  { key: "sewerAlarm" as const, label: "Sewer alarm (App. E)" },
+];
+---
+
+<section class="or-page sf-page" aria-label="Confined space and lockout/tagout reference">
+  <aside class="sf-disclaimer" role="note">
+    <p class="sf-disclaimer-title">This is a memory aid, not an authority.</p>
+    <p>
+      It does not replace your employer's written program, the permit for the
+      job you are about to do, or the training that qualifies you to do it. If
+      this page and your program disagree, your program wins. If your program
+      is silent and this page matters, stop and ask.
+    </p>
+  </aside>
+
+  <section class="sf-block sf-jurisdiction" aria-labelledby="sf-jur">
+    <h2 id="sf-jur">First: does OSHA even cover you?</h2>
+    <p>
+      Most wastewater operators work for a city, a district or an authority
+      &mdash; and federal OSHA does not directly cover state and local government
+      employees. Whether these rules are enforceable against your utility
+      depends entirely on which state you are in.
+    </p>
+    <ul class="sf-jur-list">
+      <li>
+        <strong>22 State Plans</strong> cover both private sector and state and
+        local government workers. If you are in one of these, these rules apply
+        to you through your state program.
+      </li>
+      <li>
+        <strong>7 State Plans</strong> cover <em>only</em> state and local
+        government workers, leaving private employers under federal OSHA:{" "}
+        <span class="sf-states">{publicOnlyStatePlans.join(", ")}</span>.
+      </li>
+      <li>
+        <strong>Everywhere else</strong> &mdash; states with no plan at all
+        &mdash; a municipal utility's employees have no OSHA coverage for
+        workplace safety, federal or state. These rules are still the recognized
+        standard of care, and many employers follow them by policy, contract or
+        insurance requirement. But they are not enforceable against your
+        employer.
+      </li>
+    </ul>
+    <p class="sf-jur-foot">
+      Counts are OSHA's own, from <a
+        href="https://www.osha.gov/stateplans"
+        rel="noopener noreferrer"
+        target="_blank">osha.gov/stateplans</a
+      >. Check your own state there &mdash; the list changes.
+    </p>
+  </section>
+
+  <section class="sf-block sf-legend" aria-labelledby="sf-legend-h">
+    <h2 id="sf-legend-h">How to read the badges</h2>
+    <dl class="sf-legend-list">
+      {
+        tierMeanings.map((t) => (
+          <div class="sf-legend-row">
+            <dt>
+              <span class={`sf-tier sf-tier-${t.tier}`}>
+                {tierLabels[t.tier]}
+              </span>
+            </dt>
+            <dd>{t.meaning}</dd>
+          </div>
+        ))
+      }
+    </dl>
+  </section>
+
+  {
+    sections.slice(0, 2).map((section) => (
+      <section class="sf-block" aria-labelledby={`sf-${section.id}`}>
+        <h2 id={`sf-${section.id}`}>{section.name}</h2>
+        {section.intro && <p class="sf-intro">{section.intro}</p>}
+        <ul class="sf-items">
+          {section.items.map((item) => (
+            <li class="sf-item">
+              <div class="sf-item-head">
+                <strong class="sf-term">{item.term}</strong>
+                <span class={`sf-tier sf-tier-${item.tier}`}>
+                  {tierLabels[item.tier]}
+                </span>
+                {item.cite && <span class="sf-cite">{item.cite}</span>}
+              </div>
+              <p class="sf-detail">{item.detail}</p>
+              {item.quote && <blockquote class="sf-quote">{item.quote}</blockquote>}
+            </li>
+          ))}
+        </ul>
+      </section>
+    ))
+  }
+
+  <section class="sf-block" aria-labelledby="sf-gas">
+    <h2 id="sf-gas">Gas limits</h2>
+    <p class="sf-intro">
+      Four sources, four different numbers for the same gas, and they are not
+      interchangeable. A ceiling may never be exceeded at any moment. An 8-hour
+      TWA is an average across the shift. An alarm setting is where your meter
+      should shout at you, well before either limit.
+    </p>
+
+    <div class="sf-table-scroll">
+      <table class="sf-table">
+        <thead>
+          <tr>
+            <th scope="col">Gas</th>
+            {gasColumns.map((c) => <th scope="col">{c.label}</th>)}
+          </tr>
+        </thead>
+        <tbody>
+          {
+            gasRows.map((row) => (
+              <tr>
+                <th scope="row">
+                  <span class="sf-gas-name">{row.gas}</span>
+                  {row.formula && <span class="sf-gas-formula">{row.formula}</span>}
+                </th>
+                {gasColumns.map((c) => (
+                  <td data-label={c.label}>{row[c.key]}</td>
+                ))}
+              </tr>
+            ))
+          }
+        </tbody>
+      </table>
+    </div>
+
+    <ul class="sf-items sf-items-tight">
+      {
+        gasNotes.map((item) => (
+          <li class="sf-item">
+            <div class="sf-item-head">
+              <strong class="sf-term">{item.term}</strong>
+              <span class={`sf-tier sf-tier-${item.tier}`}>
+                {tierLabels[item.tier]}
+              </span>
+              {item.cite && <span class="sf-cite">{item.cite}</span>}
+            </div>
+            <p class="sf-detail">{item.detail}</p>
+            {item.quote && <blockquote class="sf-quote">{item.quote}</blockquote>}
+          </li>
+        ))
+      }
+    </ul>
+  </section>
+
+  {
+    sections.slice(2).map((section) => (
+      <section class="sf-block" aria-labelledby={`sf-${section.id}`}>
+        <h2 id={`sf-${section.id}`}>{section.name}</h2>
+        {section.intro && <p class="sf-intro">{section.intro}</p>}
+        <ul class="sf-items">
+          {section.items.map((item) => (
+            <li class="sf-item">
+              <div class="sf-item-head">
+                <strong class="sf-term">{item.term}</strong>
+                <span class={`sf-tier sf-tier-${item.tier}`}>
+                  {tierLabels[item.tier]}
+                </span>
+                {item.cite && <span class="sf-cite">{item.cite}</span>}
+              </div>
+              <p class="sf-detail">{item.detail}</p>
+              {item.quote && <blockquote class="sf-quote">{item.quote}</blockquote>}
+            </li>
+          ))}
+        </ul>
+      </section>
+    ))
+  }
+
+  <section class="sf-block" aria-labelledby="sf-links">
+    <h2 id="sf-links">Read the actual rule</h2>
+    <p class="sf-intro">
+      Everything above is a summary. These are the sources, free and public.
+    </p>
+    <ul class="sf-links">
+      {
+        links.map((l) => (
+          <li>
+            <a href={l.url} rel="noopener noreferrer" target="_blank">
+              {l.label}
+            </a>
+            <span class="sf-link-note">{l.note}</span>
+          </li>
+        ))
+      }
+    </ul>
+  </section>
+</section>
+
+<style>
+  .or-page {
+    --ink: var(--fg-ink);
+    --muted: var(--fg-muted);
+    --line: var(--fg-line);
+
+    max-width: 68rem;
+    margin: 0 auto;
+    padding: clamp(1rem, 3vw, 2rem) clamp(1rem, 3vw, 2rem) 3rem;
+    color: var(--ink);
+    font-family: var(--fg-font);
+  }
+
+  .sf-disclaimer {
+    margin: 0 0 2rem;
+    padding: 0.95rem 1.1rem;
+    border: 1px solid color-mix(in srgb, var(--fg-coral) 55%, var(--line));
+    border-radius: 0.75rem;
+    background: color-mix(in srgb, var(--fg-coral) 8%, transparent);
+  }
+
+  .sf-disclaimer p {
+    margin: 0;
+    color: var(--fg-body);
+    font-size: 0.92rem;
+    line-height: 1.55;
+  }
+
+  .sf-disclaimer-title {
+    margin-bottom: 0.35rem !important;
+    color: var(--ink) !important;
+    font-weight: 750;
+  }
+
+  .sf-block + .sf-block {
+    margin-top: 2.5rem;
+  }
+
+  .sf-block h2 {
+    margin: 0 0 0.6rem;
+    color: var(--ink);
+    font-size: 1.2rem;
+    font-weight: 750;
+    letter-spacing: -0.02em;
+  }
+
+  .sf-intro,
+  .sf-jurisdiction p {
+    margin: 0 0 1rem;
+    max-width: 58rem;
+    color: var(--fg-body);
+    font-size: 0.94rem;
+    line-height: 1.6;
+  }
+
+  /* Jurisdiction ------------------------------------------------------- */
+
+  .sf-jurisdiction {
+    padding: 1.1rem 1.2rem;
+    border: 1px solid var(--line);
+    border-radius: 0.85rem;
+    background: var(--fg-pale-blue);
+  }
+
+  .sf-jur-list {
+    margin: 0 0 0.9rem;
+    padding-left: 1.1rem;
+    display: grid;
+    gap: 0.6rem;
+  }
+
+  .sf-jur-list li {
+    color: var(--fg-body);
+    font-size: 0.92rem;
+    line-height: 1.55;
+  }
+
+  .sf-states {
+    font-weight: 650;
+    color: var(--ink);
+  }
+
+  .sf-jur-foot {
+    margin: 0 !important;
+    color: var(--muted) !important;
+    font-size: 0.85rem !important;
+  }
+
+  .sf-jur-foot a,
+  .sf-links a {
+    color: var(--fg-blue);
+    font-weight: 600;
+  }
+
+  /* Legend ------------------------------------------------------------- */
+
+  .sf-legend-list {
+    margin: 0;
+    display: grid;
+    gap: 0.5rem;
+  }
+
+  .sf-legend-row {
+    display: grid;
+    grid-template-columns: 6.5rem 1fr;
+    gap: 0.75rem;
+    align-items: start;
+  }
+
+  .sf-legend-row dt {
+    margin: 0;
+  }
+
+  .sf-legend-row dd {
+    margin: 0;
+    color: var(--fg-body);
+    font-size: 0.88rem;
+    line-height: 1.5;
+  }
+
+  /* Tier badges -------------------------------------------------------- */
+
+  .sf-tier {
+    display: inline-block;
+    padding: 0.1rem 0.45rem;
+    border-radius: 0.3rem;
+    font-size: 0.66rem;
+    font-weight: 800;
+    letter-spacing: 0.08em;
+    white-space: nowrap;
+  }
+
+  .sf-tier-rule {
+    border: 1px solid color-mix(in srgb, var(--fg-teal) 50%, transparent);
+    background: color-mix(in srgb, var(--fg-teal) 16%, transparent);
+    color: var(--fg-teal-dark);
+  }
+
+  .sf-tier-guidance {
+    border: 1px solid color-mix(in srgb, var(--fg-blue) 45%, transparent);
+    background: color-mix(in srgb, var(--fg-blue) 14%, transparent);
+    color: var(--fg-blue);
+  }
+
+  .sf-tier-practice {
+    border: 1px solid var(--line);
+    background: color-mix(in srgb, var(--muted) 12%, transparent);
+    color: var(--muted);
+  }
+
+  :global([data-theme="dark"]) .sf-tier-rule {
+    color: color-mix(in srgb, var(--fg-teal) 88%, #fff);
+  }
+
+  /*
+   * Light mode darkens the small text. Badges are 0.66rem and citations
+   * 0.72rem, which is below the WCAG large-text threshold, so they need a
+   * 4.5:1 ratio against their own tinted backgrounds rather than the 3:1 that
+   * larger text gets. The default tokens land between 2.8 and 4.2 on paper.
+   */
+  :global([data-theme="light"]) .sf-tier-rule {
+    color: color-mix(in srgb, var(--fg-teal-dark) 90%, #000);
+  }
+
+  :global([data-theme="light"]) .sf-tier-guidance {
+    color: color-mix(in srgb, var(--fg-blue) 89%, #000);
+  }
+
+  :global([data-theme="light"]) .sf-tier-practice,
+  :global([data-theme="light"]) .sf-cite {
+    color: color-mix(in srgb, var(--fg-muted) 40%, var(--fg-body));
+  }
+
+  /* Items -------------------------------------------------------------- */
+
+  .sf-items {
+    margin: 0;
+    padding: 0;
+    border: 1px solid var(--line);
+    border-radius: 0.85rem;
+    background: var(--fg-paper);
+    list-style: none;
+    overflow: hidden;
+  }
+
+  .sf-items-tight {
+    margin-top: 1.1rem;
+  }
+
+  .sf-item {
+    padding: 0.85rem 1rem;
+  }
+
+  .sf-item + .sf-item {
+    border-top: 1px solid var(--line);
+  }
+
+  .sf-item-head {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem 0.55rem;
+    align-items: center;
+    margin-bottom: 0.35rem;
+  }
+
+  .sf-term {
+    color: var(--ink);
+    font-size: 0.95rem;
+    font-weight: 700;
+    line-height: 1.35;
+  }
+
+  .sf-cite {
+    padding: 0.1rem 0.4rem;
+    border: 1px solid var(--line);
+    border-radius: 0.3rem;
+    color: var(--muted);
+    font-size: 0.72rem;
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .sf-detail {
+    margin: 0;
+    color: var(--fg-body);
+    font-size: 0.9rem;
+    line-height: 1.6;
+  }
+
+  .sf-quote {
+    margin: 0.6rem 0 0;
+    padding: 0.5rem 0.8rem;
+    border: 1px solid color-mix(in srgb, var(--fg-teal) 30%, var(--line));
+    background: color-mix(in srgb, var(--fg-teal) 6%, transparent);
+    border-radius: 0.45rem;
+    color: var(--ink);
+    font-size: 0.875rem;
+    font-style: italic;
+    line-height: 1.55;
+  }
+
+  /* Gas table ---------------------------------------------------------- */
+
+  .sf-table-scroll {
+    border: 1px solid var(--line);
+    border-radius: 0.85rem;
+    background: var(--fg-paper);
+    overflow: hidden;
+  }
+
+  .sf-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.85rem;
+  }
+
+  .sf-table th,
+  .sf-table td {
+    padding: 0.6rem 0.75rem;
+    text-align: left;
+    vertical-align: top;
+    line-height: 1.45;
+  }
+
+  .sf-table thead th {
+    background: var(--fg-pale-blue);
+    color: var(--ink);
+    font-size: 0.74rem;
+    font-weight: 800;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+  }
+
+  .sf-table tbody tr + tr {
+    border-top: 1px solid var(--line);
+  }
+
+  .sf-table tbody th {
+    color: var(--ink);
+    font-weight: 700;
+    white-space: nowrap;
+  }
+
+  .sf-table td {
+    color: var(--fg-body);
+  }
+
+  .sf-gas-name {
+    display: block;
+  }
+
+  .sf-gas-formula {
+    display: block;
+    color: var(--muted);
+    font-size: 0.8rem;
+    font-weight: 600;
+  }
+
+  /* Links -------------------------------------------------------------- */
+
+  .sf-links {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    display: grid;
+    gap: 0.7rem;
+  }
+
+  .sf-links li {
+    display: grid;
+    gap: 0.15rem;
+  }
+
+  .sf-link-note {
+    color: var(--muted);
+    font-size: 0.85rem;
+    line-height: 1.5;
+  }
+
+  /* Responsive --------------------------------------------------------- */
+
+  @media (max-width: 48rem) {
+    .sf-table thead {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      padding: 0;
+      margin: -1px;
+      overflow: hidden;
+      clip: rect(0 0 0 0);
+      white-space: nowrap;
+      border: 0;
+    }
+
+    .sf-table,
+    .sf-table tbody,
+    .sf-table tr,
+    .sf-table th,
+    .sf-table td {
+      display: block;
+    }
+
+    .sf-table tbody tr {
+      padding: 0.75rem 0.85rem;
+    }
+
+    .sf-table tbody th {
+      margin-bottom: 0.45rem;
+      padding: 0;
+      white-space: normal;
+      font-size: 0.95rem;
+    }
+
+    .sf-gas-formula {
+      display: inline;
+      margin-left: 0.4rem;
+    }
+
+    .sf-table td {
+      padding: 0.35rem 0;
+    }
+
+    .sf-table td::before {
+      content: attr(data-label);
+      display: block;
+      color: var(--muted);
+      font-size: 0.68rem;
+      font-weight: 800;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+    }
+  }
+
+  @media (max-width: 34rem) {
+    .sf-legend-row {
+      grid-template-columns: 1fr;
+      gap: 0.25rem;
+    }
+  }
+</style>
