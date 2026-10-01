@@ -94,6 +94,12 @@ The apps use a bottom tab bar (Home, Calculators, Reference, Math) instead of th
 
 App pages use `viewport-fit=cover` (added by `prepare-native.mjs`), so `env(safe-area-inset-*)` reports the status bar and home indicator. The tab bar uses the bottom inset to stay clear of the iOS home indicator, and the header uses the top inset to stay below the status bar. `contentInset` in `capacitor.config.ts` is `"never"` so iOS doesn't add the status bar height a second time.
 
+The About page (`src/content/docs/about.mdx`) is linked from the header button next to the theme toggle on both the website and the apps, so the tab bar keeps four tabs and no tab is highlighted on About. In the apps it also shows the version (`appVersion` in `src/lib/native.ts`, kept in step with the Xcode and Gradle versions) and the copyright.
+
+### First-launch disclaimer
+
+The apps have no footer. The copyright is on the About page, and the disclaimer appears once, on first launch, in a modal (`src/components/app/DisclaimerNotice.astro`) that only closes with "I understand". Acceptance is stored in `localStorage` under `fg-disclaimer-accepted`. The disclaimer text is in `src/lib/disclaimer.ts`, which the website footer and the About page also use. Bump `disclaimerVersion` there to ask everyone to accept a changed disclaimer.
+
 On iOS you can swipe in from the left edge to go back. On Android the back button goes to the previous page and only leaves the app from the first page.
 
 ### Status bar

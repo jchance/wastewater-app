@@ -4,6 +4,7 @@ import Footer from "./Footer.astro";
 import CTA from "../CTA.astro";
 import SidebarNav from "../SidebarNav.astro";
 import AppTabBar from "../app/AppTabBar.astro";
+import DisclaimerNotice from "../app/DisclaimerNotice.astro";
 import { isNativeBuild } from "@/lib/native";
 
 const { hasSidebar } = Astro.locals.starlightRoute;
@@ -36,8 +37,10 @@ const { hasSidebar } = Astro.locals.starlightRoute;
     </div>
   </div>
   {!hasSidebar && <CTA />}
-  {!hasSidebar && <Footer />}
+  {/* The apps show the copyright on About and the disclaimer at first launch. */}
+  {!hasSidebar && !isNativeBuild && <Footer />}
   {isNativeBuild && <AppTabBar />}
+  {isNativeBuild && <DisclaimerNotice />}
 </div>
 
 <style>

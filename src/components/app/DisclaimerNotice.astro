@@ -1,0 +1,124 @@
+---
+// App-only: the website shows this text in its footer instead. Shown once on
+// first launch, and again whenever disclaimerVersion changes.
+import { disclaimer, disclaimerVersion } from "@/lib/disclaimer";
+---
+
+<dialog
+  class="disclaimer-notice"
+  tabindex="-1"
+  aria-labelledby="disclaimer-notice-title"
+  aria-describedby="disclaimer-notice-body"
+  data-version={disclaimerVersion}
+>
+  <h2 id="disclaimer-notice-title">Before you start</h2>
+  <p id="disclaimer-notice-body">{disclaimer}</p>
+  <p class="disclaimer-notice__later">
+    You can read this again any time on the About page.
+  </p>
+  <form method="dialog">
+    <button type="submit">I understand</button>
+  </form>
+</dialog>
+
+<style>
+  .disclaimer-notice {
+    width: min(26rem, calc(100vw - 2.5rem));
+    max-height: calc(100dvh - env(safe-area-inset-top) - env(safe-area-inset-bottom) - 2.5rem);
+    margin: auto;
+    padding: 1.5rem;
+    border: 1px solid var(--fg-line);
+    border-radius: 1.1rem;
+    background: var(--fg-paper);
+    color: var(--fg-body);
+    font-family: var(--fg-font);
+    box-shadow: 0 24px 60px rgb(4 20 28 / 28%);
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    outline: none;
+  }
+
+  .disclaimer-notice::backdrop {
+    background: rgb(6 18 24 / 55%);
+  }
+
+  h2 {
+    margin: 0 0 0.75rem;
+    color: var(--fg-ink);
+    font-size: 1.3rem;
+    font-weight: 750;
+    letter-spacing: -0.02em;
+  }
+
+  p {
+    margin: 0;
+    font-size: 0.98rem;
+    line-height: 1.6;
+  }
+
+  .disclaimer-notice__later {
+    margin-top: 0.75rem;
+    color: var(--fg-muted);
+    font-size: 0.9rem;
+  }
+
+  form {
+    margin-top: 1.25rem;
+  }
+
+  button {
+    width: 100%;
+    min-height: 2.9rem;
+    border: 0;
+    border-radius: 0.75rem;
+    background: var(--fg-teal-dark);
+    color: #fff;
+    font: inherit;
+    font-weight: 650;
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  button:active {
+    filter: brightness(0.92);
+  }
+
+  button:focus-visible {
+    outline: 3px solid var(--fg-teal);
+    outline-offset: 3px;
+  }
+</style>
+
+<script>
+  const KEY = "fg-disclaimer-accepted";
+  const dialog = document.querySelector<HTMLDialogElement>(".disclaimer-notice");
+  const version = dialog?.dataset.version;
+
+  let accepted: string | null = null;
+  try {
+    accepted = localStorage.getItem(KEY);
+  } catch {}
+
+  if (dialog && version && accepted !== version) {
+    let agreed = false;
+    dialog.querySelector("form")?.addEventListener("submit", () => {
+      agreed = true;
+      try {
+        localStorage.setItem(KEY, version);
+      } catch {}
+    });
+    // Only the button may dismiss it. Escape and back gestures are refused,
+    // and if the platform forces it closed anyway it comes straight back.
+    dialog.addEventListener("cancel", (event) => event.preventDefault());
+    dialog.addEventListener("close", () => {
+      if (!agreed) open();
+    });
+    // Focus the dialog, not the button, so the button doesn't open with a
+    // focus ring; keyboard and screen reader users start at the text.
+    const open = () => {
+      dialog.showModal();
+      dialog.focus();
+    };
+    open();
+  }
+</script>
