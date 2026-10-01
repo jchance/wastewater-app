@@ -1,11 +1,11 @@
 {
   "main": [
     {
-      "label": "Operator Math",
+      "label": "Calculators",
       "items": [
         {
           "autogenerate": {
-            "directory": "operator-math"
+            "directory": "calculators"
           }
         }
       ]
@@ -21,11 +21,11 @@
       ]
     },
     {
-      "label": "Calculators",
+      "label": "Operator Math",
       "items": [
         {
           "autogenerate": {
-            "directory": "calculators"
+            "directory": "operator-math"
           }
         }
       ]
