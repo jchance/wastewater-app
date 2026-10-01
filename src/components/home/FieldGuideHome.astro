@@ -4,62 +4,101 @@ import InstallCard from "./InstallCard.astro";
 
 <section class="field-guide-home" aria-labelledby="home-heading">
   <InstallCard />
-  <p class="section-label">OPERATOR MATH</p>
-  <h2 id="home-heading">Start with one simple diagram.</h2>
+  <p class="section-label">CALCULATORS</p>
+  <h2 id="home-heading">Plug in your numbers.</h2>
   <p class="home-intro">
-    Find the relationship between chemical feed rate, dose, and flow—then use
-    it in any direction. Everything below is the same pie chart, pushed a
-    little further.
+    Calculators that show their work, so the answer comes with the steps
+    you'd write on paper.
   </p>
 
-  <a class="featured-reference" href="/operator-math/davidson-pie-chart/">
-    <span class="reference-symbol" aria-hidden="true">
-      <svg viewBox="0 0 72 72" fill="none">
-        <circle cx="36" cy="36" r="31" stroke="currentColor" stroke-width="2" />
-        <path d="M5 36h62" stroke="currentColor" stroke-width="2" />
-        <path d="M36 36 21 63M36 36l15 27" stroke="currentColor" stroke-width="2" />
-        <path d="M5 36A31 31 0 0 1 67 36" fill="currentColor" opacity=".14" />
-      </svg>
-    </span>
-    <span class="reference-copy">
-      <span class="reference-type">QUICK REFERENCE</span>
-      <strong>Davidson Pie Chart</strong>
-      <span>Three worked examples · Feed rate, dose, and flow</span>
-    </span>
-    <span class="reference-equation" aria-hidden="true">
-      <span>dose</span><b>×</b><span>8.34</span><b>×</b><span>flow</span><b>=</b><span>lb/day</span>
-    </span>
-    <span class="reference-arrow" aria-hidden="true">↗</span>
-  </a>
-
-  <ul class="reference-list">
+  <ul class="reference-list with-icons">
     <li>
-      <a href="/operator-math/three-names/">
-        <span class="list-type">DECODER</span>
-        <strong>Three Names, One Formula</strong>
+      <a href="/calculators/chemical-dosage/">
+        <span class="list-icon" aria-hidden="true">
+          <svg viewBox="0 0 48 48" fill="none"><path d="M24 4s13 15.5 13 24a13 13 0 0 1-26 0c0-8.5 13-24 13-24Z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><path d="M11.4 31a13 13 0 0 0 25.2 0Z" fill="currentColor" opacity=".16"/><path d="M11.4 31h25.2" stroke="currentColor" stroke-width="2"/></svg>
+        </span>
+        <span class="list-type">CHEMICAL FEED</span>
+        <strong>Chemical Dosage</strong>
         <span class="list-desc">
-          Feed rate, loading rate and mass — how to tell which one you were
-          handed.
+          Dose and flow in; lb/day, gal/day and a pump setting in mL/min out.
         </span>
         <span class="list-arrow" aria-hidden="true">↗</span>
       </a>
     </li>
     <li>
-      <a href="/operator-math/demand-strength-purity/">
-        <span class="list-type">ADJUSTMENTS</span>
-        <strong>Demand, Strength and Purity</strong>
+      <a href="/calculators/loading-removal/">
+        <span class="list-icon" aria-hidden="true">
+          <svg viewBox="0 0 48 48" fill="none"><path d="M18 5v13L8.4 38a3.2 3.2 0 0 0 2.9 4.6h25.4a3.2 3.2 0 0 0 2.9-4.6L30 18V5" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><path d="M15 5h18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><path d="M13.7 29h20.6l5.3 10.6a3.2 3.2 0 0 1-2.9 3H11.3a3.2 3.2 0 0 1-2.9-3Z" fill="currentColor" opacity=".16"/></svg>
+        </span>
+        <span class="list-type">LAB RESULTS</span>
+        <strong>Loading &amp; Removal</strong>
         <span class="list-desc">
-          When to subtract before the chart, and when to divide after it.
+          Pounds per day, removal by stage, organic loading and population equivalent.
         </span>
         <span class="list-arrow" aria-hidden="true">↗</span>
       </a>
     </li>
     <li>
-      <a href="/operator-math/cost-and-supply/">
-        <span class="list-type">PLANNING</span>
-        <strong>Cost and Days of Supply</strong>
+      <a href="/calculators/process-control/">
+        <span class="list-icon" aria-hidden="true">
+          <svg viewBox="0 0 48 48" fill="none"><path d="M8 10v24a8 8 0 0 0 8 8h16a8 8 0 0 0 8-8V10" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><path d="M8 27h32v7a8 8 0 0 1-8 8H16a8 8 0 0 1-8-8Z" fill="currentColor" opacity=".16"/><path d="M8 27h32" stroke="currentColor" stroke-width="2"/><circle cx="16" cy="35" r="3" stroke="currentColor" stroke-width="2"/><circle cx="24" cy="26" r="4.2" stroke="currentColor" stroke-width="2"/><circle cx="32" cy="16" r="2.8" stroke="currentColor" stroke-width="2"/></svg>
+        </span>
+        <span class="list-type">ACTIVATED SLUDGE</span>
+        <strong>Process Control</strong>
         <span class="list-desc">
-          Turning pounds per day into dollars and reorder dates.
+          F/M, MCRT, SVI and the WAS rate for a target sludge age.
+        </span>
+        <span class="list-arrow" aria-hidden="true">↗</span>
+      </a>
+    </li>
+    <li>
+      <a href="/calculators/clarifier-loading/">
+        <span class="list-icon" aria-hidden="true">
+          <svg viewBox="0 0 48 48" fill="none"><circle cx="24" cy="24" r="19" stroke="currentColor" stroke-width="2"/><circle cx="24" cy="24" r="11.5" fill="currentColor" opacity=".16"/><circle cx="24" cy="24" r="11.5" stroke="currentColor" stroke-width="2"/><circle cx="24" cy="24" r="4.5" stroke="currentColor" stroke-width="2"/><path d="M28.5 24H43" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+        </span>
+        <span class="list-type">CLARIFIERS</span>
+        <strong>Clarifier &amp; Tank Loading</strong>
+        <span class="list-desc">
+          Detention time, surface and weir overflow and solids loading, checked against typical ranges.
+        </span>
+        <span class="list-arrow" aria-hidden="true">↗</span>
+      </a>
+    </li>
+    <li>
+      <a href="/calculators/pipe-flow/">
+        <span class="list-icon" aria-hidden="true">
+          <svg viewBox="0 0 48 48" fill="none"><path d="M5 10h20a12 12 0 0 1 12 12v20" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><path d="M5 22h16a4 4 0 0 1 4 4v16" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><path d="M9 16h9m-3.5-3.5L18 16l-3.5 3.5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </span>
+        <span class="list-type">COLLECTION</span>
+        <strong>Pipe Flow</strong>
+        <span class="list-desc">
+          Full-pipe velocity, partly full sewers with Manning, and force main head loss.
+        </span>
+        <span class="list-arrow" aria-hidden="true">↗</span>
+      </a>
+    </li>
+    <li>
+      <a href="/calculators/pumping-wet-well/">
+        <span class="list-icon" aria-hidden="true">
+          <svg viewBox="0 0 48 48" fill="none"><path d="M10 5v29a9 9 0 0 0 9 9h10a9 9 0 0 0 9-9V5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><path d="M10 26h28v8a9 9 0 0 1-9 9H19a9 9 0 0 1-9-9Z" fill="currentColor" opacity=".16"/><path d="M10 26h28" stroke="currentColor" stroke-width="2"/><path d="M24 21V9m-6 6 6-6 6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </span>
+        <span class="list-type">PUMPING</span>
+        <strong>Pumping &amp; Wet Well</strong>
+        <span class="list-desc">
+          Pump rate from a drawdown test, cycle time and starts per hour, horsepower and energy cost.
+        </span>
+        <span class="list-arrow" aria-hidden="true">↗</span>
+      </a>
+    </li>
+    <li>
+      <a href="/calculators/stank-index/">
+        <span class="list-icon" aria-hidden="true">
+          <svg viewBox="0 0 48 48" fill="none"><path d="M9 43h30" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><path d="M15 37c-4-5.5 4-9 0-14.5s4-9 0-14.5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><path d="M24 37c-4-5.5 4-9 0-14.5s4-9 0-14.5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><path d="M33 37c-4-5.5 4-9 0-14.5s4-9 0-14.5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+        </span>
+        <span class="list-type">JUST FOR FUN</span>
+        <strong>Stank Index</strong>
+        <span class="list-desc">
+          Pounds of stank per day, nose-blind time and break room clearance. Totally made up.
         </span>
         <span class="list-arrow" aria-hidden="true">↗</span>
       </a>
@@ -68,16 +107,18 @@ import InstallCard from "./InstallCard.astro";
 
   <div class="home-section">
     <p class="section-label">OPERATOR REFERENCE</p>
-    <h2>Look it up, don't memorize it.</h2>
+    <h2>Look it up instead of guessing.</h2>
     <p class="home-intro">
-      The full formula set, the conversions that feed it, and the twelve pie
-      wheels worth keeping in your head — all readable on a phone in the field.
+      Every formula in US and metric, the twelve wheels worth memorizing, the
+      conversions that make units line up, the abbreviations behind the
+      letters, and the two OSHA rules you cannot afford to get wrong &mdash;
+      all readable on a phone in the field.
     </p>
 
     <ul class="reference-list">
       <li>
         <a href="/operator-reference/formulas/">
-          <span class="list-type">FORMULAS</span>
+          <span class="list-type">FULL SET</span>
           <strong>Formulas</strong>
           <span class="list-desc">
             Every exam formula in US and metric form, grouped by what you're
@@ -118,74 +159,79 @@ import InstallCard from "./InstallCard.astro";
           <span class="list-arrow" aria-hidden="true">↗</span>
         </a>
       </li>
+      <li>
+        <a href="/operator-reference/safety/">
+          <span class="list-type">SAFETY</span>
+          <strong>Confined Space &amp; LOTO</strong>
+          <span class="list-desc">
+            The two rules that kill operators most, with the citation behind
+            every line and a straight answer on whether OSHA covers you.
+          </span>
+          <span class="list-arrow" aria-hidden="true">↗</span>
+        </a>
+      </li>
     </ul>
   </div>
 
   <div class="home-section">
-    <p class="section-label">CALCULATORS</p>
-    <h2>Plug in your numbers.</h2>
+    <p class="section-label">OPERATOR MATH</p>
+    <h2>Know why the number works.</h2>
     <p class="home-intro">
-      Calculators that show their work, so the answer comes with the steps
-      you'd write on paper.
+      For the days you have to show your work, defend a result, or study for
+      the next license. It all comes back to one relationship between dose,
+      flow and feed rate &mdash; read here as a diagram, then extended into the
+      same math under three different names, the adjustments for demand and
+      purity, and what the pounds cost you.
     </p>
+
+    <a class="featured-reference" href="/operator-math/davidson-pie-chart/">
+      <span class="reference-symbol" aria-hidden="true">
+        <svg viewBox="0 0 72 72" fill="none">
+          <circle cx="36" cy="36" r="31" stroke="currentColor" stroke-width="2" />
+          <path d="M5 36h62" stroke="currentColor" stroke-width="2" />
+          <path d="M36 36 21 63M36 36l15 27" stroke="currentColor" stroke-width="2" />
+          <path d="M5 36A31 31 0 0 1 67 36" fill="currentColor" opacity=".14" />
+        </svg>
+      </span>
+      <span class="reference-copy">
+        <span class="reference-type">FOUNDATION</span>
+        <strong>Davidson Pie Chart</strong>
+        <span>Three worked examples · Feed rate, dose, and flow</span>
+      </span>
+      <span class="reference-equation" aria-hidden="true">
+        <span>dose</span><b>×</b><span>8.34</span><b>×</b><span>flow</span><b>=</b><span>lb/day</span>
+      </span>
+      <span class="reference-arrow" aria-hidden="true">↗</span>
+    </a>
 
     <ul class="reference-list">
       <li>
-        <a href="/calculators/chemical-dosage/">
-          <span class="list-type">CHEMICAL FEED</span>
-          <strong>Chemical Dosage</strong>
+        <a href="/operator-math/three-names/">
+          <span class="list-type">DECODER</span>
+          <strong>Three Names, One Formula</strong>
           <span class="list-desc">
-            Dose and flow in; lb/day, gal/day and a pump setting in mL/min out.
+            Feed rate, loading rate and mass — how to tell which one you were
+            handed.
           </span>
           <span class="list-arrow" aria-hidden="true">↗</span>
         </a>
       </li>
       <li>
-        <a href="/calculators/loading-removal/">
-          <span class="list-type">LAB RESULTS</span>
-          <strong>Loading &amp; Removal</strong>
+        <a href="/operator-math/demand-strength-purity/">
+          <span class="list-type">ADJUSTMENTS</span>
+          <strong>Demand, Strength and Purity</strong>
           <span class="list-desc">
-            Pounds per day, removal by stage, organic loading and population equivalent.
+            When to subtract before the chart, and when to divide after it.
           </span>
           <span class="list-arrow" aria-hidden="true">↗</span>
         </a>
       </li>
       <li>
-        <a href="/calculators/process-control/">
-          <span class="list-type">ACTIVATED SLUDGE</span>
-          <strong>Process Control</strong>
+        <a href="/operator-math/cost-and-supply/">
+          <span class="list-type">PLANNING</span>
+          <strong>Cost and Days of Supply</strong>
           <span class="list-desc">
-            F/M, MCRT, SVI and the WAS rate for a target sludge age.
-          </span>
-          <span class="list-arrow" aria-hidden="true">↗</span>
-        </a>
-      </li>
-      <li>
-        <a href="/calculators/clarifier-loading/">
-          <span class="list-type">CLARIFIERS</span>
-          <strong>Clarifier &amp; Tank Loading</strong>
-          <span class="list-desc">
-            Detention time, surface and weir overflow and solids loading, checked against typical ranges.
-          </span>
-          <span class="list-arrow" aria-hidden="true">↗</span>
-        </a>
-      </li>
-      <li>
-        <a href="/calculators/pipe-flow/">
-          <span class="list-type">COLLECTION</span>
-          <strong>Pipe Flow</strong>
-          <span class="list-desc">
-            Full-pipe velocity, partly full sewers with Manning, and force main head loss.
-          </span>
-          <span class="list-arrow" aria-hidden="true">↗</span>
-        </a>
-      </li>
-      <li>
-        <a href="/calculators/stank-index/">
-          <span class="list-type">JUST FOR FUN</span>
-          <strong>Stank Index</strong>
-          <span class="list-desc">
-            Pounds of stank per day, nose-blind time and break room clearance. Totally made up.
+            Turning pounds per day into dollars and reorder dates.
           </span>
           <span class="list-arrow" aria-hidden="true">↗</span>
         </a>
@@ -332,7 +378,7 @@ import InstallCard from "./InstallCard.astro";
     border-top: 1px solid var(--line);
   }
 
-  .home-section .home-intro {
+  .home-section .home-intro:has(+ .reference-list) {
     margin-bottom: 0;
   }
 
@@ -348,6 +394,17 @@ import InstallCard from "./InstallCard.astro";
     margin: 0.9rem 0 0;
     padding: 0;
     list-style: none;
+  }
+
+  /*
+   * auto-fit keeps adding tracks once the container clears ~1003px, which puts
+   * four cards in a row on desktop. Three is the cap: below this width the
+   * auto-fit rule above still handles the one and two column cases unchanged.
+   */
+  @media (min-width: 64rem) {
+    .reference-list {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
   }
 
   .reference-list a {
@@ -412,6 +469,58 @@ import InstallCard from "./InstallCard.astro";
     color: #128c82;
     font-size: 1.15rem;
     font-weight: 700;
+  }
+
+  .with-icons a {
+    grid-template-columns: auto minmax(0, 1fr) auto;
+  }
+
+  .with-icons .list-type,
+  .with-icons strong,
+  .with-icons .list-desc {
+    grid-column: 2;
+  }
+
+  .with-icons .list-arrow {
+    grid-column: 3;
+  }
+
+  .list-icon {
+    display: grid;
+    grid-row: 1 / 4;
+    grid-column: 1;
+    width: 2.4rem;
+    aspect-ratio: 1;
+    align-self: start;
+    place-items: center;
+    margin-top: 0.1rem;
+    border-radius: 0.65rem;
+    background: #eaf6f5;
+    color: var(--teal);
+  }
+
+  .list-icon svg {
+    width: 1.85rem;
+  }
+
+  /*
+   * The pale mint chip reads as a near-white patch against the dark card, so
+   * both icon chips swap to a teal-tinted dark fill. Kept as one rule because
+   * the Davidson chip and the calculator chips are meant to stay visually
+   * identical apart from size.
+   */
+  :global(html[data-theme="dark"]) .reference-symbol,
+  :global(html[data-theme="dark"]) .list-icon {
+    background: #1f4442;
+  }
+
+  /*
+   * On the light chip the mid-teal only reaches 2.7:1, below the 3:1 WCAG
+   * minimum for graphical objects, so light mode uses the darker teal.
+   */
+  :global(html[data-theme="light"]) .reference-symbol,
+  :global(html[data-theme="light"]) .list-icon {
+    color: var(--fg-teal-dark);
   }
 
   @media (max-width: 700px) {
