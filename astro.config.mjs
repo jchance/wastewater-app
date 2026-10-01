@@ -53,6 +53,7 @@ export default defineConfig({
         },
       ],
       locales,
+      pagination: false,
       sidebar: sidebar.main || [],
       customCss: ["./src/styles/global.css"],
       components: {
