@@ -20,6 +20,7 @@ Built with [Astro](https://astro.build) and [Starlight](https://starlight.astro.
 - `src/components/calculators/` – calculator UIs (markup, scoped styles, client script)
 - `src/components/operator-math/` – operator math page bodies and SVG figures
 - `src/lib/` – calculator math and validation (TypeScript, framework-free)
+- `tests/` – Playwright unit and browser tests
 - `src/styles/calculator.css` – shared calculator layout and form styles
 - `src/config/` – site title (`config.json`), header menu (`menu.en.json`), sidebar (`sidebar.json`)
 - `src/components/override-components/` – Starlight component overrides (header, footer, site title, etc.)
@@ -48,13 +49,28 @@ npm run preview  # serve the dist/ build locally
 
 Changes to `astro.config.mjs` or `src/config/*.json` need a dev server restart.
 
+## Tests
+
+Tests use [Playwright Test](https://playwright.dev/docs/test-intro) for direct unit tests of the framework-free calculator modules and browser tests of important user flows.
+
+```sh
+npm run test:unit # calculator math, validation, conversions, and app section routing
+npm run test:e2e  # Chromium checks against an automatically started Astro dev server
+npm test           # run both suites
+```
+
+The unit suite does not start the site or require a browser. The browser suite starts the Astro server on port `4322`; install Chromium once with `npx playwright install chromium`. On Linux, Playwright may also need system dependencies (`npx playwright install --with-deps chromium`).
+
+Calculator unit tests live in `tests/unit/` and import the production functions directly from `src/lib/`. Browser tests live in `tests/e2e/`. Failure screenshots and traces are retained for debugging; passing runs do not produce them. GitHub Actions runs `npm run check`, both test suites, and the production build before deploying Pages.
+
 ## Deployment (GitHub Pages)
 
 Deploys are automatic. Every push to `main` runs `.github/workflows/deploy.yml`, which:
 
 1. Installs dependencies with `npm ci` on the Node version from `.nvmrc`
-2. Runs `npm run build`
-3. Uploads `dist/` and publishes it with `actions/deploy-pages`
+2. Runs `npm run check`, the unit tests, and the Chromium browser tests
+3. Runs `npm run build`
+4. Uploads `dist/` and publishes it with `actions/deploy-pages`
 
 You can also run it manually from **Actions → Deploy to GitHub Pages → Run workflow**. Check status with `gh run list`.
 

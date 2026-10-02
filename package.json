@@ -13,6 +13,9 @@
     "build": "astro build",
     "preview": "astro preview",
     "check": "astro check",
+    "test": "npm run test:unit && npm run test:e2e",
+    "test:unit": "playwright test --config=playwright.config.ts",
+    "test:e2e": "playwright test --config=playwright.e2e.config.ts",
     "build:native": "NATIVE_BUILD=1 astro build && node scripts/prepare-native.mjs",
     "native:sync": "npm run build:native && cap sync",
     "native:ios": "npm run native:sync && cap open ios",
@@ -38,8 +41,14 @@
     "@astrojs/check": "0.9.9",
     "@capacitor/assets": "^3.0.5",
     "@capacitor/cli": "^8.5.2",
+    "@playwright/test": "^1.63.0",
     "astro-vtbot": "^2.1.12",
     "tailwindcss": "^4.3.1",
     "typescript": "^6.0.3"
+  },
+  "overrides": {
+    "sharp": "$sharp",
+    "tar": "7.5.22",
+    "uuid": "11.1.1"
   }
 }
