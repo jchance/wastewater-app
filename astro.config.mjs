@@ -20,7 +20,7 @@ export const locales = locals
 
 // https://astro.build/config
 export default defineConfig({
-  site: "https://wastewaterfieldguide.com",
+  site: "https://web.wastewaterfieldguide.com",
   // `npm run build:native` builds the app bundle; see scripts/prepare-native.mjs.
   outDir: process.env.NATIVE_BUILD === "1" ? "dist-native" : "dist",
   image: {

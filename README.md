@@ -1,6 +1,6 @@
 # Wastewater Field Guide
 
-A responsive, static cheatsheet for wastewater treatment operators: reference tables, operator math explainers, and step-by-step calculators. Live at **https://wastewaterfieldguide.com**.
+A responsive, static cheatsheet for wastewater treatment operators: reference tables, operator math explainers, and step-by-step calculators. Live at **https://web.wastewaterfieldguide.com**. Learn more at **https://wastewaterfieldguide.com**.
 
 Built with [Astro](https://astro.build) and [Starlight](https://starlight.astro.build), using the MIT-licensed [DocKit theme](https://github.com/themefisher/dockit-astro). The site is fully static; calculators run in the browser with no backend.
 
@@ -77,13 +77,13 @@ You can also run it manually from **Actions → Deploy to GitHub Pages → Run w
 ### Pages configuration
 
 - **Repository settings → Pages → Source:** GitHub Actions (not "Deploy from a branch")
-- **Custom domain:** `wastewaterfieldguide.com`, set in repo settings *and* in `public/CNAME` (keep both in sync)
-- **Site URL:** `site` in `astro.config.mjs` is `https://wastewaterfieldguide.com`, used for canonical links and the sitemap. No `base` path is needed because the site is served from the domain root.
-- **DNS:** `A` records for the apex pointing at GitHub Pages (`185.199.108.153`, `185.199.109.153`, `185.199.110.153`, `185.199.111.153`), plus a `CNAME` for `www` pointing to `jchance.github.io`
+- **Custom domain:** `web.wastewaterfieldguide.com`, set in this repo's Pages settings *and* in `public/CNAME` (keep both in sync)
+- **Site URL:** `site` in `astro.config.mjs` is `https://web.wastewaterfieldguide.com`, used for canonical links and the sitemap. No `base` path is needed because the site is served from the subdomain root.
+- **DNS:** create a `CNAME` for `web` pointing to `jchance.github.io`. The apex domain and `www` are assigned to the separate information site.
 - **Legacy domain:** `wastewater.jasonchance.com` is served by a separate repo that redirects to this site, preserving the path. GitHub Pages allows only one repo per custom domain, so the redirect cannot live here.
 - **HTTPS:** after DNS resolves and GitHub issues a certificate, enable **Enforce HTTPS** in the Pages settings
 
-The repository and the published site are both public.
+The repository and the published site are both public. The public-facing information site is at `https://wastewaterfieldguide.com`.
 
 ## Native apps (Capacitor)
 
