@@ -1,18 +1,20 @@
 # Wastewater Field Guide
 
-A responsive, static cheatsheet for wastewater treatment operators: reference tables, operator math explainers, and step-by-step calculators. Live at **https://web.wastewaterfieldguide.com**. Learn more at **https://wastewaterfieldguide.com**.
+A free field guide for wastewater treatment operators, with reference tables, worked operator math and calculators that show each step. It's live at **https://web.wastewaterfieldguide.com**, and there's more about it at **https://wastewaterfieldguide.com**.
 
-Built with [Astro](https://astro.build) and [Starlight](https://starlight.astro.build), using the MIT-licensed [DocKit theme](https://github.com/themefisher/dockit-astro). The site is fully static; calculators run in the browser with no backend.
+I started it while I was looking at a career change. I wanted to build a calculator app and learn iOS and Android development, so I made development versions of the apps as a learning exercise, then decided to keep it as a free web app for everyone.
 
-> Formulas and default values are provided for convenience. Always verify values against your own plant data, permits, and SOPs.
+Built with [Astro](https://astro.build) and [Starlight](https://starlight.astro.build), using the MIT-licensed [DocKit theme](https://github.com/themefisher/dockit-astro). The site is fully static, and the calculators run in the browser with no backend.
+
+> Formulas and default values are here for convenience. Check them against your own plant data, permits and SOPs.
 
 ## What's in it
 
 | Section | Path | Pages |
 | --- | --- | --- |
-| Operator Reference | `src/content/docs/operator-reference/` | Formulas, conversion factors, abbreviations, pie wheels |
+| Operator Reference | `src/content/docs/operator-reference/` | Formulas, conversion factors, abbreviations, pie wheels, confined space and lockout/tagout |
 | Operator Math | `src/content/docs/operator-math/` | Davidson pie chart, three names, demand/strength/purity, cost & supply |
-| Calculators | `src/content/docs/calculators/` | Chemical dosage, loading & removal, process control, clarifier & tank loading, pipe flow, Stank Index (just for fun) |
+| Calculators | `src/content/docs/calculators/` | Chemical dosage, loading & removal, process control, clarifier & tank loading, pipe flow, pumping & wet well, Stank Index (just for fun) |
 
 ## Project layout
 
@@ -51,7 +53,7 @@ Changes to `astro.config.mjs` or `src/config/*.json` need a dev server restart.
 
 ## Tests
 
-Tests use [Playwright Test](https://playwright.dev/docs/test-intro) for direct unit tests of the framework-free calculator modules and browser tests of important user flows.
+Tests use [Playwright Test](https://playwright.dev/docs/test-intro), both for unit tests of the framework-free calculator modules and for browser tests of the main user flows.
 
 ```sh
 npm run test:unit # calculator math, validation, conversions, and app section routing
@@ -59,9 +61,9 @@ npm run test:e2e  # Chromium checks against an automatically started Astro dev s
 npm test           # run both suites
 ```
 
-The unit suite does not start the site or require a browser. The browser suite starts the Astro server on port `4322`; install Chromium once with `npx playwright install chromium`. On Linux, Playwright may also need system dependencies (`npx playwright install --with-deps chromium`).
+The unit suite doesn't start the site or require a browser. The browser suite starts the Astro server on port `4322`; install Chromium once with `npx playwright install chromium`. On Linux, Playwright may also need system dependencies (`npx playwright install --with-deps chromium`).
 
-Calculator unit tests live in `tests/unit/` and import the production functions directly from `src/lib/`. Browser tests live in `tests/e2e/`. Failure screenshots and traces are retained for debugging; passing runs do not produce them. GitHub Actions runs `npm run check`, both test suites, and the production build before deploying Pages.
+Calculator unit tests live in `tests/unit/` and import the production functions directly from `src/lib/`. Browser tests live in `tests/e2e/`. Failure screenshots and traces are retained for debugging; passing runs don't produce them. GitHub Actions runs `npm run check`, both test suites, and the production build before deploying Pages.
 
 ## Deployment (GitHub Pages)
 
@@ -80,7 +82,7 @@ You can also run it manually from **Actions → Deploy to GitHub Pages → Run w
 - **Custom domain:** `web.wastewaterfieldguide.com`, set in this repo's Pages settings *and* in `public/CNAME` (keep both in sync)
 - **Site URL:** `site` in `astro.config.mjs` is `https://web.wastewaterfieldguide.com`, used for canonical links and the sitemap. No `base` path is needed because the site is served from the subdomain root.
 - **DNS:** create a `CNAME` for `web` pointing to `jchance.github.io`. The apex domain and `www` are assigned to the separate information site.
-- **Legacy domain:** `wastewater.jasonchance.com` is served by a separate repo that redirects to this site, preserving the path. GitHub Pages allows only one repo per custom domain, so the redirect cannot live here.
+- **Legacy domain:** `wastewater.jasonchance.com` is served by a separate repo that redirects to this site, preserving the path. GitHub Pages allows only one repo per custom domain, so the redirect can't live here.
 - **HTTPS:** after DNS resolves and GitHub issues a certificate, enable **Enforce HTTPS** in the Pages settings
 
 The repository and the published site are both public. The public-facing information site is at `https://wastewaterfieldguide.com`.
@@ -132,13 +134,13 @@ Keep the `@capacitor/*` packages on the same version.
 
 ## License
 
-Free for operators, students, utilities, and the public. Not available for commercial resale or repackaging into a paid product.
+It's free for operators, students, utilities and the public. You can't resell it or repackage it into a paid product.
 
 | | License |
 |---|---|
-| Content — prose, examples, reference and safety text, data tables, wiki | [CC BY-NC-SA 4.0](LICENSE-CONTENT.md) |
-| Software — calculator logic, components, styles, build config | [PolyForm Noncommercial 1.0.0](LICENSE-CODE.md) |
+| Content: prose, examples, reference and safety text, data tables, wiki | [CC BY-NC-SA 4.0](LICENSE-CONTENT.md) |
+| Software: calculator logic, components, styles, build config | [PolyForm Noncommercial 1.0.0](LICENSE-CODE.md) |
 
-Using it at your plant, your district, or your training program is expressly permitted — including at for-profit utilities and tuition-charging schools. See [LICENSE](LICENSE) for the full terms and the author's clarifications, and [THIRD-PARTY-NOTICES.md](THIRD-PARTY-NOTICES.md) for upstream components, which remain under their own licenses.
+You can use it at your plant, your district or your training program, including at for-profit utilities and schools that charge tuition. See [LICENSE](LICENSE) for the full terms and the author's clarifications, and [THIRD-PARTY-NOTICES.md](THIRD-PARTY-NOTICES.md) for upstream components, which remain under their own licenses.
 
-Formulas, constants, and regulatory limits are facts and are not claimed.
+Formulas, constants and regulatory limits are facts, and nobody claims them.
