@@ -19,7 +19,7 @@ export interface PieWheel {
 export const pieWheelRules: string[] = [
   "Multiply the wedges underneath the line to get the quantity on top.",
   "Need one of the bottom wedges instead? Put your thumb over it, then divide whatever is still showing below the line into the quantity on top.",
-  "Your numbers have to already be in the units printed on the wheel — convert first.",
+  "Convert your numbers to the units printed on the wheel before you start.",
   "Metric appears in parentheses wherever it differs from the US value, like (m²).",
 ];
 

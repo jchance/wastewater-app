@@ -87,7 +87,7 @@ export const gasRows: GasRow[] = [
     gas: "Methane",
     formula: "CH\u2084",
     generalIndustry:
-      "No PEL. Treated as a simple asphyxiant \u2014 controlled through the oxygen minimum and the explosion limits.",
+      "No PEL. Treated as a simple asphyxiant, controlled through the oxygen minimum and the explosion limits.",
     construction: "No PEL. Simple asphyxiant.",
     niosh: "Flammable range 5.0% \u2013 15.0% in air",
     sewerAlarm: "Alarm at \u2265 10% LFL (\u2248 0.5% by volume)",
@@ -107,14 +107,14 @@ export const gasNotes: SafetyItem[] = [
   {
     term: "General industry and construction differ in structure",
     detail:
-      "For H\u2082S the two standards are not just different numbers. General industry sets a ceiling you may never exceed plus a short peak allowance, and sets no 8-hour average at all. Construction sets an 8-hour average and no ceiling. A capital project \u2014 building a new lift station \u2014 may fall under the construction rules instead of the ones you work under day to day.",
+      "For H\u2082S the two standards are built differently. General industry sets a ceiling you may never exceed plus a short peak allowance, and sets no 8-hour average at all. Construction sets an 8-hour average and no ceiling. A capital project, like building a new lift station, may fall under the construction rules instead of the ones you work under day to day.",
     tier: "rule",
     cite: "1910.1000 Table Z-2 \u00b7 1926.55 Table 1",
   },
   {
     term: "The sewer alarm settings are more conservative on purpose",
     detail:
-      "Appendix E to 1910.146 recommends monitors that sound an audible alarm \u2014 not just show a reading \u2014 at these thresholds. They sit well below the enforceable exposure limits because a sewer atmosphere can change without warning. These are recommendations, not requirements.",
+      "Appendix E to 1910.146 recommends monitors that sound an audible alarm at these thresholds, in addition to showing a reading. They sit well below the enforceable exposure limits because a sewer atmosphere can change without warning. These are recommendations, not requirements.",
     tier: "guidance",
     cite: "1910.146 App. E",
   },
@@ -162,14 +162,14 @@ export const sections: SafetySection[] = [
       {
         term: "Hazardous atmosphere includes the oxygen range",
         detail:
-          "An atmosphere below 19.5% or above 23.5% oxygen is a hazardous atmosphere. So is a flammable gas at or above 10% of its lower flammable limit, or airborne combustible dust at or above its LFL \u2014 which the rule notes can be approximated as a concentration that obscures vision at five feet.",
+          "An atmosphere below 19.5% or above 23.5% oxygen is a hazardous atmosphere. So is a flammable gas at or above 10% of its lower flammable limit, or airborne combustible dust at or above its LFL, which the rule notes can be approximated as a concentration that obscures vision at five feet.",
         tier: "rule",
         cite: "1910.146(b)",
       },
       {
         term: "This page covers general industry, not construction",
         detail:
-          "29 CFR 1910.146 governs the operations and maintenance work most municipal wastewater staff do. Construction work \u2014 building or substantially rebuilding a station \u2014 falls under 29 CFR 1926 Subpart AA instead, which has different requirements. Know which one applies to the job in front of you.",
+          "29 CFR 1910.146 governs the operations and maintenance work most municipal wastewater staff do. Construction work, such as building or substantially rebuilding a station, falls under 29 CFR 1926 Subpart AA instead, which has different requirements. Know which one applies to the job in front of you.",
         tier: "rule",
         cite: "1910.146 \u00b7 1926 Subpart AA",
       },
@@ -179,7 +179,7 @@ export const sections: SafetySection[] = [
     id: "testing",
     name: "Atmospheric testing",
     intro:
-      "The order is not a suggestion and it is not arbitrary. It is written into the rule, and there is a physical reason for it.",
+      "The order is written into the rule, and there's a physical reason for it.",
     items: [
       {
         term: "Test in this order: oxygen, then combustible gas, then toxics",
@@ -191,7 +191,7 @@ export const sections: SafetySection[] = [
       {
         term: "Why oxygen comes first",
         detail:
-          "Most combustible-gas sensors are catalytic bead type \u2014 they burn a sample of the gas to measure it, and that reaction needs ambient oxygen. In an oxygen-deficient atmosphere they read low, so a space can look safe for flammables when it is not. Reading oxygen first tells you whether to trust the combustible reading at all. The explanation lives in the non-mandatory appendix; the ordering requirement itself is in the rule.",
+          "Most combustible-gas sensors are catalytic bead type. They burn a sample of the gas to measure it, and that reaction needs ambient oxygen. In an oxygen-deficient atmosphere they read low, so a space can look safe for flammables when it is not. Reading oxygen first tells you whether to trust the combustible reading at all. The explanation lives in the non-mandatory appendix; the ordering requirement itself is in the rule.",
         tier: "guidance",
         cite: "1910.146 App. B",
       },
@@ -229,7 +229,7 @@ export const sections: SafetySection[] = [
           "Control of atmospheric hazards through forced air ventilation does not constitute elimination of the hazards.",
       },
       {
-        term: "Alternate entry under (c)(5) \u2014 what crews actually use",
+        term: "Alternate entry under (c)(5), which is what crews actually use",
         detail:
           "If the only hazard is atmospheric and continuous forced air ventilation alone is enough to keep the space safe, you may use a lighter procedure instead of a full permit: no written permit and no attendant required. But you owe monitoring data supporting both of those conditions, testing in the mandatory order with a calibrated direct-reading instrument, ventilation from a clean source running the entire time, periodic testing during entry, immediate evacuation and investigation if a hazardous atmosphere shows up, and a signed dated written certification before entry begins.",
         tier: "rule",
@@ -238,14 +238,14 @@ export const sections: SafetySection[] = [
       {
         term: "(c)(5) is off the table the moment there is a second hazard",
         detail:
-          "Engulfment from rising wastewater. A pump that could restart. An unguarded impeller. A converging or tapering configuration. Any one of those means the hazard is not purely atmospheric, and the full permit program applies \u2014 attendant, permit, the whole thing. This is where wet wells most often get mishandled.",
+          "Engulfment from rising wastewater. A pump that could restart. An unguarded impeller. A converging or tapering configuration. Any one of those means the hazard is not purely atmospheric, and the full permit program applies, including the attendant and the permit. This is where wet wells most often get mishandled.",
         tier: "rule",
         cite: "1910.146(c)(5)(i)(A)",
       },
       {
         term: "Reclassification under (c)(7) is a different thing entirely",
         detail:
-          "Reclassifying a space to non-permit status requires that it pose no actual or potential atmospheric hazard and that every hazard inside be eliminated \u2014 not controlled. If entry is needed to eliminate those hazards, that entry happens under the full permit program first. Requires a written, signed, dated certification. If a hazard comes back, everyone exits and the space is reevaluated.",
+          "Reclassifying a space to non-permit status requires that it pose no actual or potential atmospheric hazard and that every hazard inside be eliminated. Controlling them isn't enough. If entry is needed to eliminate those hazards, that entry happens under the full permit program first. Requires a written, signed, dated certification. If a hazard comes back, everyone exits and the space is reevaluated.",
         tier: "rule",
         cite: "1910.146(c)(7)",
       },
@@ -260,7 +260,7 @@ export const sections: SafetySection[] = [
       {
         term: "The attendant stays outside until relieved",
         detail:
-          "The attendant remains outside the permit space during entry operations until relieved by another attendant. Not until the job looks finished, and not until something goes wrong \u2014 until another attendant takes over.",
+          "The attendant remains outside the permit space during entry operations until relieved by another attendant. Not until the job looks finished, and not until something goes wrong. Only until another attendant takes over.",
         tier: "rule",
         cite: "1910.146(i)(4)",
       },
@@ -301,7 +301,7 @@ export const sections: SafetySection[] = [
         cite: "1910.146(k)(3)(i)",
       },
       {
-        term: "You cannot simply assume the fire department is your rescue plan",
+        term: "You can't just assume the fire department is your rescue plan",
         detail:
           "The standard does not forbid using an outside service, but it requires the employer to evaluate a prospective rescue service's ability to respond in a timely manner and to actually perform the rescue, and to inform them of the hazards they may face. An unevaluated phone call is not a rescue plan.",
         tier: "rule",
@@ -360,7 +360,7 @@ export const sections: SafetySection[] = [
       {
         term: "6. Verify isolation before starting work",
         detail:
-          "This is its own mandatory step, separate from and after releasing stored energy. The rule does not prescribe how \u2014 try-start, voltage tester, pressure gauge at zero \u2014 only that verification happens and that the method fits the energy type. Trusting the lock without verifying is the common field failure.",
+          "This is its own mandatory step, separate from and after releasing stored energy. The rule doesn't say how (try-start, voltage tester, pressure gauge at zero). It only requires that verification happens and that the method fits the energy type. Trusting the lock without verifying is the common field failure.",
         tier: "rule",
         cite: "1910.147(d)(6)",
       },
@@ -373,14 +373,14 @@ export const sections: SafetySection[] = [
       {
         term: "Lockout is the default; tagout is the justified exception",
         detail:
-          "If an energy isolating device is capable of being locked out, the employer must use lockout unless they can demonstrate that tagout will provide full employee protection. Tagout on a lockable device requires additional physical measures \u2014 removing an isolating circuit element, blocking a controlling switch, opening an extra disconnect, removing a valve handle \u2014 because the rule treats a tag as inherently weaker than a lock.",
+          "If an energy isolating device is capable of being locked out, the employer must use lockout unless they can demonstrate that tagout will provide full employee protection. Tagout on a lockable device requires additional physical measures: removing an isolating circuit element, blocking a controlling switch, opening an extra disconnect, removing a valve handle. That's because the rule treats a tag as inherently weaker than a lock.",
         tier: "rule",
         cite: "1910.147(c)(2)(ii) \u00b7 (c)(3)",
       },
       {
         term: "\u201cOne employee, one lock, one key\u201d is a shorthand, not a citation",
         detail:
-          "The phrase does not appear in the regulation. What the regulation actually requires for group work is that each authorized employee affix a personal lockout or tagout device to the group lockout device, group lockbox or comparable mechanism when they begin work, and remove it when they stop. Same principle, different wording \u2014 worth knowing if someone asks you to cite it.",
+          "The phrase does not appear in the regulation. What the regulation actually requires for group work is that each authorized employee affix a personal lockout or tagout device to the group lockout device, group lockbox or comparable mechanism when they begin work, and remove it when they stop. It's the same principle in different words, which helps if someone asks you to cite it.",
         tier: "rule",
         cite: "1910.147(f)(3)(ii)(D)",
       },
@@ -415,7 +415,7 @@ export const sections: SafetySection[] = [
       {
         term: "The procedure gets inspected annually",
         detail:
-          "At least annually, by an authorized employee other than the ones using the procedure being inspected \u2014 no self-inspection. Deviations must be corrected, and the employer certifies the inspection identifying the equipment, the date, the employees included, and who performed it.",
+          "At least annually, by an authorized employee other than the ones using the procedure being inspected. No one inspects their own procedure. Deviations must be corrected, and the employer certifies the inspection identifying the equipment, the date, the employees included, and who performed it.",
         tier: "rule",
         cite: "1910.147(c)(6)",
       },
@@ -436,7 +436,7 @@ export const sections: SafetySection[] = [
       {
         term: "Trapped pressure in a force main",
         detail:
-          "A force main segment isolated by closed valves can still hold pressurized wastewater. Double block and bleed \u2014 closing and locking or tagging two in-line valves, then opening and locking or tagging a drain or vent valve between them \u2014 is the standard method. That phrase is defined in the confined space rule and the concept carries directly across.",
+          "A force main segment isolated by closed valves can still hold pressurized wastewater. Double block and bleed (closing and locking or tagging two in-line valves, then opening and locking or tagging a drain or vent valve between them) is the standard method. That phrase is defined in the confined space rule and the concept carries directly across.",
         tier: "practice",
         cite: "concept per 1910.146(b)",
       },
@@ -449,7 +449,7 @@ export const sections: SafetySection[] = [
       {
         term: "Gravity and elevated components",
         detail:
-          "Block or chock anything that can fall or swing \u2014 a raised slide gate, a bar screen, a lifted pump. Restrain it mechanically rather than relying on the hoist.",
+          "Block or chock anything that can fall or swing, like a raised slide gate, a bar screen or a lifted pump. Restrain it mechanically instead of relying on the hoist.",
         tier: "practice",
       },
       {
@@ -473,12 +473,12 @@ export interface SafetyLink {
 
 export const links: SafetyLink[] = [
   {
-    label: "29 CFR 1910.146 \u2014 Permit-Required Confined Spaces",
+    label: "29 CFR 1910.146: Permit-Required Confined Spaces",
     note: "The full rule, including Appendix C's worked sample program titled \u201cSewer entry\u201d and Appendix E on sewer system entry.",
     url: "https://www.ecfr.gov/current/title-29/subtitle-B/chapter-XVII/part-1910/subpart-J/section-1910.146",
   },
   {
-    label: "29 CFR 1910.147 \u2014 The Control of Hazardous Energy",
+    label: "29 CFR 1910.147: The Control of Hazardous Energy",
     note: "Lockout/tagout in full.",
     url: "https://www.ecfr.gov/current/title-29/subtitle-B/chapter-XVII/part-1910/subpart-J/section-1910.147",
   },
@@ -488,12 +488,12 @@ export const links: SafetyLink[] = [
     url: "https://www.osha.gov/stateplans",
   },
   {
-    label: "NIOSH Pocket Guide \u2014 Hydrogen sulfide",
+    label: "NIOSH Pocket Guide: Hydrogen sulfide",
     note: "Exposure limits, IDLH, and the note about smell fatigue.",
     url: "https://www.cdc.gov/niosh/npg/npgd0337.html",
   },
   {
-    label: "NIOSH Alert 86-110 \u2014 Fatalities in Confined Spaces",
+    label: "NIOSH Alert 86-110: Fatalities in Confined Spaces",
     note: "The 1986 Alert behind the rescuer statistic. Sixteen case studies.",
     url: "https://archive.cdc.gov/www_cdc_gov/niosh/docs/86-110/default.html",
   },
