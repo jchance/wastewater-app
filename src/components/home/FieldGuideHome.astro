@@ -16,10 +16,10 @@ const shows = (name: Props["section"]) => !section || section === name;
   {shows("calculators") && (
   <>
   {!section && <p class="section-label">CALCULATORS</p>}
-  {!section && <h2 id="home-heading">Plug in your numbers.</h2>}
+  {!section && <h2 id="home-heading">Calculators that show the math</h2>}
   <p class="home-intro">
-    Calculators that show their work, so the answer comes with the steps
-    you'd write on paper.
+    Put in your numbers and you get the answer with each step under it,
+    the way you'd write it out on paper.
   </p>
 
   <ul class="reference-list with-icons">
@@ -31,7 +31,7 @@ const shows = (name: Props["section"]) => !section || section === name;
         <span class="list-type">CHEMICAL FEED</span>
         <strong>Chemical Dosage</strong>
         <span class="list-desc">
-          Dose and flow in; lb/day, gal/day and a pump setting in mL/min out.
+          Turn a dose and a flow into lb/day, gal/day and a pump setting in mL/min.
         </span>
         <span class="list-arrow" aria-hidden="true">↗</span>
       </a>
@@ -109,7 +109,7 @@ const shows = (name: Props["section"]) => !section || section === name;
         <span class="list-type">JUST FOR FUN</span>
         <strong>Stank Index</strong>
         <span class="list-desc">
-          Pounds of stank per day, nose-blind time and break room clearance. Totally made up.
+          Pounds of stank per day, time until you're nose-blind, and how far from the break room to eat. None of it's real.
         </span>
         <span class="list-arrow" aria-hidden="true">↗</span>
       </a>
@@ -121,18 +121,17 @@ const shows = (name: Props["section"]) => !section || section === name;
   {shows("operator-reference") && (
   <div class="home-section">
     {!section && <p class="section-label">OPERATOR REFERENCE</p>}
-    {!section && <h2>Look it up instead of guessing.</h2>}
+    {!section && <h2>Formulas, units and safety rules</h2>}
     <p class="home-intro">
-      Every formula in US and metric, the twelve wheels worth memorizing, the
-      conversions that make units line up, the abbreviations behind the
-      letters, and the two OSHA rules you cannot afford to get wrong &mdash;
-      all readable on a phone in the field.
+      The exam formulas in US and metric, twelve pie wheels, conversion
+      factors, abbreviations, and OSHA's confined space and lockout/tagout
+      rules. Everything fits on a phone screen.
     </p>
 
     <ul class="reference-list">
       <li>
         <a href="/operator-reference/formulas/">
-          <span class="list-type">FULL SET</span>
+          <span class="list-type">EXAM SHEET</span>
           <strong>Formulas</strong>
           <span class="list-desc">
             Every exam formula in US and metric form, grouped by what you're
@@ -146,8 +145,8 @@ const shows = (name: Props["section"]) => !section || section === name;
           <span class="list-type">DIAGRAMS</span>
           <strong>Pie Wheels</strong>
           <span class="list-desc">
-            Twelve formulas drawn as wheels — cover the piece you want and read
-            off the arithmetic.
+            Twelve formulas drawn as wheels. Cover the piece you want and the
+            rest tells you what to multiply or divide.
           </span>
           <span class="list-arrow" aria-hidden="true">↗</span>
         </a>
@@ -157,7 +156,7 @@ const shows = (name: Props["section"]) => !section || section === name;
           <span class="list-type">UNITS</span>
           <strong>Conversion Factors</strong>
           <span class="list-desc">
-            Interactive quick converter and reference tables to get every term into matching units.
+            A quick converter and tables for getting every term into the same units.
           </span>
           <span class="list-arrow" aria-hidden="true">↗</span>
         </a>
@@ -167,8 +166,8 @@ const shows = (name: Props["section"]) => !section || section === name;
           <span class="list-type">GLOSSARY</span>
           <strong>Abbreviations</strong>
           <span class="list-desc">
-            MLVSS, SSV<sub>30</sub>, SOUR — what the letters on the page
-            actually mean.
+            What MLVSS, SSV<sub>30</sub>, SOUR and the rest of the letters
+            stand for.
           </span>
           <span class="list-arrow" aria-hidden="true">↗</span>
         </a>
@@ -178,8 +177,8 @@ const shows = (name: Props["section"]) => !section || section === name;
           <span class="list-type">SAFETY</span>
           <strong>Confined Space &amp; LOTO</strong>
           <span class="list-desc">
-            The two rules that kill operators most, with the citation behind
-            every line and a straight answer on whether OSHA covers you.
+            OSHA's confined space and lockout/tagout rules, with a citation for
+            every line and whether OSHA covers your utility at all.
           </span>
           <span class="list-arrow" aria-hidden="true">↗</span>
         </a>
@@ -191,13 +190,12 @@ const shows = (name: Props["section"]) => !section || section === name;
   {shows("operator-math") && (
   <div class="home-section">
     {!section && <p class="section-label">OPERATOR MATH</p>}
-    {!section && <h2>Know why the number works.</h2>}
+    {!section && <h2>How the math works</h2>}
     <p class="home-intro">
-      For the days you have to show your work, defend a result, or study for
-      the next license. It all comes back to one relationship between dose,
-      flow and feed rate &mdash; read here as a diagram, then extended into the
-      same math under three different names, the adjustments for demand and
-      purity, and what the pounds cost you.
+      Most chemical math comes back to dose, flow and feed rate. Start with
+      the pie chart, then see the same formula under three names, how demand
+      and purity change the answer, and what the pounds cost. It's handy when
+      you're studying for a license or have to explain a number.
     </p>
 
     <a class="featured-reference" href="/operator-math/davidson-pie-chart/">
@@ -210,7 +208,7 @@ const shows = (name: Props["section"]) => !section || section === name;
         </svg>
       </span>
       <span class="reference-copy">
-        <span class="reference-type">FOUNDATION</span>
+        <span class="reference-type">START HERE</span>
         <strong>Davidson Pie Chart</strong>
         <span>Three worked examples · Feed rate, dose, and flow</span>
       </span>
@@ -223,11 +221,11 @@ const shows = (name: Props["section"]) => !section || section === name;
     <ul class="reference-list">
       <li>
         <a href="/operator-math/three-names/">
-          <span class="list-type">DECODER</span>
+          <span class="list-type">TERMS</span>
           <strong>Three Names, One Formula</strong>
           <span class="list-desc">
-            Feed rate, loading rate and mass — how to tell which one you were
-            handed.
+            Feed rate, loading rate and mass, and how to tell which one a
+            question is asking for.
           </span>
           <span class="list-arrow" aria-hidden="true">↗</span>
         </a>
