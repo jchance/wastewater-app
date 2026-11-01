@@ -269,8 +269,8 @@ const initialNote = (m: MetricDef) =>
     <p>
       A wet well is a measuring tank you already own. If you know its area and
       you watch the water drop a known distance, you know exactly how many
-      gallons the pump moved. Time it, and you have the pump rate — no meter
-      needed.
+      gallons the pump moved. Time it, and you have the pump rate without a
+      meter.
     </p>
     <ul class="checks">
       <li>
@@ -293,7 +293,7 @@ const initialNote = (m: MetricDef) =>
       </li>
       <li>
         <strong>Horsepower</strong> starts with the work the water actually
-        needs — flow times head — then divides by each efficiency in turn.
+        needs (flow times head), then divides by each efficiency in turn.
         The pump loses some, the motor loses some, and what's left is what the
         power bill sees.
       </li>
@@ -313,7 +313,7 @@ const initialNote = (m: MetricDef) =>
         <strong>Measure the well.</strong> Get the inside dimensions, not the
         outside of the structure. A circular well needs the diameter; a
         rectangular one needs length and width. Do this once and write it on
-        the panel — you'll use it for years.
+        the panel. You'll use it for years.
       </li>
       <li>
         <strong>Deal with the incoming flow.</strong> The cleanest test is to
@@ -330,13 +330,13 @@ const initialNote = (m: MetricDef) =>
       </li>
       <li>
         <strong>Time it.</strong> Run one pump, not both. Start the watch when
-        the water passes the upper mark and stop it at the lower mark — not
+        the water passes the upper mark and stop it at the lower mark. Don't go by
         when the pump starts and stops, since there's a lag. Record minutes and
         seconds.
       </li>
       <li>
         <strong>Do it three times.</strong> Average the runs. If one is well
-        off the others, something moved — a check valve, a float, or the
+        off the others, something changed: a check valve, a float, or the
         influent.
       </li>
       <li>
@@ -346,7 +346,7 @@ const initialNote = (m: MetricDef) =>
       </li>
       <li>
         <strong>Write it down and compare.</strong> A drawdown test is only
-        worth something next to the last one. A rate that has quietly fallen
+        worth something next to the last one. A rate that has slowly dropped
         20% is a worn impeller, a partly closed valve or a greased-up force
         main.
       </li>
@@ -356,14 +356,14 @@ const initialNote = (m: MetricDef) =>
   <section class="prose" aria-labelledby="example-heading">
     <h2 id="example-heading">Example: a real 6-foot duplex lift station</h2>
     <p>
-      These are the published design numbers for the <strong>Warwick Park Pump
-      Station (PS-329)</strong> in Sussex County, Delaware — a duplex
-      submersible station serving Gull Point and Warwick Cove, from the
-      engineering calculations filed with DNREC permit WR20250183.
+      The <strong>Warwick Park Pump Station (PS-329)</strong> in Sussex County,
+      Delaware, is a duplex submersible station serving Gull Point and Warwick
+      Cove. These design numbers come from the engineering calculations filed
+      with DNREC permit WR20250183.
     </p>
     <ul class="example-math">
       <li>Wet well: <b>6 ft diameter</b>, circular</li>
-      <li>Lead pump on at <b>−2.50 ft</b>, pumps off at <b>−3.25 ft</b> — a <b>0.75 ft</b> working band</li>
+      <li>Lead pump on at <b>−2.50 ft</b>, pumps off at <b>−3.25 ft</b>, a <b>0.75 ft</b> working band</li>
       <li>Average daily flow <b>70,490 gpd</b>, which is <b>49 gpm</b></li>
       <li>Pump operating point <b>111.5 gpm</b> at <b>36.5 ft</b> of head; design point 104 gpm at 34.42 ft</li>
       <li>Motor: Flygt NP 3127, <b>7.5 hp</b></li>
@@ -374,15 +374,15 @@ const initialNote = (m: MetricDef) =>
       gpm still coming in, the well drops at 111.5 − 49 = 62.5 gpm, so the
       pump-down takes about <b>2 minutes 32 seconds</b>. Run that backwards
       through the calculator and you land on 62.6 gpm gross, plus 49 gpm
-      influent — <b>111.6 gpm</b>, within a tenth of the published operating
+      influent, for <b>111.6 gpm</b>, within a tenth of the published operating
       point.
     </p>
     <p>
-      The cycle tab is where it gets interesting. Filling 158.5 gallons at 49
+      The cycle tab tells you more. Filling 158.5 gallons at 49
       gpm takes 3.24 minutes, the pump-down takes 2.54, so a full cycle is
-      about <b>5.8 minutes</b> — roughly <b>10.4 starts per hour</b>. That is
-      right at the usual ceiling for a motor this size, which is exactly the
-      kind of thing worth checking before you narrow a float band.
+      about <b>5.8 minutes</b>, or roughly <b>10.4 starts per hour</b>. That's
+      right at the usual ceiling for a motor this size, so check it before
+      you narrow a float band.
     </p>
     <p class="example-caveat">
       One caveat on the horsepower tab: the report publishes the flow, head and
@@ -400,8 +400,7 @@ const initialNote = (m: MetricDef) =>
     <p>
       Motor manufacturers publish a maximum number of starts per hour, because
       each start heats the windings and the motor needs the run time to cool.
-      These are common guidelines for submersible sewage pumps — they are not a
-      substitute for the curve and data sheet that came with your pump.
+      These are common guidelines for submersible sewage pumps. They don't replace the curve and data sheet that came with your pump.
     </p>
     <div class="sanity-wrap">
       <table class="sanity">
@@ -435,34 +434,34 @@ const initialNote = (m: MetricDef) =>
           <tr>
             <th scope="col">Number</th>
             <th scope="col">Usually lands near</th>
-            <th scope="col">If it is far off</th>
+            <th scope="col">If it's far off</th>
           </tr>
         </thead>
         <tbody>
           <tr>
             <th scope="row" data-label="Number">Pump rate vs. the pump curve</th>
             <td data-label="Usually lands near">Within about 10% of the curve at your head</td>
-            <td data-label="If it is far off">A radius entered as the diameter makes the volume four times too small. Check the units on the drawing too — some are in inches.</td>
+            <td data-label="If it's far off">A radius entered as the diameter makes the volume four times too small. Check the units on the drawing too, since some are in inches.</td>
           </tr>
           <tr>
             <th scope="row" data-label="Number">Cycle time</th>
             <td data-label="Usually lands near">Rarely under about 5 minutes</td>
-            <td data-label="If it is far off">Short cycling usually means the floats are too close together or the pump is oversized for the flow.</td>
+            <td data-label="If it's far off">Short cycling usually means the floats are too close together or the pump is oversized for the flow.</td>
           </tr>
           <tr>
             <th scope="row" data-label="Number">Wire-to-water efficiency</th>
             <td data-label="Usually lands near">About 45–80%</td>
-            <td data-label="If it is far off">Under 45% points at a worn impeller, a fouled force main, or a pump running far off its best efficiency point.</td>
+            <td data-label="If it's far off">Under 45% points at a worn impeller, a fouled force main, or a pump running far off its best efficiency point.</td>
           </tr>
           <tr>
             <th scope="row" data-label="Number">Total dynamic head</th>
             <td data-label="Usually lands near">Static lift plus friction, so always more than the lift alone</td>
-            <td data-label="If it is far off">Forgetting force main friction makes the horsepower read low. Grease buildup raises real head over the design value.</td>
+            <td data-label="If it's far off">Forgetting force main friction makes the horsepower read low. Grease buildup raises real head over the design value.</td>
           </tr>
           <tr>
             <th scope="row" data-label="Number">Two pumps, two rates</th>
             <td data-label="Usually lands near">Within a few percent of each other</td>
-            <td data-label="If it is far off">A big gap between lead and lag is the most useful thing a drawdown test tells you. Test them separately.</td>
+            <td data-label="If it's far off">A big gap between lead and lag is the main thing a drawdown test can show you. Test them separately.</td>
           </tr>
         </tbody>
       </table>
