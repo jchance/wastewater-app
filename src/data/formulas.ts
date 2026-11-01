@@ -62,7 +62,7 @@ export const domains: Domain[] = [
   {
     id: "geometry",
     name: "Area & Volume",
-    blurb: "Tank and channel geometry — the starting point for most volume math.",
+    blurb: "Tank and channel geometry, where most volume math starts.",
   },
   {
     id: "hydraulics",
