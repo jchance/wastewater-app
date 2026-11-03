@@ -22,6 +22,7 @@ Built with [Astro](https://astro.build) and [Starlight](https://starlight.astro.
 - `src/components/calculators/` – calculator UIs (markup, scoped styles, client script)
 - `src/components/operator-math/` – operator math page bodies and SVG figures
 - `src/lib/` – calculator math and validation (TypeScript, framework-free)
+- `src/pages/og/`, `src/lib/shareImage.ts` – the 1200x630 link preview image for each page, drawn at build time from its title and description
 - `tests/` – Playwright unit and browser tests
 - `src/styles/calculator.css` – shared calculator layout and form styles
 - `src/config/` – site title (`config.json`), header menu (`menu.en.json`), sidebar (`sidebar.json`)

@@ -1,8 +1,23 @@
 ---
-const { head } = Astro.locals.starlightRoute;
+import { getEntry } from "astro:content";
+import { SHARE_IMAGE_HEIGHT, SHARE_IMAGE_WIDTH } from "@/lib/shareImage";
+
+const { head, entry } = Astro.locals.starlightRoute;
+// Built by src/pages/og/[...slug].png.ts. Pages outside the docs collection
+// (the app's section lists) fall back to the home page card.
+const shareImageId = entry.id && (await getEntry("docs", entry.id)) ? entry.id : "index";
+const shareImage = new URL(`/og/${shareImageId}.png`, Astro.site).href;
+const shareImageAlt = `${entry.data.title}, from the Wastewater Field Guide`;
 ---
 
 {head.map(({ tag: Tag, attrs, content }) => <Tag {...attrs} set:html={content} />)}
+<meta property="og:image" content={shareImage} />
+<meta property="og:image:width" content={String(SHARE_IMAGE_WIDTH)} />
+<meta property="og:image:height" content={String(SHARE_IMAGE_HEIGHT)} />
+<meta property="og:image:type" content="image/png" />
+<meta property="og:image:alt" content={shareImageAlt} />
+<meta name="twitter:image" content={shareImage} />
+<meta name="twitter:image:alt" content={shareImageAlt} />
 
 <script is:inline>
   // Registered on every page so the guide keeps working after the operator
