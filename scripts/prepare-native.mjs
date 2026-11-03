@@ -8,13 +8,15 @@ import path from "node:path";
 const OUT = "dist-native";
 
 // The app bundle is already on the device, so it needs no service worker (file
-// or registration), and app launches should not be counted as website visits.
+// or registration), app launches should not be counted as website visits, and
+// nothing in the app is shared as a link, so the og/ preview images go too.
 const WEB_ONLY = [
   "sw.js",
   "CNAME",
   "sitemap-index.xml",
   "sitemap-0.xml",
   "sitepins-manifest.json",
+  "og",
 ];
 const BEACON = /<script\b[^>]*static\.cloudflareinsights\.com[^>]*><\/script>/g;
 const SW_REGISTRATION = /<script>(?:(?!<\/script>)[\s\S])*?serviceWorker\s*\.register\(["']\/sw\.js["']\)[\s\S]*?<\/script>/g;
@@ -53,7 +55,7 @@ if (!existsSync(path.join(OUT, "index.html")) || !existsSync(path.join(OUT, "cal
   process.exit(1);
 }
 
-for (const file of WEB_ONLY) await rm(path.join(OUT, file), { force: true });
+for (const file of WEB_ONLY) await rm(path.join(OUT, file), { force: true, recursive: true });
 
 const pages = await htmlFiles(OUT);
 for (const file of pages) {

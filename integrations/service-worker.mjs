@@ -4,7 +4,7 @@ import { fileURLToPath } from "node:url";
 import path from "node:path";
 
 /** Files that are never worth carrying offline. */
-const SKIP = [/^sitemap/, /\.map$/, /^CNAME$/, /^sitepins-manifest\.json$/];
+const SKIP = [/^og\//, /^sitemap/, /\.map$/, /^CNAME$/, /^sitepins-manifest\.json$/];
 
 async function walk(dir, base = dir) {
   const out = [];

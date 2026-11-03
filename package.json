@@ -29,11 +29,13 @@
     "@capacitor/core": "^8.5.2",
     "@capacitor/ios": "^8.5.2",
     "@capacitor/splash-screen": "^8.0.2",
+    "@fontsource/inter": "^5.3.0",
     "@pagefind/default-ui": "^1.5.2",
     "@tailwindcss/vite": "^4.3.1",
     "astro": "^7.3.5",
     "astro-font": "^1.1.0",
     "marked": "^18.0.5",
+    "satori": "^0.18.4",
     "sharp": "^0.35.2",
     "vite": "^8.1.0"
   },
